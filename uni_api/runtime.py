@@ -27,7 +27,7 @@ from starlette.responses import StreamingResponse as StarletteStreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import FastAPI, HTTPException, Depends, Request, Body, BackgroundTasks, UploadFile, File, Form, Query
 
@@ -11706,7 +11706,8 @@ async def get_stats(
 
 @app.get("/", dependencies=[Depends(rate_limit_dependency)])
 async def root():
-    return RedirectResponse(url="https://uni-api-web.pages.dev", status_code=302)
+    # Minis fork: serve bundled management panel instead of redirecting to upstream site
+    return FileResponse(str(PROJECT_ROOT / "static" / "index.html"))
 
 # async def on_fetch(request, env):
 #     import asgi

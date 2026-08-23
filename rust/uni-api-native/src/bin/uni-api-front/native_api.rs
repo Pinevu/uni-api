@@ -90,7 +90,11 @@ pub async fn handle(
             "text/html; charset=utf-8",
             r#"<!doctype html><meta charset="utf-8"><title>uni-api</title><script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css"><div id="swagger"></div><script>SwaggerUIBundle({url:'/openapi.json',dom_id:'#swagger'})</script>"#,
         )),
-        (&Method::GET, "/") => Some(redirect_response("https://uni-api-web.pages.dev")),
+        (&Method::GET, "/") => Some(text_response(
+            StatusCode::OK,
+            "text/html; charset=utf-8",
+            include_str!("../../../../../static/index.html"),
+        )),
         _ => None,
     };
     if let Some(response) = response.as_mut() {
