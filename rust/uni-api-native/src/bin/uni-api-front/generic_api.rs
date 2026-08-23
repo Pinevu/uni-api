@@ -2024,7 +2024,55 @@ async fn send_attempt(
         && prepared.upstream_stream
     {
         let headers = filtered_response_headers(response.headers());
-        let mut output = Response::new(Body::from_stream(response.bytes_stream()));
+        // Tee the upstream stream: forward every byte downstream while
+        // scanning SSE events for the final usage object, so token
+        // accounting stays correct for passthrough streaming.
+        let (usage_tx, usage_rx) = tokio::sync::oneshot::channel();
+        let (chunk_tx, chunk_rx) = tokio::sync::mpsc::channel::<Result<Bytes, io::Error>>(64);
+        let mut upstream = response.bytes_stream();
+        tokio::spawn(async move {
+            let mut buffer: Vec<u8> = Vec::new();
+            let mut prompt_tokens: i64 = 0;
+            let mut completion_tokens: i64 = 0;
+            while let Some(chunk) = upstream.next().await {
+                match chunk {
+                    Ok(bytes) => {
+                        buffer.extend_from_slice(&bytes);
+                        while let Some(end) = sse_event_boundary(&buffer) {
+                            let event: Vec<u8> = buffer.drain(..end).collect();
+                            if let Some((p, c)) = extract_usage_from_sse(&event) {
+                                prompt_tokens = p;
+                                completion_tokens = c;
+                            }
+                            if chunk_tx.send(Ok(Bytes::from(event))).await.is_err() {
+                                return;
+                            }
+                        }
+                    }
+                    Err(error) => {
+                        let _ = chunk_tx
+                            .send(Err(std::io::Error::other(error)))
+                            .await;
+                        return;
+                    }
+                }
+            }
+            if !buffer.is_empty() {
+                if let Some((p, c)) = extract_usage_from_sse(&buffer) {
+                    prompt_tokens = p;
+                    completion_tokens = c;
+                }
+                let _ = chunk_tx.send(Ok(Bytes::from(buffer))).await;
+            }
+            let _ = usage_tx.send((
+                prompt_tokens,
+                completion_tokens,
+                prompt_tokens.saturating_add(completion_tokens),
+            ));
+        });
+        let mut output = Response::new(Body::from_stream(
+            tokio_stream::wrappers::ReceiverStream::new(chunk_rx),
+        ));
         *output.status_mut() = status;
         *output.headers_mut() = headers;
         output
@@ -2034,7 +2082,7 @@ async fn send_attempt(
             response: output,
             status,
             usage: (0, 0, 0),
-            usage_completion: None,
+            usage_completion: Some(usage_rx),
             upstream_url: prepared.url,
         });
     }
@@ -4947,6 +4995,54 @@ fn positive_duration(value: Option<f64>) -> Option<Duration> {
     value
         .filter(|value| value.is_finite() && *value > 0.0)
         .map(Duration::from_secs_f64)
+}
+
+
+fn sse_event_boundary(buffer: &[u8]) -> Option<usize> {
+    // Accept both LF (\n\n) and CRLF (\r\n\r\n) event separators.
+    let lf = buffer
+        .windows(2)
+        .position(|w| w == b"\n\n")
+        .map(|pos| pos + 2);
+    let crlf = buffer
+        .windows(4)
+        .position(|w| w == b"\r\n\r\n")
+        .map(|pos| pos + 4);
+    match (lf, crlf) {
+        (Some(a), Some(b)) => Some(a.min(b)),
+        (Some(a), None) => Some(a),
+        (None, Some(b)) => Some(b),
+        (None, None) => None,
+    }
+}
+
+fn extract_usage_from_sse(event: &[u8]) -> Option<(i64, i64)> {
+    let text = std::str::from_utf8(event).ok()?;
+    let mut data = String::new();
+    for line in text.lines() {
+        if let Some(value) = line.strip_prefix("data:") {
+            if !data.is_empty() {
+                data.push('\n');
+            }
+            data.push_str(value.trim_start());
+        }
+    }
+    if data.trim().is_empty() || data.trim() == "[DONE]" {
+        return None;
+    }
+    let value: Value = serde_json::from_str(&data).ok()?;
+    let usage = value.get("usage")?;
+    let prompt = usage
+        .get("prompt_tokens")
+        .or_else(|| usage.get("input_tokens"))
+        .and_then(Value::as_i64)
+        .unwrap_or(0);
+    let completion = usage
+        .get("completion_tokens")
+        .or_else(|| usage.get("output_tokens"))
+        .and_then(Value::as_i64)
+        .unwrap_or(0);
+    Some((prompt, completion))
 }
 
 fn usage(value: &Value) -> (i64, i64, i64) {
