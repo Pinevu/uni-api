@@ -1,0 +1,14 @@
+services:
+  uni-api:
+    image: pinevu/uni-api:latest
+    container_name: uni-api
+    restart: always
+    ports:
+      - "3000:8000"
+    environment:
+      - TZ=Asia/Shanghai
+      - UNI_API_RUNTIME=rust
+    volumes:
+      - ./api.yaml:/home/api.yaml
+      - ./static:/home/static
+      - ./data:/home/data
