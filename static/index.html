@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Uni-API 控制台</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0b0f17; --bg2:#111827; --card:#151d2c; --card2:#1a2336;
+  --line:#24304a; --txt:#e5eaf3; --sub:#8b96ad; --acc:#4f8cff; --acc2:#22c55e;
+  --warn:#f59e0b; --err:#ef4444; --r:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+a{color:var(--acc);text-decoration:none}
+/* ---------- login ---------- */
+#login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(1200px 600px at 50% -10%,#182338 0%,var(--bg) 60%)}
+.login-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:36px 32px;width:min(400px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.login-card h1{font-size:20px;margin-bottom:6px}
+.login-card p{color:var(--sub);font-size:13px;margin-bottom:22px}
+.input{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:11px 13px;font-size:14px;outline:none}
+.input:focus{border-color:var(--acc)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--acc);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+.btn:hover{filter:brightness(1.12)}
+.btn.full{width:100%;margin-top:14px}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--sub)}
+.btn.sm{padding:6px 12px;font-size:12.5px;border-radius:8px}
+.btn.danger{background:var(--err)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.hint{margin-top:16px;font-size:12px;color:var(--sub);line-height:1.7}
+.err-msg{color:var(--err);font-size:12.5px;margin-top:10px;display:none}
+/* ---------- layout ---------- */
+#app{max-width:1200px;margin:0 auto;padding:0 16px 60px}
+header{display:flex;align-items:center;justify-content:space-between;padding:16px 2px;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--sub)}
+.brand .dot.ok{background:var(--acc2);box-shadow:0 0 8px var(--acc2)}
+.brand .dot.bad{background:var(--err)}
+.hdr-right{display:flex;align-items:center;gap:8px}
+nav{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:18px;overflow-x:auto}
+nav button{flex:1;min-width:max-content;background:transparent;color:var(--sub);border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--acc);color:#fff}
+section{display:none}
+section.on{display:block;animation:fade .2s}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card h3{font-size:13px;color:var(--sub);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
+.stat .v{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat .s{font-size:12px;color:var(--sub);margin-top:4px}
+.chart-box{position:relative;height:280px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:11.5px;color:var(--sub);text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+td{padding:9px 8px;border-bottom:1px solid rgba(36,48,74,.5);font-size:13px}
+tr:last-child td{border-bottom:none}
+.bar{height:6px;border-radius:4px;background:var(--bg2);overflow:hidden;margin-top:5px;width:110px}
+.bar>i{display:block;height:100%;border-radius:4px}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:600}
+.p-ok{background:rgba(34,197,94,.15);color:var(--acc2)}
+.p-mid{background:rgba(245,158,11,.15);color:var(--warn)}
+.p-bad{background:rgba(239,68,68,.15);color:var(--err)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.toolbar .input{width:auto;min-width:130px}
+textarea.ta{width:100%;min-height:420px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:#cfe3ff;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.55;resize:vertical;outline:none}
+textarea.ta:focus{border-color:var(--acc)}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:11px 20px;border-radius:12px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{color:var(--sub);text-align:center;padding:30px 0;font-size:13px}
+.spin{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:sp .7s linear infinite;display:inline-block;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+details summary{cursor:pointer;color:var(--acc);font-size:13px;padding:6px 0;list-style:none}
+details summary::-webkit-details-marker{display:none}
+@media(max-width:640px){.chart-box{height:220px}.stat .v{font-size:21px}}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-card">
+    <h1>⚡ Uni-API 控制台</h1>
+    <p>输入 api.yaml 中 role: admin 的 API Key 登录</p>
+    <input class="input" id="keyInput" type="password" placeholder="sk-..." autocomplete="off">
+    <div class="err-msg" id="loginErr"></div>
+    <button class="btn full" id="loginBtn">登 录</button>
+    <div class="hint">Key 仅保存在本机浏览器 localStorage，请求时以 Authorization: Bearer 发往面板后端。</div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+    <div class="brand"><span class="dot" id="healthDot"></span>Uni-API 控制台<span class="mono" id="verTag" style="font-weight:400;color:var(--sub);font-size:12px"></span></div>
+    <div class="hdr-right">
+      <button class="btn ghost sm" id="logoutBtn">退出</button>
+    </div>
+  </header>
+
+  <nav id="tabs">
+    <button data-t="overview" class="on">📊 概览</button>
+    <button data-t="channels">🛰 渠道成功率</button>
+    <button data-t="usage">📈 用量</button>
+    <button data-t="config">⚙️ 配置</button>
+    <button data-t="keys">🔑 Key 状态</button>
+  </nav>
+
+  <!-- ============ 概览 ============ -->
+  <section id="tab-overview" class="on">
+    <div class="toolbar">
+      <span style="color:var(--sub);font-size:12.5px">统计范围</span>
+      <select class="input" id="ovDays">
+        <option value="1">今天(24h)</option>
+        <option value="7" selected>近 7 天</option>
+        <option value="14">近 14 天</option>
+        <option value="30">近 30 天</option>
+      </select>
+      <button class="btn sm ghost" id="ovRefresh">刷新</button>
+      <span id="ovLoading"></span>
+    </div>
+    <div class="grid g4" style="margin-bottom:12px">
+      <div class="card stat"><h3>总请求</h3><div class="v" id="stReq">–</div><div class="s" id="stReqSub"></div></div>
+      <div class="card stat"><h3>Total Tokens</h3><div class="v" id="stTok">–</div><div class="s" id="stTokSub"></div></div>
+      <div class="card stat"><h3>Prompt / Completion</h3><div class="v" id="stSplit" style="font-size:19px">–</div><div class="s" id="stSplitSub"></div></div>
+      <div class="card stat"><h3>活跃模型</h3><div class="v" id="stModels">–</div><div class="s" id="stModelsSub"></div></div>
+    </div>
+    <div class="grid g2" style="margin-bottom:12px">
+      <div class="card"><h3>每日 Token 消耗</h3><div class="chart-box"><canvas id="chDaily"></canvas></div></div>
+      <div class="card"><h3>模型分布 (请求数)</h3><div class="chart-box"><canvas id="chModel"></canvas></div></div>
+    </div>
+    <div class="card">
+      <h3>模型排行</h3>
+      <div style="overflow-x:auto"><table id="tbTopModels"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ 渠道成功率 ============ -->
+  <section id="tab-channels">
+    <div class="toolbar">
+      <span style="color:var(--sub);font-size:12.5px">回看时长</span>
+      <select class="input" id="chHours">
+        <option value="6">6 小时</option>
+        <option value="24" selected>24 小时</option>
+        <option value="72">72 小时</option>
+        <option value="168">7 天</option>
+        <option value="720">30 天</option>
+      </select>
+      <button class="btn sm ghost" id="chRefresh">刷新</button>
+      <span id="chLoading"></span>
+    </div>
+    <div class="grid g2" style="margin-bottom:12px">
+      <div class="card"><h3>渠道总成功率</h3><div id="tbChannelsWrap"><table id="tbChannels"></table></div></div>
+      <div class="card"><h3>渠道 × 模型 成功率</h3><div style="overflow-x:auto;max-height:420px;overflow-y:auto"><table id="tbChanModel"></table></div></div>
+    </div>
+    <div class="card" style="margin-bottom:12px"><h3>Key 成功率排行（点上方渠道名查看）</h3><div id="rankBox"><div class="empty">← 点击左侧渠道名称，查看该渠道每个上游 key 的成功率</div></div></div>
+    <div class="grid g2">
+      <div class="card"><h3>端点请求分布</h3><table id="tbEndpoints"></table></div>
+      <div class="card"><h3>来源 IP TOP</h3><table id="tbIps"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ 用量 ============ -->
+  <section id="tab-usage">
+    <div class="card" style="margin-bottom:12px">
+      <h3>筛选</h3>
+      <div class="toolbar" style="margin-bottom:0">
+        <select class="input" id="usDays">
+          <option value="1">今天</option><option value="7" selected>近 7 天</option>
+          <option value="30">近 30 天</option><option value="90">近 90 天</option>
+        </select>
+        <input class="input" id="usModel" placeholder="模型过滤 (可选)">
+        <input class="input" id="usKey" placeholder="API Key 过滤 (admin)" style="min-width:200px">
+        <button class="btn sm" id="usGo">查询</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>用量明细（按 Key × 模型聚合）</h3>
+      <div style="overflow-x:auto"><table id="tbUsage"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ 配置 ============ -->
+  <section id="tab-config">
+    <div class="toolbar">
+      <button class="btn sm ghost" id="cfReload">↺ 重新加载</button>
+      <button class="btn sm ghost" id="cfBackup">⬇ 备份下载</button>
+      <button class="btn sm danger" id="cfSave">💾 保存并热更新 providers</button>
+      <span style="color:var(--sub);font-size:12px">保存仅提交 {"providers":[...]}，立即生效无需重启；api_keys 等其余段只读展示</span>
+    </div>
+    <div class="grid g2" style="grid-template-columns:1.6fr 1fr;align-items:start">
+      <div class="card"><h3>providers 编辑器 (JSON)</h3><textarea class="ta mono" id="cfProviders" spellcheck="false"></textarea></div>
+      <div class="card"><h3>完整配置 (只读)</h3><textarea class="ta mono" id="cfFull" readonly spellcheck="false" style="min-height:520px;font-size:11.5px;color:#7f93b8"></textarea></div>
+    </div>
+  </section>
+
+  <!-- ============ Keys ============ -->
+  <section id="tab-keys">
+    <div class="toolbar">
+      <button class="btn sm ghost" id="ksRefresh">刷新</button>
+    </div>
+    <div class="card" style="margin-bottom:12px"><h3>付费 Key 状态</h3><div id="ksBox"><div class="empty">加载中…</div></div></div>
+    <div class="card"><h3>给 Key 充值</h3>
+      <div class="toolbar" style="margin-bottom:0">
+        <input class="input" id="crKey" placeholder="sk-..." style="min-width:260px">
+        <input class="input" id="crAmt" type="number" step="0.01" min="0.01" placeholder="金额" style="min-width:100px">
+        <button class="btn sm" id="crBtn">充值</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="toast"></div>
+<script>
+/* ================= 基础 ================= */
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const KEY_NAME='uniapi_admin_key';
+let KEY=localStorage.getItem(KEY_NAME)||'';
+const fmt=n=>n==null?'–':Number(n).toLocaleString('zh-CN');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let CH={}; // chart instances
+function toast(msg,ok=true){const t=$('#toast');t.textContent=msg;t.style.borderColor=ok?'var(--line)':'var(--err)';t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),2600);}
+async function api(path){
+  const r=await fetch(path,{headers:{'Authorization':'Bearer '+KEY}});
+  if(r.status===401||r.status===403){logout(true);throw new Error('鉴权失败，请重新登录');}
+  if(!r.ok){let d='';try{d=(await r.json()).detail}catch(e){} throw new Error(d||('HTTP '+r.status));}
+  return r.json();
+}
+function ratePill(p){const pct=(p*100);const cls=pct>=95?'p-ok':pct>=70?'p-mid':'p-bad';
+  return `<span class="pill ${cls}">${pct.toFixed(1)}%</span>`;}
+function drawBar(id,labels,dss,title){
+  if(CH[id])CH[id].destroy();
+  Chart.defaults.color='#8b96ad';Chart.defaults.borderColor='rgba(36,48,74,.6)';
+  CH[id]=new Chart($(id),{type:'bar',data:{labels,datasets:dss},options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:dss.length>1,labels:{boxWidth:10,font:{size:11}}}},
+    scales:{x:{ticks:{font:{size:10.5},maxRotation:45,minRotation:0}},y:{beginAtZero:true,ticks:{font:{size:10.5}}}}}});}
+
+/* ================= 登录/登出 ================= */
+async function tryLogin(k,silent=false){
+  const old=KEY;KEY=k;
+  try{ await api('/v1/stats?hours=1'); localStorage.setItem(KEY_NAME,k); KEY=k;
+    $('#login').style.display='none';$('#app').style.display='block';
+    bootAll();return true;
+  }catch(e){ KEY=old; if(!silent){$('#loginErr').textContent=e.message;$('#loginErr').style.display='block';} return false;}
+}
+function logout(expired=false){localStorage.removeItem(KEY_NAME);KEY='';
+  $('#app').style.display='none';$('#login').style.display='flex';
+  if(expired)toast('登录已过期',false);}
+$('#loginBtn').onclick=()=>{const k=$('#keyInput').value.trim();if(!k)return;$('#loginBtn').disabled=true;
+  tryLogin(k).finally(()=>$('#loginBtn').disabled=false);};
+$('#keyInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click();});
+$('#logoutBtn').onclick=()=>logout();
+
+/* ================= 页签 ================= */
+const visited={};
+$$('#tabs button').forEach(b=>b.onclick=()=>{
+  $$('#tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  $$('section').forEach(s=>s.classList.remove('on'));const t=$('#tab-'+b.dataset.t);t.classList.add('on');
+  if(!visited[b.dataset.t]){
+    visited[b.dataset.t]=true;
+    if(b.dataset.t==='channels')loadChannels();
+    if(b.dataset.t==='usage')loadUsage();
+    if(b.dataset.t==='config')loadConfig();
+    if(b.dataset.t==='keys')loadKeys();
+  }
+});
+
+/* ================= 概览 ================= */
+async function loadOverview(){
+  const days=+$('#ovDays').value; $('#ovLoading').innerHTML='<span class="spin"></span>';
+  try{
+    const agg=(s,e)=>api(`/v1/token_usage?start_datetime=${encodeURIComponent(s)}&end_datetime=${encodeURIComponent(e)}`);
+    const now=new Date(), start=new Date(now-days*864e5);
+    const cur=await agg(start.toISOString(),now.toISOString());
+    const U=cur.usage||[];
+    const req=U.reduce((a,r)=>a+r.request_count,0),
+          pt=U.reduce((a,r)=>a+r.total_prompt_tokens,0),
+          ct=U.reduce((a,r)=>a+r.total_completion_tokens,0),
+          tt=pt+ct, models=new Set(U.map(r=>r.model));
+    $('#stReq').textContent=fmt(req); $('#stReqSub').textContent=`${U.length} 个 key×模型组合`;
+    $('#stTok').textContent=tt>=1e6?(tt/1e6).toFixed(2)+'M':tt>=1e3?(tt/1e3).toFixed(1)+'K':fmt(tt);
+    $('#stTokSub').textContent='prompt '+fmt(pt)+' · completion '+fmt(ct);
+    $('#stSplit').textContent=fmt(pt)+' / '+fmt(ct);
+    const ratio=req?(req/U.filter(r=>r.request_count>0).length):0;
+    $('#stSplitSub').textContent=req?`平均每组合 ${fmt(Math.round(ratio))} 请求`:'';
+    $('#stModels').textContent=models.size; $('#stModelsSub').textContent='时间范围内出现过的模型';
+
+    // 每日序列：逐天查询（并行）
+    const daysArr=[],labels=[],ps=[],cs=[];
+    for(let i=days-1;i>=0;i--){
+      const e=new Date(now-i*864e5), s=new Date(e.getTime()-864e5);
+      daysArr.push({s:s.toISOString(),e:e.toISOString(),label:`${e.getMonth()+1}/${e.getDate()}`});
+    }
+    const daily=await Promise.all(daysArr.map(d=>agg(d.s,d.e).catch(()=>({usage:[]}))));
+    daily.forEach((r,i)=>{const u=r.usage||[];
+      labels.push(daysArr[i].label);
+      ps.push(u.reduce((a,x)=>a+x.total_prompt_tokens,0));
+      cs.push(u.reduce((a,x)=>a+x.total_completion_tokens,0));});
+    drawBar('#chDaily',labels,[
+      {label:'prompt',data:ps,backgroundColor:'rgba(79,140,255,.75)',borderRadius:4},
+      {label:'completion',data:cs,backgroundColor:'rgba(34,197,94,.7)',borderRadius:4}],null);
+
+    // 模型聚合
+    const byModel={};
+    U.forEach(r=>{byModel[r.model]=byModel[r.model]||{c:0,t:0};byModel[r.model].c+=r.request_count;byModel[r.model].t+=r.total_tokens;});
+    const mRows=Object.entries(byModel).sort((a,b)=>b[1].c-a[1].c);
+    drawBar('#chModel',mRows.slice(0,12).map(x=>x[0]),
+      [{label:'请求数',data:mRows.slice(0,12).map(x=>x[1].c),backgroundColor:'rgba(79,140,255,.75)',borderRadius:4}],null);
+
+    let h='<tr><th>模型</th><th>请求</th><th>Tokens</th><th></th></tr>';
+    mRows.forEach(([m,v])=>h+=`<tr><td class="mono">${esc(m)}</td><td>${fmt(v.c)}</td><td>${fmt(v.t)}</td>
+      <td><div class="bar"><i style="width:${Math.max(3,v.c/mRows[0][1].c*100)}%;background:var(--acc)"></i></div></td></tr>`);
+    $('#tbTopModels').innerHTML=h||'<tr><td class="empty">暂无数据</td></tr>';
+  }catch(e){toast(e.message,false);}
+  $('#ovLoading').innerHTML='';
+}
+$('#ovRefresh').onclick=loadOverview; $('#ovDays').onchange=loadOverview;
+
+/* ================= 渠道成功率 ================= */
+async function loadChannels(){
+  const hours=$('#chHours').value; $('#chLoading').innerHTML='<span class="spin"></span>';
+  try{
+    const d=await api('/v1/stats?hours='+hours);
+    const cs=d.channel_success_rates||[];
+    let h='<tr><th>渠道 (点击看 key 排行)</th><th>成功率</th><th>请求</th></tr>';
+    cs.forEach(c=>h+=`<tr><td><a href="javascript:void(0)" onclick="showRank('${esc(c.provider)}')">${esc(c.provider)}</a></td>
+      <td>${ratePill(c.success_rate)}<div class="bar"><i style="width:${(c.success_rate*100).toFixed(1)}%;background:${c.success_rate>=.95?'var(--acc2)':c.success_rate>=.7?'var(--warn)':'var(--err)'}"></i></div></td>
+      <td>${fmt(c.total_requests)}</td></tr>`);
+    $('#tbChannels').innerHTML=h||'<tr><td class="empty">暂无数据（需 DISABLE_DATABASE=false）</td></tr>';
+
+    const cms=d.channel_model_success_rates||[];
+    h='<tr><th>渠道 / 模型</th><th>成功率</th><th>请求</th></tr>';
+    cms.forEach(c=>h+=`<tr><td class="mono">${esc(c.provider)}<br><span style="color:var(--sub)">${esc(c.model)}</span></td>
+      <td>${ratePill(c.success_rate)}</td><td>${fmt(c.total_requests)}</td></tr>`);
+    $('#tbChanModel').innerHTML=h||'<tr><td class="empty">暂无数据</td></tr>';
+
+    const eps=d.endpoint_request_counts||[];
+    h='<tr><th>端点</th><th>次数</th></tr>';
+    eps.forEach(e=>h+=`<tr><td class="mono">${esc(e.endpoint)}</td><td>${fmt(e.count)}</td></tr>`);
+    $('#tbEndpoints').innerHTML=h||'<tr><td class="empty">暂无数据</td></tr>';
+
+    const ips=d.ip_request_counts||[];
+    h='<tr><th>IP</th><th>次数</th></tr>';
+    ips.slice(0,15).forEach(i=>h+=`<tr><td class="mono">${esc(i.client_ip)}</td><td>${fmt(i.count)}</td></tr>`);
+    $('#tbIps').innerHTML=h||'<tr><td class="empty">暂无数据</td></tr>';
+  }catch(e){toast(e.message,false);}
+  $('#chLoading').innerHTML='';
+}
+window.showRank=async p=>{
+  const hours=$('#chHours').value;
+  $('#rankBox').innerHTML='<div class="empty"><span class="spin"></span> 查询中…</div>';
+  try{
+    const now=new Date(),start=new Date(now-hours*3600e3);
+    const d=await api(`/v1/channel_key_rankings?provider_name=${encodeURIComponent(p)}&start_datetime=${encodeURIComponent(start.toISOString())}&end_datetime=${encodeURIComponent(now.toISOString())}`);
+    const rs=d.rankings||[];
+    if(!rs.length){$('#rankBox').innerHTML='<div class="empty">该渠道暂无记录</div>';return;}
+    let h='<table><tr><th>上游 Key</th><th>成功/总数</th><th>成功率</th></tr>';
+    rs.forEach(r=>h+=`<tr><td class="mono">${esc(maskKey(r.api_key))}</td><td>${fmt(r.success_count)} / ${fmt(r.total_requests)}</td><td>${ratePill(r.success_rate)}</td></tr>`);
+    $('#rankBox').innerHTML=h+'</table>';
+  }catch(e){$('#rankBox').innerHTML=`<div class="empty">${esc(e.message)}</div>`;}
+};
+function maskKey(k){if(!k)return'';return String(k).length>14?String(k).slice(0,10)+'…'+String(k).slice(-4):k;}
+$('#chRefresh').onclick=loadChannels; $('#chHours').onchange=loadChannels;
+
+/* ================= 用量 ================= */
+async function loadUsage(){
+  const days=+$('#usDays').value,model=$('#usModel').value.trim(),key=$('#usKey').value.trim();
+  const now=new Date(),start=new Date(now-days*864e5);
+  let q=`?start_datetime=${encodeURIComponent(start.toISOString())}&end_datetime=${encodeURIComponent(now.toISOString())}`;
+  if(model)q+='&model='+encodeURIComponent(model);
+  if(key)q+='&api_key_param='+encodeURIComponent(key);
+  try{
+    const d=await api('/v1/token_usage'+q); const U=d.usage||[];
+    let h='<tr><th>Key</th><th>模型</th><th>请求</th><th>Prompt</th><th>Completion</th><th>Total</th></tr>';
+    U.sort((a,b)=>b.total_tokens-a.total_tokens)
+     .forEach(r=>h+=`<tr><td class="mono">${esc(r.api_key_prefix)}</td><td class="mono">${esc(r.model)}</td>
+      <td>${fmt(r.request_count)}</td><td>${fmt(r.total_prompt_tokens)}</td><td>${fmt(r.total_completion_tokens)}</td><td><b>${fmt(r.total_tokens)}</b></td></tr>`);
+    $('#tbUsage').innerHTML=h||'<tr><td class="empty">无匹配记录</td></tr>';
+    toast(`共 ${U.length} 条记录`);
+  }catch(e){toast(e.message,false);}
+}
+$('#usGo').onclick=loadUsage;
+
+/* ================= 配置 ================= */
+async function loadConfig(){
+  try{
+    const cfg=await api('/v1/api_config');
+    $('#cfProviders').value=JSON.stringify(cfg.api_config?.providers??cfg.providers??[],null,2);
+    $('#cfFull').value=JSON.stringify(cfg.api_config??cfg,null,2);
+    toast('配置已加载');
+  }catch(e){toast(e.message,false);}
+}
+$('#cfReload').onclick=loadConfig;
+$('#cfBackup').onclick=()=>{
+  const blob=new Blob([$('#cfFull').value],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='uni-api-backup-'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.json';a.click();};
+$('#cfSave').onclick=async()=>{
+  let providers;
+  try{providers=JSON.parse($('#cfProviders').value);}
+  catch(e){toast('JSON 解析失败：'+e.message,false);return;}
+  if(!confirm('将用当前编辑器内容整体替换 providers 并热更新，确定？'))return;
+  try{
+    const r=await fetch('/v1/api_config/update',{method:'POST',
+      headers:{'Authorization':'Bearer '+KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({providers})});
+    if(r.status===401||r.status===403){logout(true);return;}
+    if(!r.ok){let d='';try{d=(await r.json()).detail}catch(e){}throw new Error(d||('HTTP '+r.status));}
+    toast('✅ 已热更新，无需重启');loadConfig();
+  }catch(e){toast('保存失败：'+e.message,false);}
+};
+
+/* ================= Keys ================= */
+async function loadKeys(){
+  try{
+    const d=await api('/v1/api_keys_states');
+    $('#ksBox').innerHTML='<pre class="mono" style="white-space:pre-wrap;color:#9fb3d9;font-size:12px">'+esc(JSON.stringify(d,null,2))+'</pre>';
+  }catch(e){$('#ksBox').innerHTML=`<div class="empty">${esc(e.message)}</div>`;}
+}
+$('#ksRefresh').onclick=loadKeys;
+$('#crBtn').onclick=async()=>{
+  const k=$('#crKey').value.trim(),amt=parseFloat($('#crAmt').value);
+  if(!k||!(amt>0)){toast('请填写完整 key 和金额',false);return;}
+  try{
+    const r=await fetch(`/v1/add_credits?paid_key=${encodeURIComponent(k)}&amount=${amt}`,{method:'POST',headers:{'Authorization':'Bearer '+KEY}});
+    if(r.status===401||r.status===403){logout(true);return;}
+    if(!r.ok){let d='';try{d=(await r.json()).detail}catch(e){}throw new Error(d||('HTTP '+r.status));}
+    toast('✅ 充值成功');$('#crKey').value='';$('#crAmt').value='';loadKeys();
+  }catch(e){toast(e.message,false);}
+};
+
+/* ================= 健康检查 & 启动 ================= */
+async function pollHealth(){try{const r=await fetch('/healthz');$('#healthDot').className='dot '+(r.ok?'ok':'bad');}catch(e){$('#healthDot').className='dot bad';}}
+function bootAll(){pollHealth();setInterval(pollHealth,30000);loadOverview();}
+(async function init(){
+  if(KEY&&await tryLogin(KEY,true))return;
+  $('#login').style.display='flex';
+})();
+</script>
+</body>
+</html>
