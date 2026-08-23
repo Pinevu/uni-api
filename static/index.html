@@ -1757,24 +1757,7 @@ function renderUsageFiltered() {
 
   let html = '';
 
-  // (1) 顶部核心指标简报
-  html += `
-    <div class="metrics-3">
-      <div class="metric-card">
-        <div class="metric-title">本期消耗 Tokens</div>
-        <div class="metric-value sm">${totalTokens.toLocaleString()}</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-title">累计调用次数</div>
-        <div class="metric-value sm">${totalReqs.toLocaleString()}</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-title">涉及模型数</div>
-        <div class="metric-value sm">${modelSet}</div>
-      </div>
-    </div>`;
-
-  // (2) 模型用量占比分析排行榜 (Breakdown)
+  // (1) 模型用量占比分析排行榜 (Breakdown)
   if (sortedModels.length > 0) {
     html += `
       <div class="chart-card" style="margin-bottom:14px">
