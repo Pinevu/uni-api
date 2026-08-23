@@ -1433,7 +1433,7 @@ textarea.code-editor:focus {
     const baseOptions = {
       responsive: true,
       maintainAspectRatio: false,
-      animation: { duration: 350 },
+      animation: false,   // 同步绘制，避免 rAF 暂停时图表空白
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: {
