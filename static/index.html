@@ -6,12 +6,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>API HUB</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><rect width='24' height='24' rx='5' fill='%2313151f'/><polygon points='13 4 5 14 12 14 11 20 19 10 12 10 13 4' fill='%236366f1'/></svg>">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg-body: #f5f6fa;
+  --bg-body: #f8fafc;
   --bg-card: #ffffff;
-  --bg-subtle: #f8fafc;
+  --bg-subtle: #f1f5f9;
   --border: #e2e8f0;
   --border-light: #edf2f7;
   --border-focus: #6366f1;
@@ -23,7 +25,7 @@
   --primary: #6366f1;
   --primary-hover: #4f46e5;
   --primary-light: #eef2ff;
-  --primary-glow: rgba(99, 102, 241, 0.18);
+  --primary-glow: rgba(99, 102, 241, 0.2);
 
   --success: #10b981;
   --success-light: #ecfdf5;
@@ -35,18 +37,59 @@
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-xl: 22px;
   --radius-full: 9999px;
 
   --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
   --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 12px 30px -4px rgba(15, 23, 42, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 14px 34px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
 
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --topbar-bg: rgba(255, 255, 255, 0.86);
+  --tabbar-bg: rgba(255, 255, 255, 0.92);
+  --modal-overlay: rgba(15, 23, 42, 0.45);
+  --chart-grid: #f1f5f9;
+  --chart-text: #64748b;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --font-mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, Monaco, monospace;
+  --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-  --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+[data-theme="dark"] {
+  --bg-body: #090d16;
+  --bg-card: #111827;
+  --bg-subtle: #172033;
+  --border: #1f2a40;
+  --border-light: #162032;
+  --border-focus: #818cf8;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+
+  --primary: #818cf8;
+  --primary-hover: #6366f1;
+  --primary-light: rgba(129, 140, 248, 0.14);
+  --primary-glow: rgba(129, 140, 248, 0.28);
+
+  --success: #34d399;
+  --success-light: rgba(52, 211, 153, 0.14);
+  --warning: #fbbf24;
+  --warning-light: rgba(251, 191, 36, 0.14);
+  --danger: #f87171;
+  --danger-light: rgba(248, 113, 113, 0.14);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 16px 44px rgba(0, 0, 0, 0.7);
+
+  --topbar-bg: rgba(9, 13, 22, 0.86);
+  --tabbar-bg: rgba(9, 13, 22, 0.92);
+  --modal-overlay: rgba(0, 0, 0, 0.72);
+  --chart-grid: #1e293b;
+  --chart-text: #94a3b8;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -61,9 +104,16 @@ body {
   padding-bottom: 84px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .mono { font-family: var(--font-mono); }
+
+/* Custom Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ==========================================================================
    Top Header
@@ -73,13 +123,14 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 18px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--topbar-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 40;
+  transition: var(--transition);
 }
 
 .topbar-left {
@@ -97,7 +148,7 @@ body {
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  box-shadow: 0 2px 8px var(--primary-glow);
+  box-shadow: 0 2px 10px var(--primary-glow);
   flex-shrink: 0;
 }
 
@@ -115,16 +166,18 @@ body {
 }
 
 .ping-pill {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  height: 36px;
+  box-sizing: border-box;
   font-size: 12px;
   font-weight: 500;
   color: var(--text-secondary);
   background: var(--bg-subtle);
   border: 1px solid var(--border-light);
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
+  padding: 0 10px;
+  border-radius: var(--radius-md);
 }
 
 .ping-dot {
@@ -142,23 +195,25 @@ body {
 }
 
 .topbar-btn {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
+  box-sizing: border-box;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   background: var(--bg-card);
   color: var(--text-secondary);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .topbar-btn:hover {
   background: var(--bg-subtle);
   color: var(--primary);
-  border-color: var(--border);
+  border-color: var(--primary);
 }
 
 .topbar-btn.danger:hover {
@@ -176,13 +231,14 @@ body {
   left: 0;
   right: 0;
   display: flex;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--tabbar-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border-top: 1px solid var(--border);
   z-index: 50;
   padding-bottom: env(safe-area-inset-bottom);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.04);
+  transition: var(--transition);
 }
 
 .tabbar-item {
@@ -214,7 +270,7 @@ body {
 }
 
 .tabbar-item.active svg {
-  transform: translateY(-1px);
+  transform: translateY(-1.5px);
   stroke: var(--primary);
 }
 
@@ -224,7 +280,7 @@ body {
 .page {
   display: none;
   padding: 16px;
-  max-width: 860px;
+  max-width: 880px;
   margin: 0 auto;
   animation: fade-in 0.22s ease-out;
 }
@@ -255,17 +311,21 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 7px 32px 7px 12px;
-  font-size: 13.5px;
-  font-weight: 500;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 32px 0 14px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-position: right 11px center;
   cursor: pointer;
   font-family: inherit;
   box-shadow: var(--shadow-xs);
   transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
 }
 
 .filter-select:focus {
@@ -292,21 +352,22 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 16px;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 14px;
   border-radius: var(--radius-md);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
   border: 1px solid transparent;
-  font-family: inherit;
-  white-space: nowrap;
   outline: none;
+  user-select: none;
+  font-family: inherit;
+  line-height: 1;
 }
 
-.btn:active {
-  transform: scale(0.97);
-}
+.btn:active { transform: scale(0.97); }
 
 .btn-primary {
   background: var(--primary);
@@ -316,25 +377,20 @@ body {
 
 .btn-primary:hover {
   background: var(--primary-hover);
+  box-shadow: 0 4px 14px var(--primary-glow);
 }
 
 .btn-outline {
   background: var(--bg-card);
-  color: var(--text-secondary);
   border-color: var(--border);
+  color: var(--text-secondary);
   box-shadow: var(--shadow-xs);
 }
 
 .btn-outline:hover {
   background: var(--bg-subtle);
   color: var(--text-primary);
-  border-color: #cbd5e1;
-}
-
-.btn-sm {
-  padding: 6px 12px;
-  font-size: 12.5px;
-  border-radius: var(--radius-sm);
+  border-color: var(--border-focus);
 }
 
 .btn-danger {
@@ -354,6 +410,24 @@ body {
   transform: none !important;
 }
 
+.btn-sm {
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+}
+
+.btn-xs {
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+}
+
 /* ==========================================================================
    Metric Cards Grid
    ========================================================================== */
@@ -364,11 +438,8 @@ body {
   margin-bottom: 16px;
 }
 
-.metrics-3 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
+@media (min-width: 640px) {
+  .metrics-4 { grid-template-columns: repeat(4, 1fr); }
 }
 
 .metric-card {
@@ -376,31 +447,33 @@ body {
   border-radius: var(--radius-lg);
   padding: 16px 18px;
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   transition: var(--transition);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 84px;
+  min-height: 86px;
 }
 
 .metric-card:hover {
   box-shadow: var(--shadow-md);
-  border-color: var(--border);
+  border-color: var(--border-focus);
+  transform: translateY(-1px);
 }
 
 .metric-title {
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-weight: 500;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-weight: 600;
   margin-bottom: 6px;
   letter-spacing: -0.01em;
+  text-transform: uppercase;
 }
 
 .metric-value {
   font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   line-height: 1.15;
@@ -418,6 +491,35 @@ body {
 }
 
 /* ==========================================================================
+   Charts Cards
+   ========================================================================== */
+.chart-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  transition: var(--transition);
+}
+
+.chart-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-focus);
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+
+.chart-container { position: relative; height: 230px; }
+.donut-container { position: relative; height: 240px; }
+
+/* ==========================================================================
    Usage Cards & Breakdown
    ========================================================================== */
 .usage-item-card {
@@ -425,14 +527,14 @@ body {
   border-radius: var(--radius-lg);
   padding: 16px 18px;
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   margin-bottom: 12px;
   transition: var(--transition);
 }
 
 .usage-item-card:hover {
   box-shadow: var(--shadow-md);
-  border-color: var(--border);
+  border-color: var(--border-focus);
 }
 
 .usage-item-header {
@@ -473,7 +575,7 @@ body {
 .progress-bar-wrap {
   width: 100%;
   height: 6px;
-  background: var(--border-light);
+  background: var(--border);
   border-radius: var(--radius-full);
   overflow: hidden;
   margin-top: 6px;
@@ -483,37 +585,7 @@ body {
   height: 100%;
   background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
   border-radius: var(--radius-full);
-  transition: width 0.4s ease;
 }
-
-/* ==========================================================================
-   Chart Cards
-   ========================================================================== */
-.chart-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
-  margin-bottom: 16px;
-  transition: var(--transition);
-}
-
-.chart-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--border);
-}
-
-.chart-title {
-  font-size: 15.5px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 14px;
-  letter-spacing: -0.01em;
-}
-
-.chart-container { position: relative; height: 230px; }
-.donut-container { position: relative; height: 240px; }
 
 /* ==========================================================================
    Channel Cards (渠道卡片)
@@ -523,14 +595,14 @@ body {
   border-radius: var(--radius-lg);
   padding: 18px 20px;
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   margin-bottom: 14px;
   transition: var(--transition);
 }
 
 .ch-card:hover {
   box-shadow: var(--shadow-md);
-  border-color: var(--border);
+  border-color: var(--border-focus);
 }
 
 .ch-top {
@@ -551,7 +623,7 @@ body {
   height: 8px;
   border-radius: 50%;
   background: var(--success);
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
 }
 
 .ch-name {
@@ -636,14 +708,14 @@ body {
   background: var(--primary-light);
   color: var(--primary);
   font-family: var(--font-mono);
-  border: 1px solid rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.16);
   transition: var(--transition);
 }
 
 .tag.green {
   background: var(--success-light);
   color: var(--success);
-  border-color: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.2);
 }
 
 .tag-more {
@@ -667,9 +739,11 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
-  border-radius: var(--radius-md);
-  font-size: 12.5px;
+  height: 30px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
   font-family: var(--font-mono);
   cursor: pointer;
   user-select: none;
@@ -688,7 +762,7 @@ body {
   background: var(--primary);
   color: #ffffff;
   border-color: var(--primary);
-  box-shadow: 0 2px 6px var(--primary-glow);
+  box-shadow: 0 2px 8px var(--primary-glow);
 }
 
 .chip svg {
@@ -709,14 +783,14 @@ body {
   border-radius: var(--radius-lg);
   padding: 18px 20px;
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   margin-bottom: 14px;
   transition: var(--transition);
 }
 
 .key-card:hover {
   box-shadow: var(--shadow-md);
-  border-color: var(--border);
+  border-color: var(--border-focus);
 }
 
 .key-top {
@@ -744,9 +818,11 @@ body {
   background: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 3px;
+  width: 28px;
+  height: 28px;
+  box-sizing: border-box;
   border-radius: var(--radius-sm);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: var(--transition);
@@ -770,9 +846,9 @@ body {
 }
 
 .key-status {
-  padding: 3px 9px;
+  padding: 3px 8px;
   border-radius: var(--radius-full);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   background: var(--success-light);
   color: var(--success);
@@ -788,25 +864,26 @@ body {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  padding-top: 12px;
   margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-light);
 }
 
 /* ==========================================================================
-   Modals & Overlays
+   Modals
    ========================================================================== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--modal-overlay);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 500;
   padding: 16px;
+  transition: var(--transition);
 }
 
 .modal-overlay.show {
@@ -821,7 +898,7 @@ body {
   max-height: 88vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   animation: modal-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -859,7 +936,7 @@ body {
 }
 
 .modal-close:hover {
-  background: #e2e8f0;
+  background: var(--border);
   color: var(--text-primary);
 }
 
@@ -879,15 +956,23 @@ body {
 
 .modal-input {
   width: 100%;
-  padding: 10px 14px;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 12px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--text-primary);
   outline: none;
   transition: var(--transition);
   font-family: inherit;
+}
+
+textarea.modal-input {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 12px;
 }
 
 .modal-input:focus {
@@ -904,7 +989,8 @@ body {
   position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  height: 36px;
 }
 
 .search-input-wrap svg {
@@ -916,19 +1002,23 @@ body {
 
 .search-input {
   width: 100%;
-  padding: 8px 12px 8px 34px;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 12px 0 34px;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  font-size: 12.5px;
+  font-size: 13px;
+  color: var(--text-primary);
   outline: none;
   transition: var(--transition);
   font-family: inherit;
 }
 
 .search-input:focus {
-  background: #fff;
+  background: var(--bg-card);
   border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
 .chips-container {
@@ -942,9 +1032,6 @@ body {
   gap: 6px;
   background: var(--bg-subtle);
 }
-
-.chips-container::-webkit-scrollbar { width: 4px; }
-.chips-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
 
 .modal-actions {
   display: flex;
@@ -961,13 +1048,13 @@ body {
 .login-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.4);
+  background: var(--modal-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 300;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   padding: 16px;
 }
 
@@ -978,7 +1065,7 @@ body {
   width: min(390px, 100%);
   text-align: center;
   box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1011,10 +1098,13 @@ body {
 
 .login-input {
   width: 100%;
-  padding: 12px 16px;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 14px;
+  color: var(--text-primary);
   outline: none;
   transition: var(--transition);
   font-family: inherit;
@@ -1022,15 +1112,17 @@ body {
 }
 
 .login-input:focus {
-  background: #fff;
+  background: var(--bg-card);
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
 .login-btn {
   width: 100%;
+  height: 44px;
+  box-sizing: border-box;
   margin-top: 16px;
-  padding: 11px 16px;
+  padding: 0 16px;
   font-size: 14px;
 }
 
@@ -1042,12 +1134,6 @@ body {
   display: none;
 }
 
-.login-note {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  margin-top: 14px;
-}
-
 /* ==========================================================================
    Toast Notification
    ========================================================================== */
@@ -1056,7 +1142,7 @@ body {
   top: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(-30px);
-  background: rgba(15, 23, 42, 0.92);
+  background: rgba(15, 23, 42, 0.94);
   color: #ffffff;
   padding: 9px 18px;
   border-radius: var(--radius-full);
@@ -1068,7 +1154,7 @@ body {
   pointer-events: none;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1097,17 +1183,18 @@ body {
   text-align: left;
   padding: 10px 12px;
   color: var(--text-muted);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .data-table td {
   padding: 12px;
   border-bottom: 1px solid var(--border-light);
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .data-table tr:last-child td {
@@ -1122,24 +1209,31 @@ body {
 .expiry-presets {
   display: flex;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
 .expiry-btn {
-  padding: 4px 10px;
-  font-size: 11.5px;
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
   border-radius: var(--radius-sm);
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   color: var(--text-secondary);
   cursor: pointer;
   transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .expiry-btn:hover {
   color: var(--primary);
   border-color: var(--primary);
+  background: var(--bg-card);
 }
 
 /* ==========================================================================
@@ -1169,7 +1263,6 @@ body {
     <input class="login-input" id="loginInput" type="password" placeholder="管理员密码" autocomplete="current-password">
     <button class="btn btn-primary login-btn" id="loginBtn">登 录</button>
     <p class="login-err" id="loginErr">鉴权失败，请检查密码</p>
-    <p class="login-note">🔒 密码即为 api.yaml 中 role: admin 的密钥</p>
   </div>
 </div>
 
@@ -1186,6 +1279,9 @@ body {
   </div>
   <div class="topbar-right">
     <div class="ping-pill"><span class="ping-dot"></span><span id="pingText">在线</span></div>
+    <button class="topbar-btn" id="themeToggleBtn" onclick="toggleTheme()" title="切换主题模式">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
     <button class="topbar-btn" onclick="refreshAll()" title="刷新数据">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
     </button>
@@ -1210,7 +1306,7 @@ body {
       刷新
     </button>
   </div>
-  <div class="metrics" id="metricsGrid"></div>
+  <div class="metrics metrics-4" id="metricsGrid"></div>
   <div class="chart-card">
     <div class="chart-title">Token 消耗趋势</div>
     <div class="chart-container"><canvas id="trendChart"></canvas></div>
@@ -1237,7 +1333,7 @@ body {
 </div>
 
 <!-- ==========================================================================
-     PAGE 3: USAGE (用量)
+     PAGE 3: USAGE (用量明细与模型占比分布)
      ========================================================================== -->
 <div class="page" id="page-usage">
   <div class="filter-bar">
@@ -1328,7 +1424,7 @@ body {
 
     <div class="form-group">
       <label class="form-label">渠道标识 / 名称</label>
-      <input class="modal-input" id="chName" placeholder="例: cpa-pool 或 grok2api">
+      <input class="modal-input" id="chName" placeholder="例: CPA 或 grok2api">
     </div>
 
     <div class="form-group">
@@ -1346,18 +1442,18 @@ body {
       <div class="form-label">
         <span>可用模型配置</span>
         <div style="display:flex;gap:6px">
-          <button class="btn btn-outline btn-sm" id="chFetchBtn" onclick="fetchProviderModels()" style="padding:4px 10px;font-size:12px">
+          <button class="btn btn-outline btn-xs" id="chFetchBtn" onclick="fetchProviderModels()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
             一键拉取
           </button>
-          <button class="btn btn-outline btn-sm" onclick="toggleAllChModels()" style="padding:4px 10px;font-size:12px">全选/反选</button>
-          <button class="btn btn-outline btn-sm" onclick="clearAllChModels()" style="padding:4px 8px;font-size:12px">清空</button>
+          <button class="btn btn-outline btn-xs" onclick="toggleAllChModels()">全选/反选</button>
+          <button class="btn btn-outline btn-xs" onclick="clearAllChModels()">清空</button>
         </div>
       </div>
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:12px;color:var(--text-muted)" id="chFetchStatus">填写 Base URL 后可点击「一键拉取」</span>
-        <span class="badge badge-purple" id="chSelectedCount">已选 0 个</span>
+        <span class="badge badge-purple" id="chSelectedCount" style="font-size:11.5px;font-weight:600;color:var(--primary)">已选 0 个</span>
       </div>
 
       <div class="search-input-wrap">
@@ -1388,7 +1484,7 @@ body {
 </div>
 
 <!-- ==========================================================================
-     MODAL: KEY EDITOR (Key 编辑/新建模态框)
+     MODAL: KEY EDITOR (Key 编辑/新建模态框：模型白名单、到期时间)
      ========================================================================== -->
 <div class="modal-overlay" id="keyModal">
   <div class="modal">
@@ -1405,18 +1501,19 @@ body {
         <button class="btn btn-outline btn-sm" id="keyGenerateBtn" onclick="generateRandomKey()" style="flex-shrink:0" title="随机生成标准 32 位 Key">
           🎲 随机生成
         </button>
-        <button class="key-copy" id="keyCopyBtn" onclick="copyText($('#keyCustomInput').value)" style="display:none;padding:8px">
+        <button class="topbar-btn" id="keyCopyBtn" onclick="copyText($('#keyCustomInput').value)" style="display:none;flex-shrink:0" title="复制完整 Key">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
       </div>
     </div>
 
+    <!-- Model Whitelist Section -->
     <div class="form-group">
       <div class="form-label">
         <span>模型授权范围</span>
         <div style="display:flex;gap:6px">
-          <button class="btn btn-outline btn-sm" onclick="toggleAllKeyModels(true)" style="padding:3px 8px;font-size:11.5px">全选</button>
-          <button class="btn btn-outline btn-sm" onclick="toggleAllKeyModels(false)" style="padding:3px 8px;font-size:11.5px">清空</button>
+          <button class="btn btn-outline btn-xs" onclick="toggleAllKeyModels(true)">全选</button>
+          <button class="btn btn-outline btn-xs" onclick="toggleAllKeyModels(false)">清空</button>
         </div>
       </div>
 
@@ -1428,6 +1525,7 @@ body {
       <div class="chips-container" id="keyChipsList"></div>
     </div>
 
+    <!-- Expiration Section -->
     <div class="form-group">
       <label class="form-label">有效期截止时间</label>
       <input class="modal-input" id="keyExpiry" type="datetime-local">
@@ -1440,6 +1538,7 @@ body {
       </div>
     </div>
 
+    <!-- Enabled Toggle -->
     <div class="form-group" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border-light)">
       <div>
         <div style="font-size:13.5px;font-weight:600;color:var(--text-primary)">启用状态</div>
@@ -1463,7 +1562,7 @@ body {
 <script>
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
-let currentKey = localStorage.getItem('uh_key') || '';
+let currentKey = localStorage.getItem('uh_key') || localStorage.getItem('uniapi_admin_key') || '';
 let charts = {};
 let configData = null;
 let chAllModels = [];
@@ -1471,6 +1570,42 @@ let chSelectedSet = new Set();
 let keyAllModels = [];
 let keySelectedSet = new Set();
 let isKeyCreating = false;
+let rawUsageList = [];
+
+/* ===== Theme Engine (Light / Dark) ===== */
+let currentTheme = localStorage.getItem('uh_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+function applyTheme(theme) {
+  currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('uh_theme', theme);
+  updateThemeIcon();
+  
+  // Re-render chart if overview is active
+  if (charts.trend || charts.donut) {
+    const activeTab = $('.tabbar-item.active')?.dataset.tab;
+    if (activeTab === 'overview') loadOverview();
+  }
+}
+
+function toggleTheme() {
+  const next = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  showToast(next === 'dark' ? '已切换至暗色模式 🌙' : '已切换至明亮模式 ☀️');
+}
+
+function updateThemeIcon() {
+  const btn = $('#themeToggleBtn');
+  if (!btn) return;
+  if (currentTheme === 'dark') {
+    btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+  } else {
+    btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+  }
+}
+
+// Initial theme application
+applyTheme(currentTheme);
 
 /* ===== Core API ===== */
 async function api(path, opts = {}) {
@@ -1493,6 +1628,7 @@ $('#loginBtn').onclick = async () => {
     if (d.total_requests !== undefined || d.model_request_counts || d.channel_success_rates) {
       currentKey = k;
       localStorage.setItem('uh_key', k);
+      localStorage.setItem('uniapi_admin_key', k);
       enterApp();
     } else throw new Error();
   } catch (e) {
@@ -1505,6 +1641,7 @@ $('#loginInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('#l
 function logout() {
   currentKey = '';
   localStorage.removeItem('uh_key');
+  localStorage.removeItem('uniapi_admin_key');
   location.reload();
 }
 
@@ -1599,50 +1736,71 @@ async function loadOverview() {
         dayMap[k].comp += Math.round((u.total_completion_tokens || 0) / perDay);
       });
     });
+
     const labels = Object.keys(dayMap);
-    const promptData = labels.map(l => dayMap[l].prompt);
-    const compData = labels.map(l => dayMap[l].comp);
+    const promptData = labels.map(k => dayMap[k].prompt);
+    const compData = labels.map(k => dayMap[k].comp);
+
+    const isDark = currentTheme === 'dark';
+    const gridColor = isDark ? '#1e293b' : '#f1f5f9';
+    const tickColor = isDark ? '#94a3b8' : '#64748b';
 
     if (charts.trend) charts.trend.destroy();
-    const tCtx = $('#trendChart').getContext('2d');
-    charts.trend = new Chart(tCtx, {
+    charts.trend = new Chart($('#trendChart'), {
       type: 'line',
       data: {
         labels,
         datasets: [
-          { label: 'Prompt Tokens', data: promptData, borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.08)', fill: true, tension: 0.35, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: '#6366f1', pointBorderWidth: 2, borderWidth: 2.5 },
-          { label: 'Output Tokens', data: compData, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.06)', fill: true, tension: 0.35, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: '#10b981', pointBorderWidth: 2, borderWidth: 2.5 }
+          { label: 'Prompt', data: promptData, borderColor: '#6366f1', backgroundColor: isDark ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.08)', fill: true, tension: 0.35 },
+          { label: 'Completion', data: compData, borderColor: '#10b981', backgroundColor: isDark ? 'rgba(16,185,129,0.18)' : 'rgba(16,185,129,0.08)', fill: true, tension: 0.35 }
         ]
       },
       options: {
-        responsive: true, maintainAspectRatio: false, animation: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: { backgroundColor: '#fff', titleColor: '#0f172a', bodyColor: '#475569', borderColor: '#e2e8f0', borderWidth: 1, padding: 12, cornerRadius: 10, boxPadding: 4, usePointStyle: true, titleFont: { weight: '700' }, bodyFont: { size: 13 } }
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+          legend: { 
+            position: 'top', 
+            align: 'end', 
+            labels: { boxWidth: 8, color: tickColor, font: { size: 11 } } 
+          } 
         },
         scales: {
-          x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } },
-          y: { grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { color: '#94a3b8', font: { size: 11 } }, beginAtZero: true }
+          x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } },
+          y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } }
         }
       }
     });
 
-    // Donut chart
-    const modelCounts = stats.model_request_counts || [];
-    const donutColors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#3b82f6'];
+    // Donut chart (models)
+    const modelCounts = {};
+    (stats.model_request_counts || []).forEach(m => { modelCounts[m.model] = (modelCounts[m.model] || 0) + m.count; });
+    const sorted = Object.entries(modelCounts).sort((a, b) => b[1] - a[1]);
+    const top = sorted.slice(0, 6);
+    const other = sorted.slice(6).reduce((s, e) => s + e[1], 0);
+    if (other > 0) top.push(['其他', other]);
+
     if (charts.donut) charts.donut.destroy();
-    const dCtx = $('#donutChart').getContext('2d');
-    charts.donut = new Chart(dCtx, {
+    charts.donut = new Chart($('#donutChart'), {
       type: 'doughnut',
       data: {
-        labels: modelCounts.map(m => m.model),
-        datasets: [{ data: modelCounts.map(m => m.count), backgroundColor: donutColors.slice(0, modelCounts.length), borderWidth: 0, hoverOffset: 6 }]
+        labels: top.map(e => e[0]),
+        datasets: [{
+          data: top.map(e => e[1]),
+          backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#94a3b8'],
+          borderColor: isDark ? '#111827' : '#ffffff',
+          borderWidth: 2
+        }]
       },
       options: {
-        responsive: true, maintainAspectRatio: false, animation: false, cutout: '65%',
-        plugins: {
-          legend: { position: 'right', labels: { padding: 14, usePointStyle: true, pointStyle: 'circle', font: { size: 12 }, color: '#475569' } }
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '72%',
+        plugins: { 
+          legend: { 
+            position: 'right', 
+            labels: { boxWidth: 8, color: tickColor, font: { size: 11 } } 
+          } 
         }
       }
     });
@@ -1658,62 +1816,105 @@ async function loadMonitor() {
   try {
     const hours = +$('#monHoursSelect').value;
     const stats = await api('/v1/stats?hours=' + hours);
-    const ch = stats.channel_success_rates || [];
-    const cm = stats.channel_model_success_rates || [];
+    const channels = stats.channel_success_rates || [];
+    const models = stats.channel_model_success_rates || [];
     const ips = stats.ip_request_counts || [];
+    const totalIpReqs = ips.reduce((s, i) => s + (i.count || 0), 0);
 
-    let html = '';
-    ch.forEach(c => {
-      const rate = (c.success_rate * 100).toFixed(1);
-      const color = c.success_rate >= 0.95 ? 'var(--success)' : c.success_rate >= 0.7 ? 'var(--warning)' : 'var(--danger)';
-      const models = cm.filter(m => m.provider === c.provider);
-      html += `
-        <div class="ch-card">
-          <div class="ch-top">
-            <div class="ch-name-row">
-              <span class="key-dot" style="background:${color}"></span>
-              <span class="ch-name">${esc(c.provider)}</span>
-            </div>
-            <div style="text-align:right">
-              <span style="font-size:18px;font-weight:700;color:${color}">${rate}%</span>
-              <div style="font-size:11px;color:var(--text-muted)">${c.total_requests} 次请求</div>
-            </div>
-          </div>
-          <div style="margin-top:10px;border-top:1px solid var(--border-light);padding-top:8px">
-            ${models.map(m => `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12.5px">
-                <span class="mono" style="color:var(--text-secondary)">${esc(m.model)}</span>
-                <span style="color:var(--text-muted)">${m.total_requests} 次 · ${(m.success_rate * 100).toFixed(0)}% 成功</span>
-              </div>`).join('')}
-          </div>
-        </div>`;
-    });
+    let html = `
+      <div class="chart-card">
+        <div class="chart-title">渠道成功率监控</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>渠道名称</th>
+                <th style="text-align:right">请求数</th>
+                <th style="text-align:right">成功率</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${channels.map(c => `
+                <tr>
+                  <td><b>${esc(c.provider)}</b></td>
+                  <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">${c.total_requests}</td>
+                  <td style="text-align:right">
+                    <span class="badge" style="background:var(--success-light);color:var(--success);padding:3px 8px;border-radius:12px;font-size:12px;font-weight:600">
+                      ${(c.success_rate * 100).toFixed(1)}%
+                    </span>
+                  </td>
+                </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">暂无渠道数据</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-    if (ips.length) {
-      html += `
-        <div class="chart-card">
-          <div class="chart-title">请求来源 IP 统计</div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>IP 地址</th><th style="text-align:right">请求次数</th></tr></thead>
-              <tbody>
-                ${ips.map(ip => `<tr><td class="mono" style="font-size:12.5px">${esc(ip.ip)}</td><td style="text-align:right;font-weight:600">${ip.count}</td></tr>`).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>`;
-    }
-    $('#monitorContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无监控数据</div>';
+      <div class="chart-card">
+        <div class="chart-title">模型调用明细</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>渠道 / 模型</th>
+                <th style="text-align:right">请求数</th>
+                <th style="text-align:right">成功率</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${models.map(m => `
+                <tr>
+                  <td><span class="mono">${esc(m.provider)} / <b>${esc(m.model)}</b></span></td>
+                  <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">${m.total_requests}</td>
+                  <td style="text-align:right">
+                    <span class="badge" style="background:var(--success-light);color:var(--success);padding:3px 8px;border-radius:12px;font-size:12px;font-weight:600">
+                      ${(m.success_rate * 100).toFixed(1)}%
+                    </span>
+                  </td>
+                </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">暂无模型数据</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between">
+          <span>客户端 IP 来源统计</span>
+          <span style="font-size:12px;color:var(--text-muted);font-weight:400">${ips.length} 个独立来源</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>客户端 IP</th>
+                <th style="text-align:right">请求次数</th>
+                <th style="text-align:right">占比</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ips.map(ipItem => {
+                const pct = totalIpReqs > 0 ? ((ipItem.count / totalIpReqs) * 100).toFixed(1) : '0.0';
+                return `
+                  <tr>
+                    <td><span class="mono" style="font-weight:600">${esc(ipItem.ip)}</span></td>
+                    <td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${ipItem.count.toLocaleString()} 次</td>
+                    <td style="text-align:right">
+                      <span class="tag" style="font-size:11.5px;font-weight:600">${pct}%</span>
+                    </td>
+                  </tr>`;
+              }).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">暂无 IP 来源数据</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    $('#monitorContent').innerHTML = html;
   } catch (e) {
     showToast('监控加载失败');
   }
 }
 
 /* ==========================================================================
-   PAGE 3: USAGE (增强用量可读性)
+   PAGE 3: USAGE (用量明细与模型占比分布)
    ========================================================================== */
-let rawUsageList = [];
-
 async function loadUsage() {
   try {
     const days = +$('#usDaysSelect').value;
@@ -1741,7 +1942,6 @@ function renderUsageFiltered() {
   // 1. 汇总指标计算
   const totalTokens = usage.reduce((s, u) => s + (u.total_tokens || 0), 0);
   const totalReqs = usage.reduce((s, u) => s + (u.request_count || 0), 0);
-  const modelSet = new Set(usage.map(u => u.model)).size;
 
   // 2. 按模型聚合统计（计算各模型总消耗与占比）
   const modelAggMap = {};
@@ -1757,9 +1957,9 @@ function renderUsageFiltered() {
 
   let html = '';
 
-  // (1) 顶部核心指标简报
+  // (1) 顶部核心指标简报（2个卡片：本期消耗 Tokens 与 累计调用次数）
   html += `
-    <div class="metrics-3">
+    <div class="metrics">
       <div class="metric-card">
         <div class="metric-title">本期消耗 Tokens</div>
         <div class="metric-value sm">${totalTokens.toLocaleString()}</div>
@@ -1767,10 +1967,6 @@ function renderUsageFiltered() {
       <div class="metric-card">
         <div class="metric-title">累计调用次数</div>
         <div class="metric-value sm">${totalReqs.toLocaleString()}</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-title">涉及模型数</div>
-        <div class="metric-value sm">${modelSet}</div>
       </div>
     </div>`;
 
@@ -1848,53 +2044,57 @@ function renderUsageFiltered() {
 }
 
 /* ==========================================================================
-   PAGE 4: CHANNELS & VISUAL EDITOR
+   PAGE 4: CHANNELS (渠道管理)
    ========================================================================== */
 async function loadChannels() {
   try {
-    const resp = await api('/v1/api_config');
-    configData = resp.api_config || resp;
+    const d = await api('/v1/api_config');
+    configData = d.api_config || d;
     const providers = configData.providers || [];
+
     let html = '';
-    providers.forEach((p, i) => {
+    providers.forEach((p, idx) => {
       const models = p.models || p.model || [];
-      const maskedKey = p.api ? p.api.slice(0, 8) + '...' + p.api.slice(-4) : '(无密钥/留空)';
-      const showLimit = 12;
-      const hasMore = models.length > showLimit;
-      const initialList = models.slice(0, showLimit);
+      const showCount = 10;
+      const visible = models.slice(0, showCount);
+      const remaining = models.length - showCount;
 
       html += `
         <div class="ch-card">
           <div class="ch-top">
             <div class="ch-name-row">
               <span class="key-dot"></span>
-              <span class="ch-name">${esc(p.provider || 'Provider ' + (i + 1))}</span>
+              <span class="ch-name">${esc(p.provider)}</span>
             </div>
             <div class="ch-actions">
-              <button class="btn btn-outline btn-sm" onclick="openChannelEditor(${i})">编辑配置</button>
-              <button class="btn btn-sm btn-danger" onclick="removeProvider(${i})" title="删除渠道">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              </button>
+              <button class="btn btn-outline btn-sm" onclick="openChannelEditor(${idx})">编辑</button>
+              <button class="btn btn-sm btn-danger" onclick="removeProvider(${idx})">删除</button>
             </div>
           </div>
 
           <div class="ch-meta-box">
             <div class="ch-meta-row">
               <span class="ch-meta-label">Base URL</span>
-              <span class="ch-meta-val">${esc(p.base_url || '')} <button class="key-copy" onclick="copyText('${esc(p.base_url || '')}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
+              <span class="ch-meta-val">${esc(p.base_url || '系统默认')}</span>
             </div>
             <div class="ch-meta-row">
               <span class="ch-meta-label">API Key</span>
-              <span class="ch-meta-val">${esc(maskedKey)} ${p.api ? `<button class="key-copy" onclick="copyText('${esc(p.api)}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>` : ''}</span>
+              <span class="ch-meta-val">
+                ${esc(p.api ? (p.api.slice(0, 10) + '...' + p.api.slice(-4)) : '无 / 免鉴权')}
+                ${p.api ? `<button class="key-copy" onclick="copyText('${esc(p.api)}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>` : ''}
+              </span>
             </div>
           </div>
 
-          <div class="ch-models-header">
-            <span>支持模型 (${models.length})</span>
+          <div class="ch-models-header" onclick="toggleChModelList(${idx})" style="cursor:pointer;user-select:none;margin-bottom:0;padding:4px 0;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-weight:600;color:var(--text-secondary);font-size:12.5px">可用模型 (${models.length})</span>
+            <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--primary);font-weight:600">
+              <span id="ch-toggle-txt-${idx}">展开</span>
+              <svg id="ch-toggle-icon-${idx}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform 0.2s ease"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
           </div>
-          <div class="tags" id="ch-tags-${i}">
-            ${initialList.map(m => `<span class="tag">${esc(m)}</span>`).join('')}
-            ${hasMore ? `<span class="tag-more" onclick="expandChTags(${i})">+${models.length - showLimit} 更多...</span>` : ''}
+          <div class="tags" id="ch-tags-${idx}" style="display:none;margin-top:10px">
+            ${models.map(m => `<span class="tag">${esc(m)}</span>`).join('')}
           </div>
         </div>`;
     });
@@ -1904,11 +2104,15 @@ async function loadChannels() {
   }
 }
 
-function expandChTags(idx) {
-  const p = configData.providers[idx];
-  if (!p) return;
+function toggleChModelList(idx) {
   const box = $(`#ch-tags-${idx}`);
-  box.innerHTML = (p.models || p.model || []).map(m => `<span class="tag">${esc(m)}</span>`).join('');
+  const txt = $(`#ch-toggle-txt-${idx}`);
+  const icon = $(`#ch-toggle-icon-${idx}`);
+  if (!box) return;
+  const isHidden = box.style.display === 'none';
+  box.style.display = isHidden ? 'flex' : 'none';
+  if (txt) txt.textContent = isHidden ? '收起' : '展开';
+  if (icon) icon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
 function openChannelEditor(i) {
@@ -1930,7 +2134,7 @@ function openChannelEditor(i) {
     const p = configData.providers[i];
     $('#chName').value = p.provider || '';
     $('#chUrl').value = p.base_url || '';
-    $('#chKey').value = p.api || '';
+    $('#chKey').value = Array.isArray(p.api) ? p.api[0] : (p.api || '');
     const models = p.models || p.model || [];
     $('#chModelsManual').value = models.join('\n');
     chSelectedSet = new Set(models);
@@ -2014,7 +2218,6 @@ function resolveModelsUrl(rawUrl) {
   if (!u.startsWith('http://') && !u.startsWith('https://')) {
     u = 'https://' + u;
   }
-  // 去除尾部 /chat/completions 或 /completions 或 /models
   u = u.replace(/\/chat\/completions.*$/i, '')
        .replace(/\/completions.*$/i, '')
        .replace(/\/models.*$/i, '')
@@ -2130,8 +2333,8 @@ async function saveConfig(callback) {
 }
 
 /* ==========================================================================
-   PAGE 5: KEYS & PERMISSIONS
-   ========================================================================== */
+   PAGE 5: KEYS & PERMISSIONS (模型白名单、到期时间、启停状态)
+   ========================================================================= */
 async function loadKeys() {
   try {
     const [statesResp, configResp] = await Promise.all([
@@ -2156,27 +2359,42 @@ async function loadKeys() {
     $('#keyCount').textContent = allKeyList.length + ' 个 API Key';
 
     let html = '';
+    const now = Date.now();
+
     allKeyList.forEach(k => {
       const s = states[k] || {};
       const cfg = apiKeys.find(a => a.api === k);
       const disabled = cfg?.enabled === false || s.disabled === true;
       const models = cfg?.model || cfg?.models || [];
       const isAll = !models.length;
-      const expiry = cfg?.expires_at;
-      const expiryText = expiry ? new Date(expiry * 1000).toLocaleDateString('zh-CN') : '永久有效';
+      const expiry = cfg?.expires_at || (cfg?.preferences?.expires_at ? Math.floor(new Date(cfg.preferences.expires_at).getTime() / 1000) : null);
+      
+      let expiryText = '永久有效';
+      let isExpired = false;
+      if (expiry) {
+        const expMs = expiry * 1000;
+        const diffDays = Math.ceil((expMs - now) / 864e5);
+        if (diffDays <= 0) {
+          isExpired = true;
+          expiryText = `已过期 (${new Date(expMs).toLocaleDateString('zh-CN')})`;
+        } else {
+          expiryText = `剩 ${diffDays} 天 (${new Date(expMs).toLocaleDateString('zh-CN')})`;
+        }
+      }
+
       const prefix = k.length > 16 ? k.slice(0, 8) + '...' + k.slice(-4) : (k.slice(0, 12) + '...');
 
       html += `
         <div class="key-card">
           <div class="key-top">
             <div class="key-name-row">
-              <span class="key-dot" style="background:${disabled ? 'var(--danger)' : 'var(--success)'}"></span>
+              <span class="key-dot" style="background:${disabled || isExpired ? 'var(--danger)' : 'var(--success)'}"></span>
               <span class="key-name">${esc(prefix)}</span>
               <button class="key-copy" onclick="copyText('${esc(k)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
             </div>
             <div class="key-right">
-              <span class="key-expiry">${expiryText}</span>
-              <span class="key-status ${disabled ? 'disabled' : ''}">${disabled ? '已禁用' : '正常'}</span>
+              <span class="key-expiry" style="${isExpired ? 'color:var(--danger);font-weight:600' : ''}">${expiryText}</span>
+              <span class="key-status ${disabled || isExpired ? 'disabled' : ''}">${isExpired ? '已过期' : disabled ? '已禁用' : '正常'}</span>
             </div>
           </div>
 
@@ -2230,7 +2448,7 @@ function openKeyEditor(key) {
     const apiKeys = configData?.api_keys || [];
     const cfg = apiKeys.find(a => a.api === key);
     const models = cfg?.model || cfg?.models || [];
-    const expiry = cfg?.expires_at;
+    const expiry = cfg?.expires_at || (cfg?.preferences?.expires_at ? Math.floor(new Date(cfg.preferences.expires_at).getTime() / 1000) : null);
     const enabled = cfg?.enabled !== false;
 
     $('#keyCustomInput').value = key;
@@ -2328,7 +2546,6 @@ function saveKeyEdit() {
   const expiryStr = $('#keyExpiry').value;
 
   if (isKeyCreating) {
-    // 检查是否重复
     if (configData.api_keys.some(a => a.api === inputKey)) {
       return showToast('该 Key 已存在，请勿重复添加');
     }
@@ -2414,6 +2631,7 @@ if (currentKey) {
     .catch(() => {
       currentKey = '';
       localStorage.removeItem('uh_key');
+      localStorage.removeItem('uniapi_admin_key');
     });
 }
 </script>
