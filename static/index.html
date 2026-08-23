@@ -1208,8 +1208,12 @@ body {
      ========================================================================== -->
 <div class="page" id="page-keys">
   <div class="action-bar">
-    <span style="font-size:13px;font-weight:600;color:var(--text-secondary)" id="keyCount">0 个 Key</span>
+    <button class="btn btn-primary btn-sm" onclick="openKeyEditor('')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      新建 API Key
+    </button>
     <div class="spacer"></div>
+    <span style="font-size:13px;font-weight:600;color:var(--text-secondary)" id="keyCount">0 个 Key</span>
     <button class="btn btn-outline btn-sm" onclick="loadKeys()">刷新</button>
   </div>
   <div id="keysContent"></div>
@@ -1281,7 +1285,7 @@ body {
       </div>
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:12px;color:var(--text-muted)" id="chFetchStatus">点击「一键拉取」可自动同步上游模型</span>
+        <span style="font-size:12px;color:var(--text-muted)" id="chFetchStatus">填写 Base URL 后可点击「一键拉取」</span>
         <span class="badge badge-purple" id="chSelectedCount">已选 0 个</span>
       </div>
 
@@ -1313,18 +1317,27 @@ body {
 </div>
 
 <!-- ==========================================================================
-     MODAL: KEY EDITOR (Key 编辑器)
+     MODAL: KEY EDITOR (Key 编辑/新建模态框)
      ========================================================================== -->
 <div class="modal-overlay" id="keyModal">
   <div class="modal">
     <div class="modal-header">
-      <h3 class="modal-title">配置 API Key 权限</h3>
+      <h3 class="modal-title" id="keyModalTitle">配置 API Key 权限</h3>
       <button class="modal-close" onclick="closeKeyModal()">&times;</button>
     </div>
 
-    <div class="form-group" style="background:var(--bg-subtle);border-radius:var(--radius-md);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
-      <span class="mono" id="keyEditName" style="font-size:13px;font-weight:600;color:var(--text-primary)"></span>
-      <button class="key-copy" onclick="copyText($('#keyEditName').dataset.fullkey)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+    <!-- Key Input / Display Row -->
+    <div class="form-group" id="keyInputGroup">
+      <label class="form-label" id="keyInputLabel">API Key</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="modal-input mono" id="keyCustomInput" placeholder="sk-..." style="flex:1">
+        <button class="btn btn-outline btn-sm" id="keyGenerateBtn" onclick="generateRandomKey()" style="flex-shrink:0" title="随机生成标准 32 位 Key">
+          🎲 随机生成
+        </button>
+        <button class="key-copy" id="keyCopyBtn" onclick="copyText($('#keyCustomInput').value)" style="display:none;padding:8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
     </div>
 
     <div class="form-group">
@@ -1382,10 +1395,11 @@ const $$ = s => document.querySelectorAll(s);
 let currentKey = localStorage.getItem('uh_key') || '';
 let charts = {};
 let configData = null;
-let chAllModels = [];      // 渠道编辑弹窗的模型集合
-let chSelectedSet = new Set(); // 当前选中的模型集合
-let keyAllModels = [];     // Key 编辑弹窗的模型集合
+let chAllModels = [];
+let chSelectedSet = new Set();
+let keyAllModels = [];
 let keySelectedSet = new Set();
+let isKeyCreating = false;
 
 /* ===== Core API ===== */
 async function api(path, opts = {}) {
@@ -1751,7 +1765,7 @@ function openChannelEditor(i) {
     $('#chModelsManual').value = '';
     chAllModels = [];
     chSelectedSet = new Set();
-    $('#chFetchStatus').textContent = '填写 Base URL 后可一键拉取上游模型';
+    $('#chFetchStatus').textContent = '填写 Base URL 后可点击「一键拉取」';
   } else {
     const p = configData.providers[i];
     $('#chName').value = p.provider || '';
@@ -1833,6 +1847,26 @@ function syncManualToChips() {
   renderChChips();
 }
 
+/* 规范化上游 models 请求 URL */
+function resolveModelsUrl(rawUrl) {
+  let u = (rawUrl || '').trim();
+  if (!u) return '';
+  if (!u.startsWith('http://') && !u.startsWith('https://')) {
+    u = 'https://' + u;
+  }
+  // 去除尾部 /chat/completions 或 /completions 或 /models
+  u = u.replace(/\/chat\/completions.*$/i, '')
+       .replace(/\/completions.*$/i, '')
+       .replace(/\/models.*$/i, '')
+       .replace(/\/+$/, '');
+  
+  if (u.endsWith('/v1')) {
+    return u + '/models';
+  } else {
+    return u + '/v1/models';
+  }
+}
+
 async function fetchProviderModels() {
   const url = $('#chUrl').value.trim();
   const key = $('#chKey').value.trim();
@@ -1841,26 +1875,52 @@ async function fetchProviderModels() {
   $('#chFetchBtn').disabled = true;
   $('#chFetchStatus').innerHTML = `<span style="color:var(--primary)">⏳ 正在连接上游拉取模型列表...</span>`;
 
-  try {
-    const modelsUrl = url.replace(/\/chat\/completions.*$/, '').replace(/\/+$/, '') + '/v1/models';
-    const r = await fetch(modelsUrl, {
-      headers: key ? { 'Authorization': 'Bearer ' + key } : {}
-    });
-    const d = await r.json();
-    const fetched = (d.data || d).map(m => m.id || m.name || m).filter(Boolean).sort();
-    if (!fetched.length) throw new Error('返回模型列表为空');
+  const primaryUrl = resolveModelsUrl(url);
+  const fallbackUrl = primaryUrl.endsWith('/v1/models')
+    ? primaryUrl.replace(/\/v1\/models$/, '/models')
+    : primaryUrl.replace(/\/models$/, '/v1/models');
 
-    chAllModels = [...new Set([...chAllModels, ...fetched])].sort();
-    // 默认全部选中新拉取的模型
-    fetched.forEach(m => chSelectedSet.add(m));
+  const urlsToTry = [primaryUrl, fallbackUrl];
+  let lastErr = null;
+  let fetchedModels = [];
+
+  for (const targetUrl of urlsToTry) {
+    try {
+      const headers = { 'Accept': 'application/json' };
+      if (key) headers['Authorization'] = 'Bearer ' + key;
+
+      const r = await fetch(targetUrl, { method: 'GET', headers, mode: 'cors' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const d = await r.json();
+
+      let list = [];
+      if (Array.isArray(d.data)) list = d.data;
+      else if (Array.isArray(d.models)) list = d.models;
+      else if (Array.isArray(d)) list = d;
+
+      const parsed = list.map(m => m.id || m.name || m.model || (typeof m === 'string' ? m : null)).filter(Boolean);
+      if (parsed.length > 0) {
+        fetchedModels = [...new Set(parsed)].sort();
+        break;
+      }
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+
+  if (fetchedModels.length > 0) {
+    chAllModels = [...new Set([...chAllModels, ...fetchedModels])].sort();
+    fetchedModels.forEach(m => chSelectedSet.add(m));
     renderChChips();
     $('#chModelsManual').value = [...chSelectedSet].join('\n');
-    $('#chFetchStatus').innerHTML = `<span style="color:var(--success)">✓ 成功拉取到 ${fetched.length} 个模型</span>`;
-    showToast(`成功拉取到 ${fetched.length} 个模型`);
-  } catch (e) {
-    $('#chFetchStatus').innerHTML = `<span style="color:var(--danger)">拉取失败，请展开下方手动输入</span>`;
-    showToast('拉取失败，可手动输入模型');
+    $('#chFetchStatus').innerHTML = `<span style="color:var(--success)">✓ 成功拉取到 ${fetchedModels.length} 个模型</span>`;
+    showToast(`成功拉取到 ${fetchedModels.length} 个模型`);
+  } else {
+    const reason = lastErr ? (lastErr.message || '网络或跨域异常') : '返回模型列表为空';
+    $('#chFetchStatus').innerHTML = `<span style="color:var(--danger)">拉取失败 (${esc(reason)})，请手动输入</span>`;
+    showToast('拉取失败，请手动展开下方粘贴');
   }
+
   $('#chFetchBtn').disabled = false;
 }
 
@@ -1918,28 +1978,33 @@ async function loadKeys() {
       api('/v1/api_keys_states'),
       api('/v1/api_config')
     ]);
+    configData = configResp.api_config || configResp;
     const states = statesResp.paid_api_keys_states || statesResp.api_keys_states || {};
-    const apiKeys = (configResp.api_config || configResp).api_keys || [];
-    const providers = (configResp.api_config || configResp).providers || [];
+    const apiKeys = configData.api_keys || [];
+    const providers = configData.providers || [];
 
-    // 汇总所有渠道模型
+    // 汇总所有渠道模型供授权选择
     keyAllModels = [];
     providers.forEach(p => { ((p.models || p.model || [])).forEach(m => { if (!keyAllModels.includes(m)) keyAllModels.push(m); }); });
     keyAllModels.sort();
 
-    const keys = Object.keys(states);
-    $('#keyCount').textContent = keys.length + ' 个 API Key';
+    // 联合所有已配置的 Key 与 states Key，排除管理员密码
+    const configuredKeys = apiKeys.map(a => a.api).filter(Boolean);
+    const stateKeys = Object.keys(states);
+    const allKeyList = [...new Set([...configuredKeys, ...stateKeys])].filter(k => k !== 'wuandpl1982//@l');
+
+    $('#keyCount').textContent = allKeyList.length + ' 个 API Key';
 
     let html = '';
-    keys.forEach(k => {
-      const s = states[k];
+    allKeyList.forEach(k => {
+      const s = states[k] || {};
       const cfg = apiKeys.find(a => a.api === k);
-      const disabled = s.disabled || !s.enabled;
+      const disabled = cfg?.enabled === false || s.disabled === true;
       const models = cfg?.model || cfg?.models || [];
       const isAll = !models.length;
       const expiry = cfg?.expires_at;
       const expiryText = expiry ? new Date(expiry * 1000).toLocaleDateString('zh-CN') : '永久有效';
-      const prefix = k.length > 16 ? k.slice(0, 8) + '...' + k.slice(-4) : k.slice(0, 12) + '...';
+      const prefix = k.length > 16 ? k.slice(0, 8) + '...' + k.slice(-4) : (k.slice(0, 12) + '...');
 
       html += `
         <div class="key-card">
@@ -1968,36 +2033,66 @@ async function loadKeys() {
           </div>
         </div>`;
     });
-    $('#keysContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无 API Key</div>';
+    $('#keysContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无 API Key，请点击上方「新建 API Key」</div>';
   } catch (e) {
     showToast('Key 列表加载失败');
   }
 }
 
-function openKeyEditor(key) {
-  const apiKeys = configData?.api_keys || [];
-  const cfg = apiKeys.find(a => a.api === key);
-  const models = cfg?.model || cfg?.models || [];
-  const expiry = cfg?.expires_at;
-  const enabled = cfg?.enabled !== false;
+function generateRandomKey() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let rand = '';
+  for (let i = 0; i < 32; i++) {
+    rand += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  $('#keyCustomInput').value = 'sk-' + rand;
+}
 
-  const prefix = key.length > 16 ? key.slice(0, 8) + '...' + key.slice(-4) : key;
-  $('#keyEditName').textContent = prefix;
-  $('#keyEditName').dataset.fullkey = key;
+function openKeyEditor(key) {
+  isKeyCreating = !key;
+  $('#keyModalTitle').textContent = isKeyCreating ? '新建 API Key' : '配置 API Key 权限';
   $('#keySearchModel').value = '';
 
-  keySelectedSet = new Set(models);
-  renderKeyChips();
-
-  if (expiry) {
-    const d = new Date(expiry * 1000);
-    const local = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + 'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-    $('#keyExpiry').value = local;
-  } else {
+  if (isKeyCreating) {
+    // 新建模式
+    generateRandomKey();
+    $('#keyCustomInput').readOnly = false;
+    $('#keyGenerateBtn').style.display = 'inline-flex';
+    $('#keyCopyBtn').style.display = 'none';
+    $('#keyModal').dataset.fullkey = '';
     $('#keyExpiry').value = '';
+
+    // 默认全选所有可用模型
+    keySelectedSet = new Set(keyAllModels);
+    setKeyEnabledState(true);
+  } else {
+    // 编辑模式
+    const apiKeys = configData?.api_keys || [];
+    const cfg = apiKeys.find(a => a.api === key);
+    const models = cfg?.model || cfg?.models || [];
+    const expiry = cfg?.expires_at;
+    const enabled = cfg?.enabled !== false;
+
+    $('#keyCustomInput').value = key;
+    $('#keyCustomInput').readOnly = true;
+    $('#keyGenerateBtn').style.display = 'none';
+    $('#keyCopyBtn').style.display = 'inline-flex';
+    $('#keyModal').dataset.fullkey = key;
+
+    keySelectedSet = new Set(models.length ? models : keyAllModels);
+
+    if (expiry) {
+      const d = new Date(expiry * 1000);
+      const local = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + 'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      $('#keyExpiry').value = local;
+    } else {
+      $('#keyExpiry').value = '';
+    }
+
+    setKeyEnabledState(enabled);
   }
 
-  setKeyEnabledState(enabled);
+  renderKeyChips();
   $('#keyModal').classList.add('show');
 }
 
@@ -2063,27 +2158,52 @@ function setKeyEnabledState(v) {
 }
 
 function saveKeyEdit() {
-  const key = $('#keyEditName').dataset.fullkey;
-  if (!key || !configData) return;
+  const inputKey = $('#keyCustomInput').value.trim();
+  if (!inputKey) return showToast('API Key 不能为空');
+
+  if (!configData) configData = { providers: [], api_keys: [] };
+  if (!configData.api_keys) configData.api_keys = [];
+
   const models = [...keySelectedSet];
   const expiryStr = $('#keyExpiry').value;
 
-  let cfg = configData.api_keys?.find(a => a.api === key);
-  if (!cfg) {
-    if (!configData.api_keys) configData.api_keys = [];
-    cfg = { api: key };
-    configData.api_keys.push(cfg);
-  }
-  cfg.models = models;
-  cfg.model = models;
-  cfg.enabled = keyIsEnabled;
-  if (expiryStr) {
-    cfg.expires_at = Math.floor(new Date(expiryStr).getTime() / 1000);
+  if (isKeyCreating) {
+    // 检查是否重复
+    if (configData.api_keys.some(a => a.api === inputKey)) {
+      return showToast('该 Key 已存在，请勿重复添加');
+    }
+    const newEntry = {
+      api: inputKey,
+      role: 'user',
+      models: models,
+      model: models,
+      enabled: keyIsEnabled
+    };
+    if (expiryStr) {
+      newEntry.expires_at = Math.floor(new Date(expiryStr).getTime() / 1000);
+    }
+    configData.api_keys.push(newEntry);
   } else {
-    delete cfg.expires_at;
+    const origKey = $('#keyModal').dataset.fullkey;
+    let cfg = configData.api_keys.find(a => a.api === origKey);
+    if (!cfg) {
+      cfg = { api: origKey, role: 'user' };
+      configData.api_keys.push(cfg);
+    }
+    cfg.models = models;
+    cfg.model = models;
+    cfg.enabled = keyIsEnabled;
+    if (expiryStr) {
+      cfg.expires_at = Math.floor(new Date(expiryStr).getTime() / 1000);
+    } else {
+      delete cfg.expires_at;
+    }
   }
 
-  saveConfig(closeKeyModal);
+  saveConfig(() => {
+    closeKeyModal();
+    loadKeys();
+  });
 }
 
 function deleteKey(key) {
