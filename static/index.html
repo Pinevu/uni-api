@@ -364,15 +364,24 @@ body {
   margin-bottom: 16px;
 }
 
+.metrics-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
 .metric-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  padding: 16px;
+  padding: 16px 18px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-light);
   transition: var(--transition);
-  position: relative;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 84px;
 }
 
 .metric-card:hover {
@@ -380,47 +389,102 @@ body {
   border-color: var(--border);
 }
 
-.metric-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
 .metric-title {
   font-size: 13px;
   color: var(--text-secondary);
-  font-weight: 600;
+  font-weight: 500;
+  margin-bottom: 6px;
   letter-spacing: -0.01em;
 }
 
-.badge {
-  padding: 3px 9px;
-  border-radius: var(--radius-full);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.badge-purple { background: var(--primary-light); color: var(--primary); }
-.badge-green { background: var(--success-light); color: var(--success); }
-.badge-orange { background: var(--warning-light); color: var(--warning); }
-
 .metric-value {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   line-height: 1.15;
 }
 
-.metric-value.green { color: var(--success); }
-.metric-value.purple { color: var(--primary); }
-.metric-value .sep { color: var(--text-muted); font-weight: 400; margin: 0 4px; font-size: 20px; }
+.metric-value.sm {
+  font-size: 20px;
+}
+
+.metric-value .sep {
+  color: var(--text-muted);
+  font-weight: 400;
+  margin: 0 4px;
+  font-size: 16px;
+}
+
+/* ==========================================================================
+   Usage Cards & Breakdown
+   ========================================================================== */
+.usage-item-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  margin-bottom: 12px;
+  transition: var(--transition);
+}
+
+.usage-item-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border);
+}
+
+.usage-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.usage-item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 12.5px;
+}
+
+.usage-grid-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.usage-grid-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.usage-grid-val {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: var(--border-light);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
+}
 
 /* ==========================================================================
    Chart Cards
@@ -1182,7 +1246,14 @@ body {
       <option value="7" selected>最近 7 天</option>
       <option value="30">最近 30 天</option>
     </select>
-    <button class="btn btn-outline btn-sm" onclick="loadUsage()">刷新</button>
+    <button class="btn btn-outline btn-sm" onclick="loadUsage()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      刷新
+    </button>
+  </div>
+  <div class="search-input-wrap" style="margin-bottom:14px">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="search-input" id="usSearchInput" placeholder="按模型名称或 Key 前缀搜索..." oninput="renderUsageFiltered()">
   </div>
   <div id="usageContent"></div>
 </div>
@@ -1493,26 +1564,24 @@ async function loadOverview() {
     const totalTokens = usage.reduce((s, u) => s + (u.total_tokens || 0), 0);
     const totalPrompt = usage.reduce((s, u) => s + (u.total_prompt_tokens || 0), 0);
     const totalComp = usage.reduce((s, u) => s + (u.total_completion_tokens || 0), 0);
-    const avgTokens = totalReqs ? Math.round(totalTokens / totalReqs) : 0;
     const activeModels = new Set(stats.model_request_counts?.map(m => m.model)).size;
-    const keyGroups = new Set(usage.map(u => u.api_key_prefix)).size;
 
     $('#metricsGrid').innerHTML = `
       <div class="metric-card">
-        <div class="metric-header"><span class="metric-title">总请求数</span><span class="badge badge-purple">${keyGroups} 组统计</span></div>
+        <div class="metric-title">总请求数</div>
         <div class="metric-value">${totalReqs.toLocaleString()}</div>
       </div>
       <div class="metric-card">
-        <div class="metric-header"><span class="metric-title">TOKENS 消耗</span><span class="badge badge-green">总计</span></div>
-        <div class="metric-value green">${totalTokens.toLocaleString()}</div>
+        <div class="metric-title">TOKENS 消耗</div>
+        <div class="metric-value">${totalTokens.toLocaleString()}</div>
       </div>
       <div class="metric-card">
-        <div class="metric-header"><span class="metric-title">输入 / 输出</span><span class="badge badge-purple">均次 ${avgTokens} tokens</span></div>
-        <div class="metric-value">${totalPrompt.toLocaleString()}<span class="sep">/</span>${totalComp.toLocaleString()}</div>
+        <div class="metric-title">输入 / 输出</div>
+        <div class="metric-value sm">${totalPrompt.toLocaleString()}<span class="sep">/</span>${totalComp.toLocaleString()}</div>
       </div>
       <div class="metric-card">
-        <div class="metric-header"><span class="metric-title">活跃模型</span><span class="badge badge-purple">可用</span></div>
-        <div class="metric-value purple">${activeModels}</div>
+        <div class="metric-title">活跃模型</div>
+        <div class="metric-value">${activeModels}</div>
       </div>`;
 
     // Trend chart (line)
@@ -1641,50 +1710,141 @@ async function loadMonitor() {
 }
 
 /* ==========================================================================
-   PAGE 3: USAGE
+   PAGE 3: USAGE (增强用量可读性)
    ========================================================================== */
+let rawUsageList = [];
+
 async function loadUsage() {
   try {
     const days = +$('#usDaysSelect').value;
     const start = new Date(Date.now() - days * 864e5);
     const resp = await api('/v1/token_usage?start_datetime=' + start.toISOString() + '&end_datetime=' + new Date().toISOString());
-    const usage = resp.usage || [];
-    if (!usage.length) {
-      $('#usageContent').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无用量明细数据</div>';
-      return;
-    }
-    let html = `
-      <div class="chart-card">
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Key 前缀</th>
-                <th>模型</th>
-                <th style="text-align:right">请求次数</th>
-                <th style="text-align:right">Prompt</th>
-                <th style="text-align:right">Output</th>
-                <th style="text-align:right">总 Tokens</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${usage.map(u => `
-                <tr>
-                  <td class="mono" style="font-size:12px;color:var(--text-muted)">${esc(u.api_key_prefix)}</td>
-                  <td><span class="tag">${esc(u.model)}</span></td>
-                  <td style="text-align:right;font-variant-numeric:tabular-nums">${u.request_count}</td>
-                  <td style="text-align:right;font-variant-numeric:tabular-nums;color:var(--text-secondary)">${(u.total_prompt_tokens || 0).toLocaleString()}</td>
-                  <td style="text-align:right;font-variant-numeric:tabular-nums;color:var(--text-secondary)">${(u.total_completion_tokens || 0).toLocaleString()}</td>
-                  <td style="text-align:right;font-weight:700;color:var(--primary);font-variant-numeric:tabular-nums">${(u.total_tokens || 0).toLocaleString()}</td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>`;
-    $('#usageContent').innerHTML = html;
+    rawUsageList = resp.usage || [];
+    renderUsageFiltered();
   } catch (e) {
     showToast('用量加载失败');
   }
+}
+
+function renderUsageFiltered() {
+  const query = ($('#usSearchInput')?.value || '').trim().toLowerCase();
+  const usage = rawUsageList.filter(u => {
+    if (!query) return true;
+    return (u.model || '').toLowerCase().includes(query) || (u.api_key_prefix || '').toLowerCase().includes(query);
+  });
+
+  if (!rawUsageList.length) {
+    $('#usageContent').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">所选时间范围内暂无用量数据</div>';
+    return;
+  }
+
+  // 1. 汇总指标计算
+  const totalTokens = usage.reduce((s, u) => s + (u.total_tokens || 0), 0);
+  const totalReqs = usage.reduce((s, u) => s + (u.request_count || 0), 0);
+  const modelSet = new Set(usage.map(u => u.model)).size;
+
+  // 2. 按模型聚合统计（计算各模型总消耗与占比）
+  const modelAggMap = {};
+  usage.forEach(u => {
+    const m = u.model || 'unknown';
+    if (!modelAggMap[m]) modelAggMap[m] = { tokens: 0, requests: 0, prompt: 0, comp: 0 };
+    modelAggMap[m].tokens += (u.total_tokens || 0);
+    modelAggMap[m].requests += (u.request_count || 0);
+    modelAggMap[m].prompt += (u.total_prompt_tokens || 0);
+    modelAggMap[m].comp += (u.total_completion_tokens || 0);
+  });
+  const sortedModels = Object.entries(modelAggMap).sort((a, b) => b[1].tokens - a[1].tokens);
+
+  let html = '';
+
+  // (1) 顶部核心指标简报
+  html += `
+    <div class="metrics-3">
+      <div class="metric-card">
+        <div class="metric-title">本期消耗 Tokens</div>
+        <div class="metric-value sm">${totalTokens.toLocaleString()}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">累计调用次数</div>
+        <div class="metric-value sm">${totalReqs.toLocaleString()}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">涉及模型数</div>
+        <div class="metric-value sm">${modelSet}</div>
+      </div>
+    </div>`;
+
+  // (2) 模型用量占比分析排行榜 (Breakdown)
+  if (sortedModels.length > 0) {
+    html += `
+      <div class="chart-card" style="margin-bottom:14px">
+        <div class="chart-title">各模型消耗占比与分布</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          ${sortedModels.map(([modelName, d]) => {
+            const pct = totalTokens > 0 ? ((d.tokens / totalTokens) * 100).toFixed(1) : '0.0';
+            return `
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span class="tag">${esc(modelName)}</span>
+                    <span style="color:var(--text-muted);font-size:12px">${d.requests} 次调用</span>
+                  </div>
+                  <div style="font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums">
+                    ${d.tokens.toLocaleString()} <span style="font-size:11px;color:var(--text-muted);font-weight:400">(${pct}%)</span>
+                  </div>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" style="width:${Math.max(2, pct)}%"></div>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
+  // (3) 调用记录明细 (移动端卡片流)
+  html += `
+    <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin:16px 0 10px;display:flex;align-items:center;justify-content:space-between">
+      <span>调用明细 (${usage.length})</span>
+      <span style="font-size:12px;color:var(--text-muted);font-weight:400">按 Key 与模型归类</span>
+    </div>`;
+
+  if (!usage.length) {
+    html += '<div style="text-align:center;padding:30px;color:var(--text-muted)">未找到匹配的用量记录</div>';
+  } else {
+    usage.forEach(u => {
+      const pRatio = u.total_tokens > 0 ? Math.round((u.total_prompt_tokens / u.total_tokens) * 100) : 0;
+      const cRatio = 100 - pRatio;
+      html += `
+        <div class="usage-item-card">
+          <div class="usage-item-header">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tag">${esc(u.model)}</span>
+              <span class="mono" style="font-size:12px;color:var(--text-muted)">${esc(u.api_key_prefix)}</span>
+            </div>
+            <div style="font-size:16px;font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums">
+              ${(u.total_tokens || 0).toLocaleString()} <span style="font-size:11px;font-weight:400;color:var(--text-muted)">Tokens</span>
+            </div>
+          </div>
+          <div class="usage-item-grid">
+            <div class="usage-grid-cell">
+              <span class="usage-grid-label">请求次数</span>
+              <span class="usage-grid-val">${u.request_count} 次</span>
+            </div>
+            <div class="usage-grid-cell">
+              <span class="usage-grid-label">Prompt (输入)</span>
+              <span class="usage-grid-val">${(u.total_prompt_tokens || 0).toLocaleString()} <small style="color:var(--text-muted);font-weight:400">(${pRatio}%)</small></span>
+            </div>
+            <div class="usage-grid-cell">
+              <span class="usage-grid-label">Output (输出)</span>
+              <span class="usage-grid-val">${(u.total_completion_tokens || 0).toLocaleString()} <small style="color:var(--text-muted);font-weight:400">(${cRatio}%)</small></span>
+            </div>
+          </div>
+        </div>`;
+    });
+  }
+
+  $('#usageContent').innerHTML = html;
 }
 
 /* ==========================================================================
