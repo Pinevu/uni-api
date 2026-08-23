@@ -9,153 +9,1096 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg: #f4f4f7;
-  --card: #ffffff;
-  --border: #e8e8ed;
-  --text: #1a1a2e;
-  --text2: #6b6b80;
-  --text3: #a0a0b2;
-  --accent: #5E5CE6;
-  --accent-bg: #ededfc;
-  --green: #34C759;
-  --green-bg: #e6f9ed;
-  --red: #FF3B30;
-  --tag-bg: #eef3ff;
-  --tag-text: #5E5CE6;
-  --shadow: 0 1px 3px rgba(0,0,0,0.06);
-  --r: 14px;
-  --transition: all 0.2s ease;
+  --bg-body: #f5f6fa;
+  --bg-card: #ffffff;
+  --bg-subtle: #f8fafc;
+  --border: #e2e8f0;
+  --border-light: #edf2f7;
+  --border-focus: #6366f1;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-light: #eef2ff;
+  --primary-glow: rgba(99, 102, 241, 0.18);
+
+  --success: #10b981;
+  --success-light: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-light: #fffbeb;
+  --danger: #ef4444;
+  --danger-light: #fef2f2;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 30px -4px rgba(15, 23, 42, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, Monaco, monospace;
+
+  --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif; font-size:14px; line-height:1.5; min-height:100vh; padding-bottom:72px; -webkit-font-smoothing:antialiased; }
 
-/* Top Bar */
-.topbar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; }
-.topbar-left { display:flex; align-items:center; gap:10px; }
-.topbar-logo { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#5E5CE6,#7B78FF); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
-.topbar-logo svg { width:16px; height:16px; }
-.topbar-brand { font-size:16px; font-weight:700; letter-spacing:-0.02em; }
-.topbar-ver { font-size:11px; color:var(--text3); background:var(--bg); padding:2px 8px; border-radius:8px; }
-.topbar-right { display:flex; align-items:center; gap:8px; }
-.ping-pill { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--text2); background:var(--bg); padding:4px 10px; border-radius:10px; }
-.ping-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); }
-.topbar-btn { width:32px; height:32px; border-radius:10px; border:none; background:var(--bg); color:var(--text2); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:var(--transition); }
-.topbar-btn:hover { background:#e5e5ea; }
-.topbar-btn.danger { color:var(--red); }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-/* Tab Bar */
-.tabbar { position:fixed; bottom:0; left:0; right:0; display:flex; background:#fff; border-top:1px solid var(--border); z-index:50; padding-bottom:env(safe-area-inset-bottom); }
-.tabbar-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 0 6px; font-size:10px; color:var(--text3); cursor:pointer; transition:var(--transition); border:none; background:none; }
-.tabbar-item.active { color:var(--accent); }
-.tabbar-item svg { width:22px; height:22px; }
+body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  padding-bottom: 84px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-/* Page */
-.page { display:none; padding:12px 16px; }
-.page.active { display:block; }
+.mono { font-family: var(--font-mono); }
 
-/* Filter Bar */
-.filter-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.filter-select { appearance:none; -webkit-appearance:none; background:#fff; border:1px solid var(--border); border-radius:10px; padding:8px 28px 8px 12px; font-size:14px; color:var(--text); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b6b80' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; cursor:pointer; font-family:inherit; }
-.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; transition:var(--transition); border:none; font-family:inherit; }
-.btn:active { transform:scale(0.97); }
-.btn-primary { background:var(--accent); color:#fff; box-shadow:0 2px 8px rgba(94,92,230,0.25); }
-.btn-outline { background:#fff; color:var(--text); border:1px solid var(--border); }
-.btn-sm { padding:6px 12px; font-size:12px; }
+/* ==========================================================================
+   Top Header
+   ========================================================================== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
 
-/* Metric Cards */
-.metrics { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
-.metric-card { background:var(--card); border-radius:var(--r); padding:14px 16px; box-shadow:var(--shadow); }
-.metric-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.metric-title { font-size:13px; color:var(--text2); font-weight:500; }
-.badge { padding:3px 10px; border-radius:8px; font-size:11px; font-weight:600; }
-.badge-purple { background:var(--accent-bg); color:var(--accent); }
-.badge-green { background:var(--green-bg); color:var(--green); }
-.metric-value { font-size:28px; font-weight:700; letter-spacing:-0.03em; font-variant-numeric:tabular-nums; color:var(--text); line-height:1.1; }
-.metric-value.green { color:var(--green); }
-.metric-value.purple { color:var(--accent); }
-.metric-value .sep { color:var(--text3); font-weight:400; margin:0 4px; }
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-/* Chart Card */
-.chart-card { background:var(--card); border-radius:var(--r); padding:18px; box-shadow:var(--shadow); margin-bottom:14px; }
-.chart-title { font-size:16px; font-weight:700; margin-bottom:14px; }
-.chart-container { position:relative; height:240px; }
-.donut-container { position:relative; height:260px; display:flex; align-items:center; }
+.topbar-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--primary-glow);
+  flex-shrink: 0;
+}
 
-/* Key Card */
-.key-card { background:var(--card); border-radius:var(--r); padding:18px; box-shadow:var(--shadow); margin-bottom:12px; }
-.key-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-.key-name-row { display:flex; align-items:center; gap:8px; }
-.key-dot { width:8px; height:8px; border-radius:50%; background:var(--green); }
-.key-name { font-size:15px; font-weight:600; font-family:"SF Mono",Menlo,monospace; }
-.key-copy { border:none; background:none; color:var(--text3); cursor:pointer; padding:2px; }
-.key-right { display:flex; align-items:center; gap:8px; }
-.key-expiry { font-size:12px; color:var(--text3); }
-.key-status { padding:3px 10px; border-radius:8px; font-size:11px; font-weight:600; background:var(--green-bg); color:var(--green); }
-.key-balance { margin-bottom:10px; }
-.key-balance-label { font-size:13px; color:var(--text2); }
-.key-balance-amount { font-size:22px; font-weight:700; color:var(--green); }
-.key-models-label { font-size:12px; color:var(--text3); margin-bottom:6px; }
-.tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
-.tag { padding:4px 10px; border-radius:8px; font-size:12px; background:var(--tag-bg); color:var(--tag-text); font-weight:500; }
-.tag.green { background:var(--green-bg); color:var(--green); }
-.key-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding-top:10px; border-top:1px solid var(--border); }
+.topbar-brand {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
 
-/* Channel Card */
-.ch-card { background:var(--card); border-radius:var(--r); padding:18px; box-shadow:var(--shadow); margin-bottom:12px; }
-.ch-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-.ch-name-row { display:flex; align-items:center; gap:8px; }
-.ch-name { font-size:16px; font-weight:700; color:var(--accent); }
-.ch-actions { display:flex; align-items:center; gap:8px; }
-.ch-url { font-size:13px; color:var(--text2); margin-bottom:6px; word-break:break-all; }
-.ch-key-row { display:flex; align-items:center; gap:6px; margin-bottom:12px; }
-.ch-key { font-size:13px; color:var(--text3); font-family:"SF Mono",Menlo,monospace; }
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-/* Action bar */
-.action-bar { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
-.action-bar .spacer { flex:1; }
-.btn-danger { color:var(--red); }
+.ping-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
 
-/* Login */
-.login-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(8px); }
-.login-card { background:#fff; border-radius:20px; padding:32px 24px; width:min(380px,90vw); text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.15); }
-.login-icon { width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg,#5E5CE6,#7B78FF); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; color:#fff; }
-.login-title { font-size:20px; font-weight:700; margin-bottom:6px; }
-.login-desc { font-size:13px; color:var(--text2); margin-bottom:20px; }
-.login-input { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:12px; font-size:14px; outline:none; transition:var(--transition); font-family:inherit; }
-.login-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(94,92,230,0.15); }
-.login-btn { width:100%; margin-top:14px; }
-.login-err { color:var(--red); font-size:12px; margin-top:10px; display:none; }
-.login-note { font-size:11px; color:var(--text3); margin-top:12px; }
+.ping-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  animation: pulse-dot 2s infinite ease-in-out;
+}
 
-/* Toast */
-.toast { position:fixed; top:60px; left:50%; transform:translateX(-50%) translateY(-20px); background:rgba(30,30,40,0.9); color:#fff; padding:10px 20px; border-radius:12px; font-size:13px; font-weight:500; opacity:0; transition:all 0.3s ease; z-index:300; pointer-events:none; backdrop-filter:blur(8px); }
-.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
 
-/* Modal */
-.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(4px); }
-.modal-overlay.show { display:flex; }
-.modal { background:#fff; border-radius:18px; padding:24px; width:min(400px,90vw); box-shadow:0 20px 60px rgba(0,0,0,0.15); }
-.modal-title { font-size:17px; font-weight:700; margin-bottom:16px; }
-.modal-input { width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:14px; outline:none; margin-bottom:10px; font-family:inherit; }
-.modal-input:focus { border-color:var(--accent); }
-.modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }
+.topbar-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
 
-/* JSON editor */
-.json-editor { width:100%; min-height:400px; background:#f8f8fc; border:1px solid var(--border); border-radius:12px; padding:14px; font-family:"SF Mono",Menlo,monospace; font-size:12px; line-height:1.6; resize:vertical; outline:none; color:var(--text); }
-.json-editor:focus { border-color:var(--accent); }
+.topbar-btn:hover {
+  background: var(--bg-subtle);
+  color: var(--primary);
+  border-color: var(--border);
+}
 
-@media(min-width:768px) {
-  .page { max-width:800px; margin:0 auto; }
+.topbar-btn.danger:hover {
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+  background: var(--danger-light);
+}
+
+/* ==========================================================================
+   Bottom Navigation Bar
+   ========================================================================== */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  z-index: 50;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.tabbar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 0 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  background: none;
+  position: relative;
+}
+
+.tabbar-item svg {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.2s ease, stroke 0.2s ease;
+}
+
+.tabbar-item.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.tabbar-item.active svg {
+  transform: translateY(-1px);
+  stroke: var(--primary);
+}
+
+/* ==========================================================================
+   Page Container
+   ========================================================================== */
+.page {
+  display: none;
+  padding: 16px;
+  max-width: 860px;
+  margin: 0 auto;
+  animation: fade-in 0.22s ease-out;
+}
+
+.page.active {
+  display: block;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   Action & Filter Toolbars
+   ========================================================================== */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 10px;
+}
+
+.filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 7px 32px 7px 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: var(--shadow-xs);
+  transition: var(--transition);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.action-bar .spacer { flex: 1; }
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid transparent;
+  font-family: inherit;
+  white-space: nowrap;
+  outline: none;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn-outline {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border-color: var(--border);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-outline:hover {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border-color: #cbd5e1;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12.5px;
+  border-radius: var(--radius-sm);
+}
+
+.btn-danger {
+  color: var(--danger);
+  background: transparent;
+  border-color: transparent;
+}
+
+.btn-danger:hover {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ==========================================================================
+   Metric Cards Grid
+   ========================================================================== */
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border);
+}
+
+.metric-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.metric-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.badge {
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.badge-purple { background: var(--primary-light); color: var(--primary); }
+.badge-green { background: var(--success-light); color: var(--success); }
+.badge-orange { background: var(--warning-light); color: var(--warning); }
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  line-height: 1.15;
+}
+
+.metric-value.green { color: var(--success); }
+.metric-value.purple { color: var(--primary); }
+.metric-value .sep { color: var(--text-muted); font-weight: 400; margin: 0 4px; font-size: 20px; }
+
+/* ==========================================================================
+   Chart Cards
+   ========================================================================== */
+.chart-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  margin-bottom: 16px;
+  transition: var(--transition);
+}
+
+.chart-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border);
+}
+
+.chart-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+
+.chart-container { position: relative; height: 230px; }
+.donut-container { position: relative; height: 240px; }
+
+/* ==========================================================================
+   Channel Cards (渠道卡片)
+   ========================================================================== */
+.ch-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  margin-bottom: 14px;
+  transition: var(--transition);
+}
+
+.ch-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border);
+}
+
+.ch-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ch-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.key-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+.ch-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.ch-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ch-meta-box {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.ch-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  gap: 8px;
+}
+
+.ch-meta-row:not(:last-child) {
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.ch-meta-label {
+  color: var(--text-muted);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.ch-meta-val {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  word-break: break-all;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ch-models-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Model Tags & Chips
+   ========================================================================== */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-family: var(--font-mono);
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  transition: var(--transition);
+}
+
+.tag.green {
+  background: var(--success-light);
+  color: var(--success);
+  border-color: rgba(16, 185, 129, 0.15);
+}
+
+.tag-more {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.tag-more:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Interactive Chips for Modals */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.chip.selected {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 6px var(--primary-glow);
+}
+
+.chip svg {
+  width: 14px;
+  height: 14px;
+  display: none;
+}
+
+.chip.selected svg {
+  display: inline-block;
+}
+
+/* ==========================================================================
+   Key Cards
+   ========================================================================== */
+.key-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  margin-bottom: 14px;
+  transition: var(--transition);
+}
+
+.key-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border);
+}
+
+.key-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.key-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.key-name {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.key-copy {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.key-copy:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.key-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.key-expiry {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.key-status {
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.key-status.disabled {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.key-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 12px;
+  margin-top: 14px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ==========================================================================
+   Modals & Overlays
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 16px;
+}
+
+.modal-overlay.show {
+  display: flex !important;
+}
+
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  width: min(540px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-light);
+  animation: modal-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  background: #e2e8f0;
+  color: var(--text-primary);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  color: var(--text-primary);
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.modal-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.modal-input.mono {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.search-input-wrap svg {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px 8px 34px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.search-input:focus {
+  background: #fff;
+  border-color: var(--primary);
+}
+
+.chips-container {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--bg-subtle);
+}
+
+.chips-container::-webkit-scrollbar { width: 4px; }
+.chips-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ==========================================================================
+   Login Sheet
+   ========================================================================== */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 16px;
+}
+
+.login-card {
+  background: var(--bg-card);
+  border-radius: 24px;
+  padding: 36px 28px;
+  width: min(390px, 100%);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-light);
+  animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  color: #ffffff;
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+
+.login-title {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.login-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 22px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+  background: var(--bg-subtle);
+}
+
+.login-input:focus {
+  background: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 11px 16px;
+  font-size: 14px;
+}
+
+.login-err {
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 10px;
+  display: none;
+}
+
+.login-note {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 14px;
+}
+
+/* ==========================================================================
+   Toast Notification
+   ========================================================================== */
+.toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-30px);
+  background: rgba(15, 23, 42, 0.92);
+  color: #ffffff;
+  padding: 9px 18px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 600;
+  pointer-events: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   Tables & Lists
+   ========================================================================== */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 10px 12px;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: var(--bg-subtle);
+}
+
+/* Quick Expiry Selector */
+.expiry-presets {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.expiry-btn {
+  padding: 4px 10px;
+  font-size: 11.5px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.expiry-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 640px) {
+  .page { padding: 12px 14px; }
+  .metrics { gap: 10px; }
+  .metric-card { padding: 14px; }
+  .metric-value { font-size: 24px; }
+  .chart-card { padding: 14px 16px; }
+  .ch-card, .key-card { padding: 16px; }
+  .modal { padding: 18px 16px; border-radius: var(--radius-lg); }
 }
 </style>
 </head>
 <body>
 
-<!-- Login -->
+<!-- Login Modal -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-card">
     <div class="login-icon">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <h1 class="login-title">API HUB 管理面板</h1>
     <p class="login-desc">输入管理员密码访问控制台</p>
@@ -166,31 +1109,42 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
   </div>
 </div>
 
-<!-- Toast -->
+<!-- Global Toast -->
 <div class="toast" id="toast"></div>
 
-<!-- Top Bar -->
+<!-- Top Fixed Bar -->
 <header class="topbar" id="topbar" style="display:none">
   <div class="topbar-left">
-    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <div class="topbar-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
     <span class="topbar-brand">API HUB</span>
   </div>
   <div class="topbar-right">
     <div class="ping-pill"><span class="ping-dot"></span><span id="pingText">在线</span></div>
-    <button class="topbar-btn" onclick="refreshAll()" title="刷新"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg></button>
-    <button class="topbar-btn danger" onclick="logout()" title="退出"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg></button>
+    <button class="topbar-btn" onclick="refreshAll()" title="刷新数据">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+    </button>
+    <button class="topbar-btn danger" onclick="logout()" title="退出登录">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+    </button>
   </div>
 </header>
 
-<!-- Pages -->
+<!-- ==========================================================================
+     PAGE 1: OVERVIEW (概览)
+     ========================================================================== -->
 <div class="page active" id="page-overview">
   <div class="filter-bar">
     <select class="filter-select" id="hoursSelect" onchange="loadOverview()">
-      <option value="24">24 小时</option>
-      <option value="168" selected>7 天</option>
-      <option value="720">30 天</option>
+      <option value="24">最近 24 小时</option>
+      <option value="168" selected>最近 7 天</option>
+      <option value="720">最近 30 天</option>
     </select>
-    <button class="btn btn-outline btn-sm" onclick="loadOverview()">刷新</button>
+    <button class="btn btn-outline btn-sm" onclick="loadOverview()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      刷新
+    </button>
   </div>
   <div class="metrics" id="metricsGrid"></div>
   <div class="chart-card">
@@ -203,33 +1157,45 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
   </div>
 </div>
 
+<!-- ==========================================================================
+     PAGE 2: MONITOR (监控)
+     ========================================================================== -->
 <div class="page" id="page-monitor">
   <div class="filter-bar">
     <select class="filter-select" id="monHoursSelect" onchange="loadMonitor()">
-      <option value="24">24 小时</option>
-      <option value="168" selected>7 天</option>
-      <option value="720">30 天</option>
+      <option value="24">最近 24 小时</option>
+      <option value="168" selected>最近 7 天</option>
+      <option value="720">最近 30 天</option>
     </select>
     <button class="btn btn-outline btn-sm" onclick="loadMonitor()">刷新</button>
   </div>
   <div id="monitorContent"></div>
 </div>
 
+<!-- ==========================================================================
+     PAGE 3: USAGE (用量)
+     ========================================================================== -->
 <div class="page" id="page-usage">
   <div class="filter-bar">
     <select class="filter-select" id="usDaysSelect" onchange="loadUsage()">
-      <option value="1">1 天</option>
-      <option value="7" selected>7 天</option>
-      <option value="30">30 天</option>
+      <option value="1">最近 1 天</option>
+      <option value="7" selected>最近 7 天</option>
+      <option value="30">最近 30 天</option>
     </select>
     <button class="btn btn-outline btn-sm" onclick="loadUsage()">刷新</button>
   </div>
   <div id="usageContent"></div>
 </div>
 
+<!-- ==========================================================================
+     PAGE 4: CHANNELS (渠道管理)
+     ========================================================================== -->
 <div class="page" id="page-channels">
   <div class="action-bar">
-    <button class="btn btn-primary btn-sm" onclick="openChannelEditor(-1)">+ 添加渠道</button>
+    <button class="btn btn-primary btn-sm" onclick="openChannelEditor(-1)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      添加渠道
+    </button>
     <div class="spacer"></div>
     <button class="btn btn-outline btn-sm" onclick="loadChannels()">重载</button>
     <button class="btn btn-primary btn-sm" onclick="saveConfig()">保存生效</button>
@@ -237,98 +1203,175 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
   <div id="channelsContent"></div>
 </div>
 
+<!-- ==========================================================================
+     PAGE 5: KEYS (API Key 管理)
+     ========================================================================== -->
 <div class="page" id="page-keys">
   <div class="action-bar">
-    <button class="btn btn-primary btn-sm" onclick="showToast('请在 api.yaml 中添加 key 后刷新')">+ 新建 Key</button>
+    <span style="font-size:13px;font-weight:600;color:var(--text-secondary)" id="keyCount">0 个 Key</span>
     <div class="spacer"></div>
-    <span style="font-size:13px;color:var(--text2)" id="keyCount">0 个 Key</span>
     <button class="btn btn-outline btn-sm" onclick="loadKeys()">刷新</button>
   </div>
   <div id="keysContent"></div>
 </div>
 
-<!-- Tab Bar -->
+<!-- ==========================================================================
+     Bottom Tab Navigation
+     ========================================================================== -->
 <nav class="tabbar" id="tabbar" style="display:none">
   <button class="tabbar-item active" data-tab="overview">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
     <span>概览</span>
   </button>
   <button class="tabbar-item" data-tab="monitor">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 12h2m4 0h2m4 0h2m4 0h2"/><path d="M4 8l2 4-2 4"/><path d="M12 6l2 6-2 6"/><path d="M20 4l2 8-2 8"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h2m4 0h2m4 0h2m4 0h2"/><path d="M4 8l2 4-2 4"/><path d="M12 6l2 6-2 6"/><path d="M20 4l2 8-2 8"/></svg>
     <span>监控</span>
   </button>
   <button class="tabbar-item" data-tab="usage">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
     <span>用量</span>
   </button>
   <button class="tabbar-item" data-tab="channels">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     <span>渠道</span>
   </button>
   <button class="tabbar-item" data-tab="keys">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
     <span>API Key</span>
   </button>
 </nav>
 
-<!-- Channel Editor Modal -->
+<!-- ==========================================================================
+     MODAL: CHANNEL EDITOR (渠道可视化编辑器)
+     ========================================================================== -->
 <div class="modal-overlay" id="chModal">
-  <div class="modal" style="max-height:85vh;overflow-y:auto">
-    <div class="modal-title" id="chModalTitle">添加渠道</div>
-    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">渠道名称</label>
-    <input class="modal-input" id="chName" placeholder="例: cpa-pool">
-    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">API Base URL</label>
-    <input class="modal-input" id="chUrl" placeholder="https://api.example.com/v1">
-    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">API Key</label>
-    <input class="modal-input" id="chKey" placeholder="sk-...">
-    <div style="display:flex;align-items:center;gap:8px;margin:12px 0 8px">
-      <button class="btn btn-outline btn-sm" id="chFetchBtn" onclick="fetchProviderModels()">🔍 拉取模型</button>
-      <span style="font-size:12px;color:var(--text3)" id="chFetchStatus"></span>
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="chModalTitle">编辑渠道</h3>
+      <button class="modal-close" onclick="closeChModal()">&times;</button>
     </div>
-    <div id="chModelsBox" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <label style="font-size:12px;color:var(--text2)">可用模型</label>
-        <button class="btn btn-sm" style="background:none;color:var(--accent);font-size:11px;padding:2px 6px" onclick="toggleAllChModels()">全选/反选</button>
+
+    <div class="form-group">
+      <label class="form-label">渠道标识 / 名称</label>
+      <input class="modal-input" id="chName" placeholder="例: cpa-pool 或 grok2api">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">API Base URL</label>
+      <input class="modal-input mono" id="chUrl" placeholder="https://api.example.com/v1">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">API Key / Token</label>
+      <input class="modal-input mono" id="chKey" type="text" placeholder="sk-... 或留空">
+    </div>
+
+    <!-- Models Config Section -->
+    <div class="form-group" style="margin-top:20px;border-top:1px solid var(--border-light);padding-top:16px">
+      <div class="form-label">
+        <span>可用模型配置</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-sm" id="chFetchBtn" onclick="fetchProviderModels()" style="padding:4px 10px;font-size:12px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+            一键拉取
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="toggleAllChModels()" style="padding:4px 10px;font-size:12px">全选/反选</button>
+          <button class="btn btn-outline btn-sm" onclick="clearAllChModels()" style="padding:4px 8px;font-size:12px">清空</button>
+        </div>
       </div>
-      <div id="chModelsList" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;display:flex;flex-wrap:wrap;gap:6px"></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:12px;color:var(--text-muted)" id="chFetchStatus">点击「一键拉取」可自动同步上游模型</span>
+        <span class="badge badge-purple" id="chSelectedCount">已选 0 个</span>
+      </div>
+
+      <div class="search-input-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="chSearchModel" placeholder="搜索模型名称..." oninput="filterChModels()">
+      </div>
+
+      <div class="chips-container" id="chChipsList">
+        <div style="text-align:center;width:100%;color:var(--text-muted);font-size:12px;padding:14px 0">暂无模型列表，请点击「一键拉取」或手动添加</div>
+      </div>
     </div>
-    <div style="margin-top:8px">
-      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">或手动输入模型（每行一个）</label>
-      <textarea class="modal-input" id="chModelsManual" rows="4" style="resize:vertical;font-size:12px;font-family:monospace" placeholder="模型名称&#10;模型名称2"></textarea>
+
+    <!-- Manual Textarea (Collapsible) -->
+    <div class="form-group" style="margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;cursor:pointer" onclick="$('#chManualWrap').style.display = $('#chManualWrap').style.display==='none'?'block':'none'">
+        <span style="font-size:12px;color:var(--text-secondary);font-weight:600">批量粘贴 / 手动输入模型 ▼</span>
+      </div>
+      <div id="chManualWrap" style="display:none;margin-top:6px">
+        <textarea class="modal-input mono" id="chModelsManual" rows="3" placeholder="每行一个模型名称，输入后失焦会自动同步到上方芯片列表" onblur="syncManualToChips()"></textarea>
+      </div>
     </div>
+
     <div class="modal-actions">
       <button class="btn btn-outline btn-sm" onclick="closeChModal()">取消</button>
-      <button class="btn btn-primary btn-sm" onclick="saveChannel()">保存</button>
+      <button class="btn btn-primary btn-sm" onclick="saveChannel()">保存渠道</button>
     </div>
   </div>
 </div>
 
-<!-- Key Editor Modal -->
+<!-- ==========================================================================
+     MODAL: KEY EDITOR (Key 编辑器)
+     ========================================================================== -->
 <div class="modal-overlay" id="keyModal">
-  <div class="modal" style="max-height:85vh;overflow-y:auto">
-    <div class="modal-title">编辑 API Key</div>
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
-      <span class="key-name" id="keyEditName" style="font-size:14px"></span>
-      <button class="key-copy" onclick="copyText($('#keyEditName').textContent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">配置 API Key 权限</h3>
+      <button class="modal-close" onclick="closeKeyModal()">&times;</button>
     </div>
-    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">授权模型</label>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <span style="font-size:12px;color:var(--text3)" id="keyModelHint"></span>
-      <button class="btn btn-sm" style="background:none;color:var(--accent);font-size:11px;padding:2px 6px" onclick="toggleAllKeyModels()">全选/反选</button>
+
+    <div class="form-group" style="background:var(--bg-subtle);border-radius:var(--radius-md);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+      <span class="mono" id="keyEditName" style="font-size:13px;font-weight:600;color:var(--text-primary)"></span>
+      <button class="key-copy" onclick="copyText($('#keyEditName').dataset.fullkey)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
     </div>
-    <div id="keyModelsList" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
-    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">过期时间</label>
-    <input class="modal-input" id="keyExpiry" type="datetime-local">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-      <label style="font-size:12px;color:var(--text2)">启用状态</label>
-      <div id="keyEnabled" style="width:44px;height:26px;border-radius:13px;background:var(--green);cursor:pointer;position:relative;transition:var(--transition)">
-        <div style="width:22px;height:22px;border-radius:50%;background:#fff;position:absolute;top:2px;left:20px;transition:var(--transition);box-shadow:0 1px 3px rgba(0,0,0,0.2)"></div>
+
+    <div class="form-group">
+      <div class="form-label">
+        <span>模型授权范围</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-sm" onclick="toggleAllKeyModels(true)" style="padding:3px 8px;font-size:11.5px">全选</button>
+          <button class="btn btn-outline btn-sm" onclick="toggleAllKeyModels(false)" style="padding:3px 8px;font-size:11.5px">清空</button>
+        </div>
       </div>
-      <span style="font-size:12px;color:var(--text2)" id="keyEnabledLabel">已启用</span>
+
+      <div class="search-input-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="keySearchModel" placeholder="搜索模型名称..." oninput="filterKeyModels()">
+      </div>
+
+      <div class="chips-container" id="keyChipsList"></div>
     </div>
+
+    <div class="form-group">
+      <label class="form-label">有效期截止时间</label>
+      <input class="modal-input" id="keyExpiry" type="datetime-local">
+      <div class="expiry-presets">
+        <button class="expiry-btn" onclick="setExpiryDays(7)">+7 天</button>
+        <button class="expiry-btn" onclick="setExpiryDays(30)">+30 天</button>
+        <button class="expiry-btn" onclick="setExpiryDays(90)">+90 天</button>
+        <button class="expiry-btn" onclick="setExpiryDays(365)">+1 年</button>
+        <button class="expiry-btn" onclick="$('#keyExpiry').value=''">永久有效</button>
+      </div>
+    </div>
+
+    <div class="form-group" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border-light)">
+      <div>
+        <div style="font-size:13.5px;font-weight:600;color:var(--text-primary)">启用状态</div>
+        <div style="font-size:12px;color:var(--text-muted)">禁用后该 API Key 将拒绝所有调用请求</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;font-weight:600" id="keyEnabledLabel">已启用</span>
+        <div id="keyEnabledToggle" style="width:44px;height:24px;border-radius:12px;background:var(--success);cursor:pointer;position:relative;transition:var(--transition)">
+          <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:22px;transition:var(--transition);box-shadow:0 1px 3px rgba(0,0,0,0.2)"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-outline btn-sm" onclick="closeKeyModal()">取消</button>
-      <button class="btn btn-primary btn-sm" onclick="saveKeyEdit()">保存</button>
+      <button class="btn btn-primary btn-sm" onclick="saveKeyEdit()">保存配置</button>
     </div>
   </div>
 </div>
@@ -336,37 +1379,50 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
 <script>
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
-const ADMIN_KEY = 'wuandpl1982//@l';
 let currentKey = localStorage.getItem('uh_key') || '';
 let charts = {};
 let configData = null;
+let chAllModels = [];      // 渠道编辑弹窗的模型集合
+let chSelectedSet = new Set(); // 当前选中的模型集合
+let keyAllModels = [];     // Key 编辑弹窗的模型集合
+let keySelectedSet = new Set();
 
-/* ===== API ===== */
-async function api(path, opts={}) {
-  const r = await fetch(path, { headers:{ 'Authorization':'Bearer '+currentKey, ...opts.headers }, ...opts });
+/* ===== Core API ===== */
+async function api(path, opts = {}) {
+  const r = await fetch(path, {
+    headers: { 'Authorization': 'Bearer ' + currentKey, ...opts.headers },
+    ...opts
+  });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
 
-/* ===== Auth ===== */
+/* ===== Authentication ===== */
 $('#loginBtn').onclick = async () => {
   const k = $('#loginInput').value.trim();
   if (!k) return;
   $('#loginBtn').textContent = '验证中...';
+  $('#loginErr').style.display = 'none';
   try {
-    const d = await api('/v1/stats?hours=1', { headers:{'Authorization':'Bearer '+k} });
-    if (d.total_requests !== undefined || d.model_request_counts) {
+    const d = await api('/v1/stats?hours=1', { headers: { 'Authorization': 'Bearer ' + k } });
+    if (d.total_requests !== undefined || d.model_request_counts || d.channel_success_rates) {
       currentKey = k;
       localStorage.setItem('uh_key', k);
       enterApp();
-    } else throw 1;
-  } catch(e) {
+    } else throw new Error();
+  } catch (e) {
     $('#loginErr').style.display = 'block';
     $('#loginBtn').textContent = '登 录';
   }
 };
-$('#loginInput').addEventListener('keydown', e => { if(e.key==='Enter') $('#loginBtn').click(); });
-function logout() { currentKey=''; localStorage.removeItem('uh_key'); location.reload(); }
+$('#loginInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('#loginBtn').click(); });
+
+function logout() {
+  currentKey = '';
+  localStorage.removeItem('uh_key');
+  location.reload();
+}
+
 function enterApp() {
   $('#loginOverlay').style.display = 'none';
   $('#topbar').style.display = '';
@@ -375,52 +1431,62 @@ function enterApp() {
   loadOverview();
 }
 
-/* ===== Ping ===== */
+/* ===== Ping Test ===== */
 async function checkPing() {
   const t0 = Date.now();
-  try { await api('/v1/stats?hours=1'); } catch(e){}
-  $('#pingText').textContent = (Date.now()-t0)+'ms';
+  try {
+    await api('/v1/stats?hours=1');
+    $('#pingText').textContent = (Date.now() - t0) + 'ms';
+  } catch (e) {
+    $('#pingText').textContent = '断开';
+  }
 }
 
-/* ===== Toast ===== */
+/* ===== Toast Notification ===== */
 function showToast(msg) {
-  const t=$('#toast'); t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2000);
+  const t = $('#toast');
+  t.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ${esc(msg)}`;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-/* ===== Tabs ===== */
+/* ===== Tab Navigation ===== */
 $$('.tabbar-item').forEach(btn => {
   btn.onclick = () => {
-    $$('.tabbar-item').forEach(b=>b.classList.remove('active'));
+    $$('.tabbar-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    $$('.page').forEach(p=>p.classList.remove('active'));
-    $('#page-'+btn.dataset.tab).classList.add('active');
-    const loaders = { overview:loadOverview, monitor:loadMonitor, usage:loadUsage, channels:loadChannels, keys:loadKeys };
-    loaders[btn.dataset.tab]?.();
+    $$('.page').forEach(p => p.classList.remove('active'));
+    const tab = btn.dataset.tab;
+    $('#page-' + tab).classList.add('active');
+    const loaders = { overview: loadOverview, monitor: loadMonitor, usage: loadUsage, channels: loadChannels, keys: loadKeys };
+    loaders[tab]?.();
   };
 });
 
-/* ===== Overview ===== */
+/* ==========================================================================
+   PAGE 1: OVERVIEW
+   ========================================================================== */
 async function loadOverview() {
   try {
     const hours = +$('#hoursSelect').value;
     const [stats, usageResp] = await Promise.all([
-      api('/v1/stats?hours='+hours),
-      api('/v1/token_usage?start_datetime='+new Date(Date.now()-hours*3600e3).toISOString()+'&end_datetime='+new Date().toISOString())
+      api('/v1/stats?hours=' + hours),
+      api('/v1/token_usage?start_datetime=' + new Date(Date.now() - hours * 3600e3).toISOString() + '&end_datetime=' + new Date().toISOString())
     ]);
     const usage = usageResp.usage || [];
-    const totalReqs = stats.model_request_counts?.reduce((s,m)=>s+m.count,0) || 0;
-    const totalTokens = usage.reduce((s,u)=>s+(u.total_tokens||0),0);
-    const totalPrompt = usage.reduce((s,u)=>s+(u.total_prompt_tokens||0),0);
-    const totalComp = usage.reduce((s,u)=>s+(u.total_completion_tokens||0),0);
-    const avgTokens = totalReqs ? Math.round(totalTokens/totalReqs) : 0;
-    const activeModels = new Set(stats.model_request_counts?.map(m=>m.model)).size;
-    const keyGroups = new Set(usage.map(u=>u.api_key_prefix)).size;
+    const totalReqs = stats.model_request_counts?.reduce((s, m) => s + m.count, 0) || 0;
+    const totalTokens = usage.reduce((s, u) => s + (u.total_tokens || 0), 0);
+    const totalPrompt = usage.reduce((s, u) => s + (u.total_prompt_tokens || 0), 0);
+    const totalComp = usage.reduce((s, u) => s + (u.total_completion_tokens || 0), 0);
+    const avgTokens = totalReqs ? Math.round(totalTokens / totalReqs) : 0;
+    const activeModels = new Set(stats.model_request_counts?.map(m => m.model)).size;
+    const keyGroups = new Set(usage.map(u => u.api_key_prefix)).size;
 
     $('#metricsGrid').innerHTML = `
       <div class="metric-card">
         <div class="metric-header"><span class="metric-title">总请求数</span><span class="badge badge-purple">${keyGroups} 组统计</span></div>
-        <div class="metric-value">${totalReqs}</div>
+        <div class="metric-value">${totalReqs.toLocaleString()}</div>
       </div>
       <div class="metric-card">
         <div class="metric-header"><span class="metric-title">TOKENS 消耗</span><span class="badge badge-green">总计</span></div>
@@ -435,221 +1501,385 @@ async function loadOverview() {
         <div class="metric-value purple">${activeModels}</div>
       </div>`;
 
-    // Trend chart
-    const days = hours <= 24 ? 1 : Math.ceil(hours/24);
+    // Trend chart (line)
+    const days = hours <= 24 ? 1 : Math.ceil(hours / 24);
     const dayMap = {};
-    for (let i=days-1; i>=0; i--) {
-      const d = new Date(Date.now()-i*864e5);
-      const key = (d.getMonth()+1)+'/'+d.getDate();
-      dayMap[key] = { prompt:0, comp:0 };
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 864e5);
+      const key = (d.getMonth() + 1) + '/' + d.getDate();
+      dayMap[key] = { prompt: 0, comp: 0 };
     }
     usage.forEach(u => {
-      // approximate daily split by dividing evenly
       const perDay = days > 1 ? days : 1;
       Object.keys(dayMap).forEach(k => {
-        dayMap[k].prompt += Math.round((u.total_prompt_tokens||0)/perDay);
-        dayMap[k].comp += Math.round((u.total_completion_tokens||0)/perDay);
+        dayMap[k].prompt += Math.round((u.total_prompt_tokens || 0) / perDay);
+        dayMap[k].comp += Math.round((u.total_completion_tokens || 0) / perDay);
       });
     });
     const labels = Object.keys(dayMap);
-    const promptData = labels.map(l=>dayMap[l].prompt);
-    const compData = labels.map(l=>dayMap[l].comp);
+    const promptData = labels.map(l => dayMap[l].prompt);
+    const compData = labels.map(l => dayMap[l].comp);
 
-    if(charts.trend) charts.trend.destroy();
+    if (charts.trend) charts.trend.destroy();
     const tCtx = $('#trendChart').getContext('2d');
     charts.trend = new Chart(tCtx, {
-      type:'line',
-      data:{
+      type: 'line',
+      data: {
         labels,
-        datasets:[
-          { label:'Prompt', data:promptData, borderColor:'#7C6BFF', backgroundColor:'rgba(124,107,255,0.08)', fill:true, tension:0.35, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:'#7C6BFF', pointBorderWidth:2, borderWidth:2.5 },
-          { label:'Output', data:compData, borderColor:'#34C759', backgroundColor:'rgba(52,199,89,0.06)', fill:true, tension:0.35, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:'#34C759', pointBorderWidth:2, borderWidth:2.5 }
+        datasets: [
+          { label: 'Prompt Tokens', data: promptData, borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.08)', fill: true, tension: 0.35, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: '#6366f1', pointBorderWidth: 2, borderWidth: 2.5 },
+          { label: 'Output Tokens', data: compData, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.06)', fill: true, tension: 0.35, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: '#10b981', pointBorderWidth: 2, borderWidth: 2.5 }
         ]
       },
-      options:{
-        responsive:true, maintainAspectRatio:false, animation:false,
-        interaction:{ mode:'index', intersect:false },
-        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'#fff', titleColor:'#1a1a2e', bodyColor:'#6b6b80', borderColor:'#e8e8ed', borderWidth:1, padding:12, cornerRadius:10, boxPadding:4, usePointStyle:true, titleFont:{weight:'700'}, bodyFont:{size:13} } },
-        scales:{ x:{ grid:{display:false}, ticks:{color:'#a0a0b2',font:{size:11}} }, y:{ grid:{color:'rgba(0,0,0,0.04)',drawBorder:false}, ticks:{color:'#a0a0b2',font:{size:11}}, beginAtZero:true } }
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: '#fff', titleColor: '#0f172a', bodyColor: '#475569', borderColor: '#e2e8f0', borderWidth: 1, padding: 12, cornerRadius: 10, boxPadding: 4, usePointStyle: true, titleFont: { weight: '700' }, bodyFont: { size: 13 } }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+          y: { grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { color: '#94a3b8', font: { size: 11 } }, beginAtZero: true }
+        }
       }
     });
 
     // Donut chart
     const modelCounts = stats.model_request_counts || [];
-    const donutColors = ['#5E5CE6','#34C759','#FF9500','#FF3B30','#AF52DE','#5AC8FA','#FF2D55','#FFD60A'];
-    if(charts.donut) charts.donut.destroy();
+    const donutColors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#3b82f6'];
+    if (charts.donut) charts.donut.destroy();
     const dCtx = $('#donutChart').getContext('2d');
     charts.donut = new Chart(dCtx, {
-      type:'doughnut',
-      data:{
-        labels:modelCounts.map(m=>m.model),
-        datasets:[{ data:modelCounts.map(m=>m.count), backgroundColor:donutColors.slice(0,modelCounts.length), borderWidth:0, hoverOffset:6 }]
+      type: 'doughnut',
+      data: {
+        labels: modelCounts.map(m => m.model),
+        datasets: [{ data: modelCounts.map(m => m.count), backgroundColor: donutColors.slice(0, modelCounts.length), borderWidth: 0, hoverOffset: 6 }]
       },
-      options:{
-        responsive:true, maintainAspectRatio:false, animation:false, cutout:'62%',
-        plugins:{ legend:{ position:'right', labels:{ padding:12, usePointStyle:true, pointStyle:'rectRounded', font:{size:12}, color:'#6b6b80' } } }
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false, cutout: '65%',
+        plugins: {
+          legend: { position: 'right', labels: { padding: 14, usePointStyle: true, pointStyle: 'circle', font: { size: 12 }, color: '#475569' } }
+        }
       }
     });
-  } catch(e) { showToast('加载失败: '+e.message); }
+  } catch (e) {
+    showToast('概览加载失败');
+  }
 }
 
-/* ===== Monitor ===== */
+/* ==========================================================================
+   PAGE 2: MONITOR
+   ========================================================================== */
 async function loadMonitor() {
   try {
     const hours = +$('#monHoursSelect').value;
-    const stats = await api('/v1/stats?hours='+hours);
+    const stats = await api('/v1/stats?hours=' + hours);
     const ch = stats.channel_success_rates || [];
     const cm = stats.channel_model_success_rates || [];
     const ips = stats.ip_request_counts || [];
 
     let html = '';
     ch.forEach(c => {
-      const rate = (c.success_rate*100).toFixed(1);
-      const color = c.success_rate>=0.95?'var(--green)':c.success_rate>=0.7?'#FF9500':'var(--red)';
-      const models = cm.filter(m=>m.provider===c.provider);
-      html += `<div class="ch-card">
-        <div class="ch-top"><div class="ch-name-row"><span class="key-dot" style="background:${color}"></span><span class="ch-name">${esc(c.provider)}</span></div><span style="font-size:20px;font-weight:700;color:${color}">${rate}%</span></div>
-        <div style="margin-top:10px">${models.map(m=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${esc(m.model)}</span><span style="color:var(--text2)">${m.total_requests} 次</span></div>`).join('')}</div>
-      </div>`;
+      const rate = (c.success_rate * 100).toFixed(1);
+      const color = c.success_rate >= 0.95 ? 'var(--success)' : c.success_rate >= 0.7 ? 'var(--warning)' : 'var(--danger)';
+      const models = cm.filter(m => m.provider === c.provider);
+      html += `
+        <div class="ch-card">
+          <div class="ch-top">
+            <div class="ch-name-row">
+              <span class="key-dot" style="background:${color}"></span>
+              <span class="ch-name">${esc(c.provider)}</span>
+            </div>
+            <div style="text-align:right">
+              <span style="font-size:18px;font-weight:700;color:${color}">${rate}%</span>
+              <div style="font-size:11px;color:var(--text-muted)">${c.total_requests} 次请求</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;border-top:1px solid var(--border-light);padding-top:8px">
+            ${models.map(m => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12.5px">
+                <span class="mono" style="color:var(--text-secondary)">${esc(m.model)}</span>
+                <span style="color:var(--text-muted)">${m.total_requests} 次 · ${(m.success_rate * 100).toFixed(0)}% 成功</span>
+              </div>`).join('')}
+          </div>
+        </div>`;
     });
-    if(ips.length) {
-      html += `<div class="chart-card"><div class="chart-title">请求来源 IP</div>`;
-      ips.forEach(ip => { html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;font-family:monospace"><span>${esc(ip.ip)}</span><span style="color:var(--text2)">${ip.count} 次</span></div>`; });
-      html += `</div>`;
+
+    if (ips.length) {
+      html += `
+        <div class="chart-card">
+          <div class="chart-title">请求来源 IP 统计</div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>IP 地址</th><th style="text-align:right">请求次数</th></tr></thead>
+              <tbody>
+                ${ips.map(ip => `<tr><td class="mono" style="font-size:12.5px">${esc(ip.ip)}</td><td style="text-align:right;font-weight:600">${ip.count}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
     }
-    $('#monitorContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text3)">暂无监控数据</div>';
-  } catch(e) { showToast('加载失败'); }
+    $('#monitorContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无监控数据</div>';
+  } catch (e) {
+    showToast('监控加载失败');
+  }
 }
 
-/* ===== Usage ===== */
+/* ==========================================================================
+   PAGE 3: USAGE
+   ========================================================================== */
 async function loadUsage() {
   try {
     const days = +$('#usDaysSelect').value;
-    const start = new Date(Date.now()-days*864e5);
-    const resp = await api('/v1/token_usage?start_datetime='+start.toISOString()+'&end_datetime='+new Date().toISOString());
+    const start = new Date(Date.now() - days * 864e5);
+    const resp = await api('/v1/token_usage?start_datetime=' + start.toISOString() + '&end_datetime=' + new Date().toISOString());
     const usage = resp.usage || [];
-    if(!usage.length) { $('#usageContent').innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">暂无用量数据</div>'; return; }
-    let html = '<div class="chart-card"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:8px;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:0.04em">Key</th><th style="text-align:left;padding:8px;color:var(--text2);font-size:11px;text-transform:uppercase">模型</th><th style="text-align:right;padding:8px;color:var(--text2);font-size:11px;text-transform:uppercase">请求数</th><th style="text-align:right;padding:8px;color:var(--text2);font-size:11px;text-transform:uppercase">Tokens</th></tr></thead><tbody>';
-    usage.forEach(u => {
-      html += `<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 8px;font-family:monospace;font-size:12px;color:var(--text2)">${esc(u.api_key_prefix)}</td><td style="padding:10px 8px"><span class="tag">${esc(u.model)}</span></td><td style="padding:10px 8px;text-align:right;font-variant-numeric:tabular-nums">${u.request_count}</td><td style="padding:10px 8px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${(u.total_tokens||0).toLocaleString()}</td></tr>`;
-    });
-    html += '</tbody></table></div>';
+    if (!usage.length) {
+      $('#usageContent').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无用量明细数据</div>';
+      return;
+    }
+    let html = `
+      <div class="chart-card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Key 前缀</th>
+                <th>模型</th>
+                <th style="text-align:right">请求次数</th>
+                <th style="text-align:right">Prompt</th>
+                <th style="text-align:right">Output</th>
+                <th style="text-align:right">总 Tokens</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${usage.map(u => `
+                <tr>
+                  <td class="mono" style="font-size:12px;color:var(--text-muted)">${esc(u.api_key_prefix)}</td>
+                  <td><span class="tag">${esc(u.model)}</span></td>
+                  <td style="text-align:right;font-variant-numeric:tabular-nums">${u.request_count}</td>
+                  <td style="text-align:right;font-variant-numeric:tabular-nums;color:var(--text-secondary)">${(u.total_prompt_tokens || 0).toLocaleString()}</td>
+                  <td style="text-align:right;font-variant-numeric:tabular-nums;color:var(--text-secondary)">${(u.total_completion_tokens || 0).toLocaleString()}</td>
+                  <td style="text-align:right;font-weight:700;color:var(--primary);font-variant-numeric:tabular-nums">${(u.total_tokens || 0).toLocaleString()}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
     $('#usageContent').innerHTML = html;
-  } catch(e) { showToast('加载失败'); }
+  } catch (e) {
+    showToast('用量加载失败');
+  }
 }
 
-/* ===== Channels ===== */
-let allModels = []; // 收集所有渠道的模型
-
+/* ==========================================================================
+   PAGE 4: CHANNELS & VISUAL EDITOR
+   ========================================================================== */
 async function loadChannels() {
   try {
     const resp = await api('/v1/api_config');
     configData = resp.api_config || resp;
     const providers = configData.providers || [];
-    // 收集所有模型
-    allModels = [];
-    providers.forEach(p => { (p.models||[]).forEach(m => { if(!allModels.includes(m)) allModels.push(m); }); });
     let html = '';
-    providers.forEach((p,i) => {
-      const models = p.models || [];
-      const maskedKey = p.api ? p.api.slice(0,8)+'...'+p.api.slice(-4) : '';
-      html += `<div class="ch-card">
-        <div class="ch-top"><div class="ch-name-row"><span class="key-dot"></span><span class="ch-name">${esc(p.provider || 'Provider '+(i+1))}</span></div>
-        <div class="ch-actions"><button class="btn btn-outline btn-sm" onclick="openChannelEditor(${i})">编辑</button><button class="btn btn-sm btn-danger" onclick="removeProvider(${i})">✕</button></div></div>
-        <div class="ch-url">${esc(p.base_url||'')}</div>
-        <div class="ch-key-row"><span class="ch-key">${maskedKey}</span><button class="key-copy" onclick="copyText('${esc(p.api||'')}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
-        <div class="tags">${models.map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div>
-      </div>`;
+    providers.forEach((p, i) => {
+      const models = p.models || p.model || [];
+      const maskedKey = p.api ? p.api.slice(0, 8) + '...' + p.api.slice(-4) : '(无密钥/留空)';
+      const showLimit = 12;
+      const hasMore = models.length > showLimit;
+      const initialList = models.slice(0, showLimit);
+
+      html += `
+        <div class="ch-card">
+          <div class="ch-top">
+            <div class="ch-name-row">
+              <span class="key-dot"></span>
+              <span class="ch-name">${esc(p.provider || 'Provider ' + (i + 1))}</span>
+            </div>
+            <div class="ch-actions">
+              <button class="btn btn-outline btn-sm" onclick="openChannelEditor(${i})">编辑配置</button>
+              <button class="btn btn-sm btn-danger" onclick="removeProvider(${i})" title="删除渠道">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="ch-meta-box">
+            <div class="ch-meta-row">
+              <span class="ch-meta-label">Base URL</span>
+              <span class="ch-meta-val">${esc(p.base_url || '')} <button class="key-copy" onclick="copyText('${esc(p.base_url || '')}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
+            </div>
+            <div class="ch-meta-row">
+              <span class="ch-meta-label">API Key</span>
+              <span class="ch-meta-val">${esc(maskedKey)} ${p.api ? `<button class="key-copy" onclick="copyText('${esc(p.api)}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>` : ''}</span>
+            </div>
+          </div>
+
+          <div class="ch-models-header">
+            <span>支持模型 (${models.length})</span>
+          </div>
+          <div class="tags" id="ch-tags-${i}">
+            ${initialList.map(m => `<span class="tag">${esc(m)}</span>`).join('')}
+            ${hasMore ? `<span class="tag-more" onclick="expandChTags(${i})">+${models.length - showLimit} 更多...</span>` : ''}
+          </div>
+        </div>`;
     });
-    $('#channelsContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text3)">暂无渠道配置</div>';
-  } catch(e) { showToast('加载失败'); }
+    $('#channelsContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无渠道配置，请点击上方「添加渠道」</div>';
+  } catch (e) {
+    showToast('渠道加载失败');
+  }
+}
+
+function expandChTags(idx) {
+  const p = configData.providers[idx];
+  if (!p) return;
+  const box = $(`#ch-tags-${idx}`);
+  box.innerHTML = (p.models || p.model || []).map(m => `<span class="tag">${esc(m)}</span>`).join('');
 }
 
 function openChannelEditor(i) {
   const isNew = i === -1;
-  $('#chModalTitle').textContent = isNew ? '添加渠道' : '编辑渠道';
-  if(isNew) {
+  $('#chModalTitle').textContent = isNew ? '添加上游渠道' : '编辑渠道配置';
+  $('#chModal').dataset.index = i;
+  $('#chSearchModel').value = '';
+  $('#chManualWrap').style.display = 'none';
+
+  if (isNew) {
     $('#chName').value = '';
     $('#chUrl').value = '';
     $('#chKey').value = '';
     $('#chModelsManual').value = '';
-    $('#chModelsList').innerHTML = '';
-    $('#chModelsBox').style.display = 'none';
-    $('#chFetchStatus').textContent = '';
-    $('#chModal').dataset.index = '-1';
+    chAllModels = [];
+    chSelectedSet = new Set();
+    $('#chFetchStatus').textContent = '填写 Base URL 后可一键拉取上游模型';
   } else {
     const p = configData.providers[i];
     $('#chName').value = p.provider || '';
     $('#chUrl').value = p.base_url || '';
     $('#chKey').value = p.api || '';
-    const models = p.models || [];
+    const models = p.models || p.model || [];
     $('#chModelsManual').value = models.join('\n');
-    $('#chModal').dataset.index = i;
-    // 预填模型勾选
-    renderChModelCheckboxes(models);
+    chSelectedSet = new Set(models);
+    chAllModels = [...new Set([...models])];
+    $('#chFetchStatus').textContent = `共配置 ${models.length} 个模型`;
   }
+  renderChChips();
   $('#chModal').classList.add('show');
 }
-function closeChModal() { $('#chModal').classList.remove('show'); }
 
-function renderChModelCheckboxes(selected) {
-  const box = $('#chModelsList');
-  if(!allModels.length && !selected.length) { box.innerHTML = '<span style="font-size:12px;color:var(--text3)">暂无模型，请先拉取或手动输入</span>'; $('#chModelsBox').style.display=''; return; }
-  const union = [...new Set([...allModels, ...selected])].sort();
-  box.innerHTML = union.map(m => `<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:3px 6px;border-radius:6px;${selected.includes(m)?'background:var(--accent-bg);color:var(--accent)':''}"><input type="checkbox" value="${esc(m)}" ${selected.includes(m)?'checked':''} style="accent-color:var(--accent)"> ${esc(m)}</label>`).join('');
-  $('#chModelsBox').style.display = '';
+function closeChModal() {
+  $('#chModal').classList.remove('show');
+}
+
+function renderChChips() {
+  const query = $('#chSearchModel').value.trim().toLowerCase();
+  const box = $('#chChipsList');
+  const filtered = chAllModels.filter(m => !query || m.toLowerCase().includes(query));
+
+  $('#chSelectedCount').textContent = `已选 ${chSelectedSet.size} / ${chAllModels.length} 个`;
+
+  if (!filtered.length) {
+    box.innerHTML = `<div style="text-align:center;width:100%;color:var(--text-muted);font-size:12px;padding:12px 0">${chAllModels.length ? '未找到匹配模型' : '暂无模型，请点击「一键拉取」或手动输入'}</div>`;
+    return;
+  }
+
+  box.innerHTML = filtered.map(m => {
+    const sel = chSelectedSet.has(m);
+    return `
+      <div class="chip ${sel ? 'selected' : ''}" onclick="toggleChModel('${esc(m)}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>${esc(m)}</span>
+      </div>`;
+  }).join('');
+}
+
+function toggleChModel(m) {
+  if (chSelectedSet.has(m)) chSelectedSet.delete(m);
+  else chSelectedSet.add(m);
+  renderChChips();
+  $('#chModelsManual').value = [...chSelectedSet].join('\n');
 }
 
 function toggleAllChModels() {
-  const cbs = $$('#chModelsList input[type=checkbox]');
-  const allChecked = [...cbs].every(cb=>cb.checked);
-  cbs.forEach(cb=>cb.checked=!allChecked);
+  const query = $('#chSearchModel').value.trim().toLowerCase();
+  const visible = chAllModels.filter(m => !query || m.toLowerCase().includes(query));
+  const allSel = visible.every(m => chSelectedSet.has(m));
+  visible.forEach(m => {
+    if (allSel) chSelectedSet.delete(m);
+    else chSelectedSet.add(m);
+  });
+  renderChChips();
+  $('#chModelsManual').value = [...chSelectedSet].join('\n');
+}
+
+function clearAllChModels() {
+  chSelectedSet.clear();
+  renderChChips();
+  $('#chModelsManual').value = '';
+}
+
+function filterChModels() {
+  renderChChips();
+}
+
+function syncManualToChips() {
+  const text = $('#chModelsManual').value;
+  const list = text.split('\n').map(s => s.trim()).filter(Boolean);
+  if (!list.length) return;
+  list.forEach(m => {
+    if (!chAllModels.includes(m)) chAllModels.push(m);
+    chSelectedSet.add(m);
+  });
+  renderChChips();
 }
 
 async function fetchProviderModels() {
   const url = $('#chUrl').value.trim();
   const key = $('#chKey').value.trim();
-  if(!url) return showToast('请先填写 API Base URL');
+  if (!url) return showToast('请先填写 API Base URL');
+
   $('#chFetchBtn').disabled = true;
-  $('#chFetchStatus').textContent = '拉取中...';
+  $('#chFetchStatus').innerHTML = `<span style="color:var(--primary)">⏳ 正在连接上游拉取模型列表...</span>`;
+
   try {
-    const modelsUrl = url.replace(/\/chat\/completions.*$/, '') + '/v1/models';
-    const r = await fetch(modelsUrl, { headers: key ? { 'Authorization': 'Bearer ' + key } : {} });
+    const modelsUrl = url.replace(/\/chat\/completions.*$/, '').replace(/\/+$/, '') + '/v1/models';
+    const r = await fetch(modelsUrl, {
+      headers: key ? { 'Authorization': 'Bearer ' + key } : {}
+    });
     const d = await r.json();
-    const models = (d.data || d).map(m => m.id || m).filter(Boolean).sort();
-    if(!models.length) throw 'empty';
-    allModels = [...new Set([...allModels, ...models])];
-    renderChModelCheckboxes(models);
-    // 同时填入手动框
-    $('#chModelsManual').value = models.join('\n');
-    $('#chFetchStatus').textContent = `✓ 拉取到 ${models.length} 个模型`;
-    showToast(`拉取到 ${models.length} 个模型`);
-  } catch(e) {
-    $('#chFetchStatus').textContent = '拉取失败，请手动输入模型';
-    showToast('模型拉取失败，请手动输入');
+    const fetched = (d.data || d).map(m => m.id || m.name || m).filter(Boolean).sort();
+    if (!fetched.length) throw new Error('返回模型列表为空');
+
+    chAllModels = [...new Set([...chAllModels, ...fetched])].sort();
+    // 默认全部选中新拉取的模型
+    fetched.forEach(m => chSelectedSet.add(m));
+    renderChChips();
+    $('#chModelsManual').value = [...chSelectedSet].join('\n');
+    $('#chFetchStatus').innerHTML = `<span style="color:var(--success)">✓ 成功拉取到 ${fetched.length} 个模型</span>`;
+    showToast(`成功拉取到 ${fetched.length} 个模型`);
+  } catch (e) {
+    $('#chFetchStatus').innerHTML = `<span style="color:var(--danger)">拉取失败，请展开下方手动输入</span>`;
+    showToast('拉取失败，可手动输入模型');
   }
   $('#chFetchBtn').disabled = false;
-}
-
-function getChSelectedModels() {
-  // 优先取勾选的，其次取手动输入的
-  const cbs = $$('#chModelsList input[type=checkbox]:checked');
-  if(cbs.length) return [...cbs].map(cb=>cb.value);
-  return $('#chModelsManual').value.split('\n').map(s=>s.trim()).filter(Boolean);
 }
 
 function saveChannel() {
   const name = $('#chName').value.trim();
   const url = $('#chUrl').value.trim();
   const key = $('#chKey').value.trim();
-  const models = getChSelectedModels();
-  if(!name) return showToast('请填写渠道名称');
-  if(!url) return showToast('请填写 API URL');
+  const models = [...chSelectedSet];
+
+  if (!name) return showToast('请填写渠道名称');
+  if (!url) return showToast('请填写 API Base URL');
+
   const idx = +$('#chModal').dataset.index;
   const provider = { provider: name, base_url: url, api: key, models };
-  if(!configData) configData = { providers: [], api_keys: [] };
-  if(!configData.providers) configData.providers = [];
-  if(idx >= 0) {
+
+  if (!configData) configData = { providers: [], api_keys: [] };
+  if (!configData.providers) configData.providers = [];
+
+  if (idx >= 0) {
     configData.providers[idx] = provider;
   } else {
     configData.providers.push(provider);
@@ -658,28 +1888,30 @@ function saveChannel() {
 }
 
 function removeProvider(i) {
-  if(!confirm('确定删除此渠道？请记得点"保存生效"')) return;
-  configData.providers.splice(i,1);
+  if (!confirm('确定删除此渠道？请记得点击「保存生效」')) return;
+  configData.providers.splice(i, 1);
   saveConfig();
 }
 
-async function saveConfig(cb) {
-  if(!configData) return;
+async function saveConfig(callback) {
+  if (!configData) return;
   try {
     await api('/v1/api_config/update', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+currentKey},
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + currentKey },
       body: JSON.stringify(configData)
     });
-    showToast('配置已保存');
+    showToast('配置已持久化生效');
     loadChannels();
-    cb?.();
-  } catch(e) { showToast('保存失败: '+e.message); }
+    callback?.();
+  } catch (e) {
+    showToast('保存失败: ' + e.message);
+  }
 }
 
-/* ===== Keys ===== */
-let keyAllModels = [];
-
+/* ==========================================================================
+   PAGE 5: KEYS & PERMISSIONS
+   ========================================================================== */
 async function loadKeys() {
   try {
     const [statesResp, configResp] = await Promise.all([
@@ -689,113 +1921,164 @@ async function loadKeys() {
     const states = statesResp.paid_api_keys_states || statesResp.api_keys_states || {};
     const apiKeys = (configResp.api_config || configResp).api_keys || [];
     const providers = (configResp.api_config || configResp).providers || [];
-    // 收集所有可用模型
+
+    // 汇总所有渠道模型
     keyAllModels = [];
-    providers.forEach(p => { (p.models||[]).forEach(m => { if(!keyAllModels.includes(m)) keyAllModels.push(m); }); });
+    providers.forEach(p => { ((p.models || p.model || [])).forEach(m => { if (!keyAllModels.includes(m)) keyAllModels.push(m); }); });
+    keyAllModels.sort();
+
     const keys = Object.keys(states);
-    $('#keyCount').textContent = keys.length+' 个 Key';
+    $('#keyCount').textContent = keys.length + ' 个 API Key';
 
     let html = '';
     keys.forEach(k => {
       const s = states[k];
-      const cfg = apiKeys.find(a=>a.api===k);
+      const cfg = apiKeys.find(a => a.api === k);
       const disabled = s.disabled || !s.enabled;
       const models = cfg?.model || cfg?.models || [];
       const isAll = !models.length;
       const expiry = cfg?.expires_at;
-      const expiryText = expiry ? new Date(expiry*1000).toLocaleDateString('zh-CN') : '永久有效';
-      const prefix = k.length>16 ? k.slice(0,8)+'...'+k.slice(-4) : k.slice(0,12)+'...';
+      const expiryText = expiry ? new Date(expiry * 1000).toLocaleDateString('zh-CN') : '永久有效';
+      const prefix = k.length > 16 ? k.slice(0, 8) + '...' + k.slice(-4) : k.slice(0, 12) + '...';
 
-      html += `<div class="key-card">
-        <div class="key-top">
-          <div class="key-name-row"><span class="key-dot" style="background:${disabled?'var(--red)':'var(--green)'}"></span><span class="key-name">${esc(prefix)}</span><button class="key-copy" onclick="copyText('${esc(k)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
-          <div class="key-right"><span class="key-expiry">${expiryText}</span><span class="key-status">${disabled?'已禁用':'正常'}</span></div>
-        </div>
-        <div class="key-models-label">授权模型：</div>
-        <div class="tags">${isAll ? '<span class="tag green">全部模型（全量开放）</span>' : models.map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div>
-        <div class="key-actions">
-          <button class="btn btn-outline btn-sm" onclick="openKeyEditor('${esc(k)}')">编辑</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteKey('${esc(k)}')">🗑</button>
-        </div>
-      </div>`;
+      html += `
+        <div class="key-card">
+          <div class="key-top">
+            <div class="key-name-row">
+              <span class="key-dot" style="background:${disabled ? 'var(--danger)' : 'var(--success)'}"></span>
+              <span class="key-name">${esc(prefix)}</span>
+              <button class="key-copy" onclick="copyText('${esc(k)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            </div>
+            <div class="key-right">
+              <span class="key-expiry">${expiryText}</span>
+              <span class="key-status ${disabled ? 'disabled' : ''}">${disabled ? '已禁用' : '正常'}</span>
+            </div>
+          </div>
+
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:600">授权模型权限</div>
+          <div class="tags">
+            ${isAll ? '<span class="tag green">全部模型（全量开放）</span>' : models.map(m => `<span class="tag">${esc(m)}</span>`).join('')}
+          </div>
+
+          <div class="key-actions">
+            <button class="btn btn-outline btn-sm" onclick="openKeyEditor('${esc(k)}')">配置权限 / 有效期</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteKey('${esc(k)}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>`;
     });
-    $('#keysContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text3)">暂无 Key</div>';
-  } catch(e) { showToast('加载失败'); }
+    $('#keysContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无 API Key</div>';
+  } catch (e) {
+    showToast('Key 列表加载失败');
+  }
 }
 
 function openKeyEditor(key) {
-  const apiKeys = (configData?.api_keys || []);
-  const cfg = apiKeys.find(a=>a.api===key);
+  const apiKeys = configData?.api_keys || [];
+  const cfg = apiKeys.find(a => a.api === key);
   const models = cfg?.model || cfg?.models || [];
   const expiry = cfg?.expires_at;
   const enabled = cfg?.enabled !== false;
 
-  const prefix = key.length>16 ? key.slice(0,8)+'...'+key.slice(-4) : key.slice(0,12)+'...';
+  const prefix = key.length > 16 ? key.slice(0, 8) + '...' + key.slice(-4) : key;
   $('#keyEditName').textContent = prefix;
   $('#keyEditName').dataset.fullkey = key;
+  $('#keySearchModel').value = '';
 
-  // 模型勾选
-  const allM = keyAllModels.length ? keyAllModels : models;
-  const isAll = !models.length;
-  const box = $('#keyModelsList');
-  const union = [...new Set([...allM, ...models])].sort();
-  box.innerHTML = union.map(m => `<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:3px 6px;border-radius:6px;${(isAll||models.includes(m))?'background:var(--accent-bg);color:var(--accent)':''}"><input type="checkbox" value="${esc(m)}" ${(isAll||models.includes(m))?'checked':''} style="accent-color:var(--accent)"> ${esc(m)}</label>`).join('');
-  $('#keyModelHint').textContent = isAll ? '当前: 全部模型' : `当前: ${models.length} 个模型`;
+  keySelectedSet = new Set(models);
+  renderKeyChips();
 
-  // 过期时间
-  if(expiry) {
-    const d = new Date(expiry*1000);
-    const local = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  if (expiry) {
+    const d = new Date(expiry * 1000);
+    const local = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + 'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
     $('#keyExpiry').value = local;
   } else {
     $('#keyExpiry').value = '';
   }
 
-  // 启用状态
-  setKeyEnabled(enabled);
-
+  setKeyEnabledState(enabled);
   $('#keyModal').classList.add('show');
 }
-function closeKeyModal() { $('#keyModal').classList.remove('show'); }
 
-function toggleAllKeyModels() {
-  const cbs = $$('#keyModelsList input[type=checkbox]');
-  const allChecked = [...cbs].every(cb=>cb.checked);
-  cbs.forEach(cb=>cb.checked=!allChecked);
+function closeKeyModal() {
+  $('#keyModal').classList.remove('show');
 }
 
-function setKeyEnabled(v) {
-  const el = $('#keyEnabled');
-  const dot = el.querySelector('div');
-  el.style.background = v ? 'var(--green)' : '#d1d1d6';
-  dot.style.left = v ? '20px' : '2px';
+function renderKeyChips() {
+  const query = $('#keySearchModel').value.trim().toLowerCase();
+  const box = $('#keyChipsList');
+  const union = [...new Set([...keyAllModels, ...keySelectedSet])].sort();
+  const filtered = union.filter(m => !query || m.toLowerCase().includes(query));
+
+  if (!filtered.length) {
+    box.innerHTML = `<div style="text-align:center;width:100%;color:var(--text-muted);font-size:12px;padding:10px 0">无可用模型</div>`;
+    return;
+  }
+
+  box.innerHTML = filtered.map(m => {
+    const sel = keySelectedSet.has(m);
+    return `
+      <div class="chip ${sel ? 'selected' : ''}" onclick="toggleKeyModel('${esc(m)}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>${esc(m)}</span>
+      </div>`;
+  }).join('');
+}
+
+function toggleKeyModel(m) {
+  if (keySelectedSet.has(m)) keySelectedSet.delete(m);
+  else keySelectedSet.add(m);
+  renderKeyChips();
+}
+
+function toggleAllKeyModels(selectAll) {
+  if (selectAll) {
+    keyAllModels.forEach(m => keySelectedSet.add(m));
+  } else {
+    keySelectedSet.clear();
+  }
+  renderKeyChips();
+}
+
+function filterKeyModels() {
+  renderKeyChips();
+}
+
+function setExpiryDays(days) {
+  const d = new Date(Date.now() + days * 864e5);
+  const local = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + 'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  $('#keyExpiry').value = local;
+}
+
+let keyIsEnabled = true;
+function setKeyEnabledState(v) {
+  keyIsEnabled = v;
+  const toggle = $('#keyEnabledToggle');
+  const dot = toggle.querySelector('div');
+  toggle.style.background = v ? 'var(--success)' : '#cbd5e1';
+  dot.style.left = v ? '22px' : '2px';
   $('#keyEnabledLabel').textContent = v ? '已启用' : '已禁用';
-  el.onclick = () => { const nv = el.style.background !== 'var(--green)'; setKeyEnabled(nv); };
-}
-
-function getKeyEnabled() {
-  return $('#keyEnabled').style.background === 'rgb(52, 199, 89)' || $('#keyEnabled').style.background.includes('green');
+  toggle.onclick = () => setKeyEnabledState(!keyIsEnabled);
 }
 
 function saveKeyEdit() {
   const key = $('#keyEditName').dataset.fullkey;
-  if(!key || !configData) return;
-  const cbs = $$('#keyModelsList input[type=checkbox]:checked');
-  const models = [...cbs].map(cb=>cb.value);
+  if (!key || !configData) return;
+  const models = [...keySelectedSet];
   const expiryStr = $('#keyExpiry').value;
-  const enabled = getKeyEnabled();
 
-  let cfg = configData.api_keys?.find(a=>a.api===key);
-  if(!cfg) {
-    if(!configData.api_keys) configData.api_keys = [];
+  let cfg = configData.api_keys?.find(a => a.api === key);
+  if (!cfg) {
+    if (!configData.api_keys) configData.api_keys = [];
     cfg = { api: key };
     configData.api_keys.push(cfg);
   }
   cfg.models = models;
   cfg.model = models;
-  cfg.enabled = enabled;
-  if(expiryStr) {
-    cfg.expires_at = Math.floor(new Date(expiryStr).getTime()/1000);
+  cfg.enabled = keyIsEnabled;
+  if (expiryStr) {
+    cfg.expires_at = Math.floor(new Date(expiryStr).getTime() / 1000);
   } else {
     delete cfg.expires_at;
   }
@@ -804,19 +2087,55 @@ function saveKeyEdit() {
 }
 
 function deleteKey(key) {
-  if(!confirm('确定删除此 Key？请记得点"保存生效"')) return;
-  if(!configData) return;
-  configData.api_keys = (configData.api_keys||[]).filter(a=>a.api!==key);
-  saveConfig();
+  if (!confirm('确定删除此 API Key？请记得点击「保存生效」')) return;
+  if (!configData) return;
+  configData.api_keys = (configData.api_keys || []).filter(a => a.api !== key);
+  saveConfig(loadKeys);
 }
 
-/* ===== Utils ===== */
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function copyText(t) { navigator.clipboard?.writeText(t); showToast('已复制'); }
-function refreshAll() { checkPing(); const active = $('.tabbar-item.active')?.dataset.tab; if(active==='overview')loadOverview(); else if(active==='monitor')loadMonitor(); else if(active==='usage')loadUsage(); else if(active==='channels')loadChannels(); else if(active==='keys')loadKeys(); }
+/* ==========================================================================
+   Utilities & Global Helpers
+   ========================================================================== */
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 
-/* ===== Init ===== */
-if(currentKey) { api('/v1/stats?hours=1').then(()=>enterApp()).catch(()=>{ currentKey=''; localStorage.removeItem('uh_key'); }); }
+function copyText(text) {
+  if (!text) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  showToast('已复制到剪贴板');
+}
+
+function refreshAll() {
+  checkPing();
+  const activeTab = $('.tabbar-item.active')?.dataset.tab;
+  if (activeTab === 'overview') loadOverview();
+  else if (activeTab === 'monitor') loadMonitor();
+  else if (activeTab === 'usage') loadUsage();
+  else if (activeTab === 'channels') loadChannels();
+  else if (activeTab === 'keys') loadKeys();
+}
+
+/* ==========================================================================
+   App Bootstrap
+   ========================================================================== */
+if (currentKey) {
+  api('/v1/stats?hours=1')
+    .then(() => enterApp())
+    .catch(() => {
+      currentKey = '';
+      localStorage.removeItem('uh_key');
+    });
+}
 </script>
 </body>
 </html>
