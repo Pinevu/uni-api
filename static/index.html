@@ -501,7 +501,9 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
 }
 
 :root.light .top-island-bar {
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
   border-color: rgba(0, 0, 0, 0.08);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
@@ -872,7 +874,7 @@ textarea.code-editor:focus {
         </svg>
       </div>
       <span>Uni-API</span>
-      <span class="status-pill mono" id="app-version">v1.7.252</span>
+      <span class="status-pill mono" id="app-version" style="display:none"></span>
     </div>
 
     <div class="island-actions">
@@ -1425,6 +1427,7 @@ textarea.code-editor:focus {
   function applyTheme(mode) {
     const isLight = mode === 'light';
     document.documentElement.classList.toggle('light', isLight);
+    document.body.style.backgroundColor = isLight ? '#f2f2f7' : '#000000';
   }
 
   function getInitialTheme() {
