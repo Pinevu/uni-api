@@ -4,2183 +4,646 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Uni-API Hub</title>
-<link rel="icon" type="image/png" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>API HUB</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
-/* ==========================================================================
-   Apple iOS 18 Design System Variables
-   ========================================================================== */
 :root {
-  --ios-bg: #000000;
-  --ios-surface-bg: #0d0e12;
-  --ios-card: rgba(28, 28, 30, 0.75);
-  --ios-card-solid: #1c1c1e;
-  --ios-card-secondary: rgba(44, 44, 46, 0.65);
-  --ios-card-hover: rgba(58, 58, 60, 0.6);
-  --ios-border: rgba(255, 255, 255, 0.08);
-  --ios-border-subtle: rgba(255, 255, 255, 0.04);
-  --ios-border-active: rgba(10, 132, 255, 0.5);
-  
-  --ios-text: #ffffff;
-  --ios-text-secondary: #8e8e93;
-  --ios-text-tertiary: #636366;
-  --ios-text-quaternary: #48484a;
-
-  /* Apple System Colors */
-  --sys-blue: #0A84FF;
-  --sys-blue-light: rgba(10, 132, 255, 0.15);
-  --sys-green: #30D158;
-  --sys-green-light: rgba(48, 209, 88, 0.15);
-  --sys-orange: #FF9F0A;
-  --sys-orange-light: rgba(255, 159, 10, 0.15);
-  --sys-red: #FF453A;
-  --sys-red-light: rgba(255, 69, 58, 0.15);
-  --sys-purple: #BF5AF2;
-  --sys-purple-light: rgba(191, 90, 242, 0.15);
-  --sys-teal: #64D2FF;
-  --sys-teal-light: rgba(100, 210, 255, 0.15);
-  --sys-indigo: #5E5CE6;
-  --sys-yellow: #FFD60A;
-
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --r-xl: 20px;
-  --r-full: 9999px;
-
-  --blur-md: blur(24px) saturate(190%);
-  --blur-lg: blur(36px) saturate(200%);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
-  --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* ==========================================================================
-   Light Mode Variables
-   ========================================================================== */
-:root.light {
-  --ios-bg: #f2f2f7;
-  --ios-surface-bg: #ffffff;
-  --ios-card: rgba(255, 255, 255, 0.8);
-  --ios-card-solid: #ffffff;
-  --ios-card-secondary: rgba(235, 235, 240, 0.8);
-  --ios-card-hover: rgba(245, 245, 250, 0.9);
-  --ios-border: rgba(0, 0, 0, 0.08);
-  --ios-border-subtle: rgba(0, 0, 0, 0.04);
-  --ios-border-active: rgba(10, 132, 255, 0.4);
-
-  --ios-text: #1c1c1e;
-  --ios-text-secondary: #636366;
-  --ios-text-tertiary: #8e8e93;
-  --ios-text-quaternary: #aeaeb2;
-
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
-  --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-/* ==========================================================================
-   Theme Toggle Button
-   ========================================================================== */
-.theme-toggle {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--ios-border);
-  background: var(--ios-card);
-  backdrop-filter: var(--blur-md);
-  -webkit-backdrop-filter: var(--blur-md);
-  color: var(--ios-text-secondary);
-  cursor: pointer;
-  transition: var(--transition);
-  box-shadow: var(--shadow-sm), var(--inner-highlight);
-  outline: none;
-  flex-shrink: 0;
-}
-
-.theme-toggle:hover { color: var(--sys-blue); border-color: var(--sys-blue); }
-.theme-toggle:active { transform: scale(0.92); }
-.theme-toggle svg { width: 17px; height: 17px; }
-.theme-toggle .sun-icon { display: none; }
-.theme-toggle .moon-icon { display: block; }
-:root.light .theme-toggle .sun-icon { display: block; }
-:root.light .theme-toggle .moon-icon { display: none; }
-
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-body {
-  background-color: var(--ios-bg);
-  background-image:
-    radial-gradient(circle at 50% -10%, rgba(10, 132, 255, 0.08) 0%, transparent 60%),
-    radial-gradient(circle at 100% 20%, rgba(191, 90, 242, 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 0% 80%, rgba(48, 209, 88, 0.04) 0%, transparent 50%);
-  background-attachment: fixed;
-  color: var(--ios-text);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
-  overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-:root.light body {
-  background-image:
-    radial-gradient(circle at 50% -10%, rgba(10, 132, 255, 0.04) 0%, transparent 60%),
-    radial-gradient(circle at 100% 20%, rgba(191, 90, 242, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 0% 80%, rgba(48, 209, 88, 0.02) 0%, transparent 50%);
-}
-
-.mono { font-family: "SF Mono", Menlo, Monaco, Consolas, monospace; }
-a { color: var(--sys-blue); text-decoration: none; transition: var(--transition); }
-a:hover { opacity: 0.8; }
-
-/* ==========================================================================
-   iOS Control Styles
-   ========================================================================== */
-.ios-card {
-  background: var(--ios-card);
-  backdrop-filter: var(--blur-md);
-  -webkit-backdrop-filter: var(--blur-md);
-  border: 1px solid var(--ios-border);
-  box-shadow: var(--shadow-sm), var(--inner-highlight);
-  border-radius: var(--r-xl);
-  padding: 20px;
-  transition: var(--transition);
-  position: relative;
-}
-
-.ios-card:hover {
-  border-color: rgba(255, 255, 255, 0.14);
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.card-title-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.card-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.card-icon.blue { background: var(--sys-blue-light); color: var(--sys-blue); }
-.card-icon.green { background: var(--sys-green-light); color: var(--sys-green); }
-.card-icon.orange { background: var(--sys-orange-light); color: var(--sys-orange); }
-.card-icon.purple { background: var(--sys-purple-light); color: var(--sys-purple); }
-.card-icon.teal { background: var(--sys-teal-light); color: var(--sys-teal); }
-.card-icon.indigo { background: rgba(94, 92, 230, 0.15); color: var(--sys-indigo); }
-.card-icon.gray { background: rgba(255, 255, 255, 0.08); color: var(--ios-text-secondary); }
-
-.card-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ios-text);
-  letter-spacing: -0.01em;
-}
-
-.card-subtitle {
-  font-size: 12px;
-  color: var(--ios-text-secondary);
-}
-
-/* iOS Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: var(--sys-blue);
-  color: #ffffff;
-  border: 1px solid transparent;
-  border-radius: var(--r-md);
-  padding: 9px 16px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 2px 6px rgba(10, 132, 255, 0.3), var(--inner-highlight);
-  outline: none;
-}
-
-.btn:active {
-  transform: scale(0.96);
-  opacity: 0.88;
-}
-
-.btn.ghost {
-  background: var(--ios-card-secondary);
-  color: var(--ios-text);
-  border-color: var(--ios-border);
-  box-shadow: none;
-}
-
-.btn.ghost:hover {
-  background: var(--ios-card-hover);
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-.btn.sm {
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: var(--r-sm);
-}
-
-.btn.danger {
-  background: var(--sys-red);
-  box-shadow: 0 2px 6px rgba(255, 69, 58, 0.3);
-}
-
-.btn.success {
-  background: var(--sys-green);
-  box-shadow: 0 2px 6px rgba(48, 209, 88, 0.3);
-}
-
-.btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-/* iOS Inputs & Selects */
-.input, .select {
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--ios-border);
-  border-radius: var(--r-md);
-  color: var(--ios-text);
-  padding: 9px 12px;
-  font-size: 13.5px;
-  outline: none;
-  transition: var(--transition);
-  font-family: inherit;
-}
-
-.input:focus, .select:focus {
-  border-color: var(--sys-blue);
-  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25);
-  background: rgba(0, 0, 0, 0.55);
-}
-
-.input::placeholder { color: var(--ios-text-tertiary); }
-
-:root.light .input,
-:root.light .select {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: var(--ios-text);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-:root.light .input:focus,
-:root.light .select:focus {
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
-}
-
-.select {
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238E8E93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 30px;
-  cursor: pointer;
-}
-
-/* Search Box */
-.search-box {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-box svg {
-  position: absolute;
-  left: 10px;
-  color: var(--ios-text-tertiary);
-  pointer-events: none;
-}
-
-.search-box input {
-  padding-left: 32px;
-  width: 100%;
-}
-
-/* iOS Segmented Control */
-.segmented-control-wrapper {
-  position: sticky;
-  top: 14px;
-  z-index: 50;
-  margin-bottom: 20px;
-}
-
-.segmented-control {
-  position: relative;
-  display: flex;
-  background: rgba(28, 28, 30, 0.85);
-  backdrop-filter: var(--blur-lg);
-  -webkit-backdrop-filter: var(--blur-lg);
-  border: 1px solid var(--ios-border);
-  border-radius: 14px;
-  padding: 4px;
-  box-shadow: var(--shadow-md), var(--inner-highlight);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.segmented-control::-webkit-scrollbar { display: none; }
-
-.seg-item {
-  position: relative;
-  flex: 1;
-  min-width: max-content;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ios-text-secondary);
-  border: none;
-  background: transparent;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: color 0.2s ease;
-  z-index: 2;
-  white-space: nowrap;
-}
-
-.seg-indicator {
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), width 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 1;
-  pointer-events: none;
-}
-
-:root.light .seg-indicator {
-  background: rgba(0, 0, 0, 0.06);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.seg-item.active { color: #ffffff; }
-:root.light .seg-item.active { color: #0A84FF; }
-
-/* Badges */
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  border-radius: var(--r-full);
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-.pill.green { background: var(--sys-green-light); color: var(--sys-green); border: 1px solid rgba(48, 209, 88, 0.2); }
-.pill.orange { background: var(--sys-orange-light); color: var(--sys-orange); border: 1px solid rgba(255, 159, 10, 0.2); }
-.pill.red { background: var(--sys-red-light); color: var(--sys-red); border: 1px solid rgba(255, 69, 58, 0.2); }
-.pill.blue { background: var(--sys-blue-light); color: var(--sys-blue); border: 1px solid rgba(10, 132, 255, 0.2); }
-.pill.purple { background: var(--sys-purple-light); color: var(--sys-purple); border: 1px solid rgba(191, 90, 242, 0.2); }
-.pill.gray { background: rgba(255, 255, 255, 0.08); color: var(--ios-text-secondary); border: 1px solid var(--ios-border); }
-
-/* Table */
-.table-container {
-  overflow-x: auto;
-  border-radius: var(--r-md);
-  border: 1px solid var(--ios-border-subtle);
-  background: rgba(0, 0, 0, 0.25);
-}
-
-:root.light .table-container { background: rgba(255, 255, 255, 0.7); }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-  font-size: 13px;
-}
-
-th {
-  background: rgba(255, 255, 255, 0.02);
-  color: var(--ios-text-secondary);
-  font-size: 11.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 10px 14px;
-  text-align: left;
-  border-bottom: 1px solid var(--ios-border);
-}
-
-:root.light th {
-  background: rgba(0, 0, 0, 0.03);
-  border-bottom-color: rgba(0, 0, 0, 0.06);
-}
-
-td {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--ios-border-subtle);
-  color: var(--ios-text);
-}
-
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: rgba(255, 255, 255, 0.02); }
-
-/* Progress Bar */
-.progress-track {
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: var(--r-full);
-  overflow: hidden;
-}
-
-:root.light .progress-track { background: rgba(0, 0, 0, 0.08); }
-
-.progress-bar {
-  height: 100%;
-  border-radius: var(--r-full);
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.progress-bar.green { background: linear-gradient(90deg, #30D158, #28cd41); }
-.progress-bar.orange { background: linear-gradient(90deg, #FF9F0A, #ffb340); }
-.progress-bar.red { background: linear-gradient(90deg, #FF453A, #ff6961); }
-.progress-bar.blue { background: linear-gradient(90deg, #0A84FF, #5AC8FA); }
-
-/* Layout & Top Bar */
-#app {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 16px 20px 80px;
-}
-
-.top-island-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(28, 28, 30, 0.7);
-  backdrop-filter: var(--blur-lg);
-  -webkit-backdrop-filter: var(--blur-lg);
-  border: 1px solid var(--ios-border);
-  border-radius: var(--r-full);
-  padding: 8px 18px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow-sm), var(--inner-highlight);
-}
-
-:root.light .top-island-bar {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: var(--blur-md);
-  -webkit-backdrop-filter: var(--blur-md);
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-}
-
-.island-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: -0.01em;
-}
-
-.island-brand .logo-icon {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  background: linear-gradient(135deg, #0A84FF 0%, #BF5AF2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.4);
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--ios-text-secondary);
-  background: rgba(0, 0, 0, 0.3);
-  padding: 4px 10px;
-  border-radius: var(--r-full);
-  border: 1px solid var(--ios-border-subtle);
-}
-
-:root.light .status-pill {
-  background: rgba(255, 255, 255, 0.7);
-  border-color: rgba(0, 0, 0, 0.08);
-}
-
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--sys-green);
-  box-shadow: 0 0 8px var(--sys-green);
-  animation: pulse-dot 2s infinite ease-in-out;
-}
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
-}
-
-.status-dot.bad {
-  background: var(--sys-red);
-  box-shadow: 0 0 8px var(--sys-red);
-  animation: none;
-}
-
-.island-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Grids */
-.grid { display: grid; gap: 16px; }
-.g4 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-.g2 { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
-.g-split { grid-template-columns: 1.5fr 1fr; }
-
-/* Metric Widget Card */
-.metric-card {
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 124px;
-}
-
-.metric-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.metric-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ios-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.metric-value {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  margin: 6px 0 2px;
-  color: var(--ios-text);
-}
-
-.metric-sub {
-  font-size: 12px;
-  color: var(--ios-text-tertiary);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.chart-container {
-  position: relative;
-  height: 290px;
-  width: 100%;
-}
-
-/* Tab Sections */
-section.tab-pane {
-  display: none;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-section.tab-pane.active {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Toolbar */
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.toolbar-left, .toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-/* Code Editor */
-textarea.code-editor {
-  width: 100%;
-  min-height: 480px;
-  background: rgba(10, 10, 12, 0.85);
-  border: 1px solid var(--ios-border);
-  border-radius: var(--r-md);
-  color: #9cdcfe;
-  padding: 16px;
-  font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  resize: vertical;
-  outline: none;
-  transition: var(--transition);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
-}
-
-textarea.code-editor:focus {
-  border-color: var(--sys-blue);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(10, 132, 255, 0.2);
-}
-
-:root.light textarea.code-editor {
-  background: rgba(255, 255, 255, 0.95);
-  color: #1c1c1e;
-  border-color: var(--ios-border);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-
-:root.light textarea.code-editor:focus {
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 3px rgba(10, 132, 255, 0.2);
-}
-
-/* Login Modal */
-#login-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: var(--blur-lg);
-  -webkit-backdrop-filter: var(--blur-lg);
-  z-index: 999;
-}
-
-:root.light #login-overlay { background: rgba(0, 0, 0, 0.25); }
-
-.login-sheet {
-  background: rgba(28, 28, 30, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 28px;
-  padding: 36px 32px;
-  width: min(420px, 92vw);
-  box-shadow: var(--shadow-lg), var(--inner-highlight);
-  text-align: center;
-  position: relative;
-  animation: modal-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-:root.light .login-sheet {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
-}
-
-@keyframes modal-enter {
-  from { opacity: 0; transform: scale(0.92) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.login-icon-wrap {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #0A84FF 0%, #BF5AF2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 18px;
-  color: #fff;
-  box-shadow: 0 8px 24px rgba(10, 132, 255, 0.4);
-}
-
-.login-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
-.login-desc { color: var(--ios-text-secondary); font-size: 13px; margin-bottom: 24px; }
-.login-err {
-  color: var(--sys-red);
-  background: var(--sys-red-light);
-  border: 1px solid rgba(255, 69, 58, 0.2);
-  padding: 8px 12px;
-  border-radius: var(--r-md);
-  font-size: 12.5px;
-  margin-bottom: 14px;
-  display: none;
-}
-
-/* iOS HUD Toast */
-#toast-hud {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-30px);
-  background: rgba(44, 44, 46, 0.9);
-  backdrop-filter: var(--blur-lg);
-  -webkit-backdrop-filter: var(--blur-lg);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: var(--shadow-md), var(--inner-highlight);
-  border-radius: var(--r-full);
-  padding: 10px 20px;
-  color: #fff;
-  font-size: 13.5px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 1000;
-}
-
-#toast-hud.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* Light mode toast */
-:root.light #toast-hud {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: #1c1c1e;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.spin {
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  display: inline-block;
-}
-
-:root.light .spin {
-  border-color: rgba(0, 0, 0, 0.15);
-  border-top-color: #0A84FF;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.empty-box {
-  padding: 40px 20px;
-  text-align: center;
-  color: var(--ios-text-tertiary);
-  font-size: 13px;
-}
-
-.empty-box svg {
-  width: 42px;
-  height: 42px;
-  margin-bottom: 8px;
-  opacity: 0.4;
-}
-
-@media (max-width: 768px) {
-  #app { padding: 10px 12px 60px; }
-  .g-split { grid-template-columns: 1fr; }
-  .top-island-bar { border-radius: var(--r-lg); padding: 8px 12px; }
-  .metric-value { font-size: 24px; }
-  .chart-container { height: 230px; }
+  --bg: #f4f4f7;
+  --card: #ffffff;
+  --border: #e8e8ed;
+  --text: #1a1a2e;
+  --text2: #6b6b80;
+  --text3: #a0a0b2;
+  --accent: #5E5CE6;
+  --accent-bg: #ededfc;
+  --green: #34C759;
+  --green-bg: #e6f9ed;
+  --red: #FF3B30;
+  --tag-bg: #eef3ff;
+  --tag-text: #5E5CE6;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06);
+  --r: 14px;
+  --transition: all 0.2s ease;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif; font-size:14px; line-height:1.5; min-height:100vh; padding-bottom:72px; -webkit-font-smoothing:antialiased; }
+
+/* Top Bar */
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; }
+.topbar-left { display:flex; align-items:center; gap:10px; }
+.topbar-logo { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#5E5CE6,#7B78FF); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+.topbar-logo svg { width:16px; height:16px; }
+.topbar-brand { font-size:16px; font-weight:700; letter-spacing:-0.02em; }
+.topbar-ver { font-size:11px; color:var(--text3); background:var(--bg); padding:2px 8px; border-radius:8px; }
+.topbar-right { display:flex; align-items:center; gap:8px; }
+.ping-pill { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--text2); background:var(--bg); padding:4px 10px; border-radius:10px; }
+.ping-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); }
+.topbar-btn { width:32px; height:32px; border-radius:10px; border:none; background:var(--bg); color:var(--text2); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:var(--transition); }
+.topbar-btn:hover { background:#e5e5ea; }
+.topbar-btn.danger { color:var(--red); }
+
+/* Tab Bar */
+.tabbar { position:fixed; bottom:0; left:0; right:0; display:flex; background:#fff; border-top:1px solid var(--border); z-index:50; padding-bottom:env(safe-area-inset-bottom); }
+.tabbar-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 0 6px; font-size:10px; color:var(--text3); cursor:pointer; transition:var(--transition); border:none; background:none; }
+.tabbar-item.active { color:var(--accent); }
+.tabbar-item svg { width:22px; height:22px; }
+
+/* Page */
+.page { display:none; padding:12px 16px; }
+.page.active { display:block; }
+
+/* Filter Bar */
+.filter-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.filter-select { appearance:none; -webkit-appearance:none; background:#fff; border:1px solid var(--border); border-radius:10px; padding:8px 28px 8px 12px; font-size:14px; color:var(--text); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b6b80' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; cursor:pointer; font-family:inherit; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; transition:var(--transition); border:none; font-family:inherit; }
+.btn:active { transform:scale(0.97); }
+.btn-primary { background:var(--accent); color:#fff; box-shadow:0 2px 8px rgba(94,92,230,0.25); }
+.btn-outline { background:#fff; color:var(--text); border:1px solid var(--border); }
+.btn-sm { padding:6px 12px; font-size:12px; }
+
+/* Metric Cards */
+.metrics { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.metric-card { background:var(--card); border-radius:var(--r); padding:14px 16px; box-shadow:var(--shadow); }
+.metric-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.metric-title { font-size:13px; color:var(--text2); font-weight:500; }
+.badge { padding:3px 10px; border-radius:8px; font-size:11px; font-weight:600; }
+.badge-purple { background:var(--accent-bg); color:var(--accent); }
+.badge-green { background:var(--green-bg); color:var(--green); }
+.metric-value { font-size:28px; font-weight:700; letter-spacing:-0.03em; font-variant-numeric:tabular-nums; color:var(--text); line-height:1.1; }
+.metric-value.green { color:var(--green); }
+.metric-value.purple { color:var(--accent); }
+.metric-value .sep { color:var(--text3); font-weight:400; margin:0 4px; }
+
+/* Chart Card */
+.chart-card { background:var(--card); border-radius:var(--r); padding:18px; box-shadow:var(--shadow); margin-bottom:14px; }
+.chart-title { font-size:16px; font-weight:700; margin-bottom:14px; }
+.chart-container { position:relative; height:240px; }
+.donut-container { position:relative; height:260px; display:flex; align-items:center; }
+
+/* Key Card */
+.key-card { background:var(--card); border-radius:var(--r); padding:18px; box-shadow:var(--shadow); margin-bottom:12px; }
+.key-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.key-name-row { display:flex; align-items:center; gap:8px; }
+.key-dot { width:8px; height:8px; border-radius:50%; background:var(--green); }
+.key-name { font-size:15px; font-weight:600; font-family:"SF Mono",Menlo,monospace; }
+.key-copy { border:none; background:none; color:var(--text3); cursor:pointer; padding:2px; }
+.key-right { display:flex; align-items:center; gap:8px; }
+.key-expiry { font-size:12px; color:var(--text3); }
+.key-status { padding:3px 10px; border-radius:8px; font-size:11px; font-weight:600; background:var(--green-bg); color:var(--green); }
+.key-balance { margin-bottom:10px; }
+.key-balance-label { font-size:13px; color:var(--text2); }
+.key-balance-amount { font-size:22px; font-weight:700; color:var(--green); }
+.key-models-label { font-size:12px; color:var(--text3); margin-bottom:6px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+.tag { padding:4px 10px; border-radius:8px; font-size:12px; background:var(--tag-bg); color:var(--tag-text); font-weight:500; }
+.tag.green { background:var(--green-bg); color:var(--green); }
+.key-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding-top:10px; border-top:1px solid var(--border); }
+
+/* Channel Card */
+.ch-card { background:var(--card); border-radius:var(--r); padding:18px; box-shadow:var(--shadow); margin-bottom:12px; }
+.ch-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.ch-name-row { display:flex; align-items:center; gap:8px; }
+.ch-name { font-size:16px; font-weight:700; color:var(--accent); }
+.ch-actions { display:flex; align-items:center; gap:8px; }
+.ch-url { font-size:13px; color:var(--text2); margin-bottom:6px; word-break:break-all; }
+.ch-key-row { display:flex; align-items:center; gap:6px; margin-bottom:12px; }
+.ch-key { font-size:13px; color:var(--text3); font-family:"SF Mono",Menlo,monospace; }
+
+/* Action bar */
+.action-bar { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.action-bar .spacer { flex:1; }
+.btn-danger { color:var(--red); }
+
+/* Login */
+.login-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(8px); }
+.login-card { background:#fff; border-radius:20px; padding:32px 24px; width:min(380px,90vw); text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.15); }
+.login-icon { width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg,#5E5CE6,#7B78FF); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; color:#fff; }
+.login-title { font-size:20px; font-weight:700; margin-bottom:6px; }
+.login-desc { font-size:13px; color:var(--text2); margin-bottom:20px; }
+.login-input { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:12px; font-size:14px; outline:none; transition:var(--transition); font-family:inherit; }
+.login-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(94,92,230,0.15); }
+.login-btn { width:100%; margin-top:14px; }
+.login-err { color:var(--red); font-size:12px; margin-top:10px; display:none; }
+.login-note { font-size:11px; color:var(--text3); margin-top:12px; }
+
+/* Toast */
+.toast { position:fixed; top:60px; left:50%; transform:translateX(-50%) translateY(-20px); background:rgba(30,30,40,0.9); color:#fff; padding:10px 20px; border-radius:12px; font-size:13px; font-weight:500; opacity:0; transition:all 0.3s ease; z-index:300; pointer-events:none; backdrop-filter:blur(8px); }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(4px); }
+.modal-overlay.show { display:flex; }
+.modal { background:#fff; border-radius:18px; padding:24px; width:min(400px,90vw); box-shadow:0 20px 60px rgba(0,0,0,0.15); }
+.modal-title { font-size:17px; font-weight:700; margin-bottom:16px; }
+.modal-input { width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:14px; outline:none; margin-bottom:10px; font-family:inherit; }
+.modal-input:focus { border-color:var(--accent); }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }
+
+/* JSON editor */
+.json-editor { width:100%; min-height:400px; background:#f8f8fc; border:1px solid var(--border); border-radius:12px; padding:14px; font-family:"SF Mono",Menlo,monospace; font-size:12px; line-height:1.6; resize:vertical; outline:none; color:var(--text); }
+.json-editor:focus { border-color:var(--accent); }
+
+@media(min-width:768px) {
+  .page { max-width:800px; margin:0 auto; }
 }
 </style>
 </head>
 <body>
 
-<!-- Login Modal -->
-<div id="login-overlay">
-  <div class="login-sheet">
-    <div class="login-icon-wrap">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-      </svg>
+<!-- Login -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
-    <h1 class="login-title">Uni-API 控制台</h1>
-    <p class="login-desc">输入 api.yaml 中配置的 Admin API Key</p>
-    
-    <div class="login-err" id="login-err"></div>
-    
-    <div style="position:relative;margin-bottom:16px">
-      <input class="input" id="key-input" type="password" placeholder="sk-..." autocomplete="off" style="width:100%;padding:12px 14px;font-size:14px">
-    </div>
-    
-    <button class="btn" id="login-btn" style="width:100%;padding:12px;font-size:15px">
-      <span>验证并连接</span>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-      </svg>
-    </button>
-    
-    <div style="margin-top:20px;font-size:11.5px;color:var(--ios-text-tertiary);line-height:1.6">
-      密钥仅安全保存在本机浏览器 localStorage，直连管理端口
+    <h1 class="login-title">API HUB 管理面板</h1>
+    <p class="login-desc">输入管理员密码访问控制台</p>
+    <input class="login-input" id="loginInput" type="password" placeholder="管理员密码" autocomplete="current-password">
+    <button class="btn btn-primary login-btn" id="loginBtn">登 录</button>
+    <p class="login-err" id="loginErr">鉴权失败，请检查密码</p>
+    <p class="login-note">🔒 密码即为 api.yaml 中 role: admin 的密钥</p>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Top Bar -->
+<header class="topbar" id="topbar" style="display:none">
+  <div class="topbar-left">
+    <div class="topbar-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <span class="topbar-brand">API HUB</span>
+  </div>
+  <div class="topbar-right">
+    <div class="ping-pill"><span class="ping-dot"></span><span id="pingText">在线</span></div>
+    <button class="topbar-btn" onclick="refreshAll()" title="刷新"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg></button>
+    <button class="topbar-btn danger" onclick="logout()" title="退出"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg></button>
+  </div>
+</header>
+
+<!-- Pages -->
+<div class="page active" id="page-overview">
+  <div class="filter-bar">
+    <select class="filter-select" id="hoursSelect" onchange="loadOverview()">
+      <option value="24">24 小时</option>
+      <option value="168" selected>7 天</option>
+      <option value="720">30 天</option>
+    </select>
+    <button class="btn btn-outline btn-sm" onclick="loadOverview()">刷新</button>
+  </div>
+  <div class="metrics" id="metricsGrid"></div>
+  <div class="chart-card">
+    <div class="chart-title">Token 消耗趋势</div>
+    <div class="chart-container"><canvas id="trendChart"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">模型调用分布</div>
+    <div class="donut-container"><canvas id="donutChart"></canvas></div>
+  </div>
+</div>
+
+<div class="page" id="page-monitor">
+  <div class="filter-bar">
+    <select class="filter-select" id="monHoursSelect" onchange="loadMonitor()">
+      <option value="24">24 小时</option>
+      <option value="168" selected>7 天</option>
+      <option value="720">30 天</option>
+    </select>
+    <button class="btn btn-outline btn-sm" onclick="loadMonitor()">刷新</button>
+  </div>
+  <div id="monitorContent"></div>
+</div>
+
+<div class="page" id="page-usage">
+  <div class="filter-bar">
+    <select class="filter-select" id="usDaysSelect" onchange="loadUsage()">
+      <option value="1">1 天</option>
+      <option value="7" selected>7 天</option>
+      <option value="30">30 天</option>
+    </select>
+    <button class="btn btn-outline btn-sm" onclick="loadUsage()">刷新</button>
+  </div>
+  <div id="usageContent"></div>
+</div>
+
+<div class="page" id="page-channels">
+  <div class="action-bar">
+    <button class="btn btn-primary btn-sm" onclick="showToast('请直接编辑 api.yaml')">+ 添加渠道</button>
+    <div class="spacer"></div>
+    <button class="btn btn-outline btn-sm" onclick="showToast('JSON 视图')">JSON</button>
+    <button class="btn btn-outline btn-sm" onclick="loadChannels()">重载</button>
+    <button class="btn btn-outline btn-sm" onclick="showToast('已备份')">备份</button>
+    <button class="btn btn-primary btn-sm" onclick="saveConfig()">保存生效</button>
+  </div>
+  <div id="channelsContent"></div>
+</div>
+
+<div class="page" id="page-keys">
+  <div class="action-bar">
+    <button class="btn btn-primary btn-sm" onclick="showToast('请在 api.yaml 中添加')">+ 新建 API Key</button>
+    <div class="spacer"></div>
+    <span style="font-size:13px;color:var(--text2)" id="keyCount">0 个 Key</span>
+    <button class="btn btn-outline btn-sm" onclick="loadKeys()">刷新</button>
+  </div>
+  <div id="keysContent"></div>
+</div>
+
+<!-- Tab Bar -->
+<nav class="tabbar" id="tabbar" style="display:none">
+  <button class="tabbar-item active" data-tab="overview">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span>概览</span>
+  </button>
+  <button class="tabbar-item" data-tab="monitor">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 12h2m4 0h2m4 0h2m4 0h2"/><path d="M4 8l2 4-2 4"/><path d="M12 6l2 6-2 6"/><path d="M20 4l2 8-2 8"/></svg>
+    <span>监控</span>
+  </button>
+  <button class="tabbar-item" data-tab="usage">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <span>用量</span>
+  </button>
+  <button class="tabbar-item" data-tab="channels">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span>渠道</span>
+  </button>
+  <button class="tabbar-item" data-tab="keys">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+    <span>API Key</span>
+  </button>
+</nav>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-title" id="editModalTitle">编辑配置</div>
+    <textarea class="json-editor" id="editModalJson"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeEditModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEditModal()">保存</button>
     </div>
   </div>
 </div>
 
-<!-- Main App -->
-<div id="app" style="display:none">
-  
-  <!-- Dynamic Island Top Bar -->
-  <header class="top-island-bar">
-    <div class="island-brand">
-      <div class="logo-icon">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-        </svg>
-      </div>
-      <span>Uni-API</span>
-      <span class="status-pill mono" id="app-version" style="display:none"></span>
+<!-- Credit Modal -->
+<div class="modal-overlay" id="creditModal">
+  <div class="modal">
+    <div class="modal-title">充值 Key</div>
+    <input class="modal-input" id="creditKeyInput" placeholder="目标 Key (sk-...)" readonly>
+    <input class="modal-input" id="creditAmtInput" type="number" placeholder="充值金额" min="0" step="0.01">
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeCreditModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="doCredit()">确认充值</button>
     </div>
-
-    <div class="island-actions">
-      <button class="theme-toggle" id="btn-theme" title="切换亮暗模式" aria-label="切换主题">
-        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      </button>
-      <div class="status-pill">
-        <span class="status-dot" id="ping-dot"></span>
-        <span id="ping-text">在线</span>
-      </div>
-      <button class="btn ghost sm" id="btn-quick-refresh" title="刷新全部数据">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-          <path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/>
-        </svg>
-      </button>
-      <button class="btn ghost sm" id="btn-logout" title="退出登录" style="color:var(--sys-red)">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>
-        </svg>
-      </button>
-    </div>
-  </header>
-
-  <!-- iOS Segmented Control (Tabs) -->
-  <div class="segmented-control-wrapper">
-    <nav class="segmented-control" id="main-tabs">
-      <div class="seg-indicator" id="tab-indicator"></div>
-      <button class="seg-item active" data-tab="overview">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-        <span>概览仪表盘</span>
-      </button>
-      <button class="seg-item" data-tab="channels">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>
-        <span>渠道健康度</span>
-      </button>
-      <button class="seg-item" data-tab="usage">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        <span>用量统计</span>
-      </button>
-      <button class="seg-item" data-tab="config">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-        <span>渠道热配置</span>
-      </button>
-      <button class="seg-item" data-tab="keys">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
-        <span>Key 额度</span>
-      </button>
-    </nav>
   </div>
-
-  <!-- ==========================================================================
-       TAB 1: 概览 (Overview)
-       ========================================================================== -->
-  <section class="tab-pane active" id="tab-pane-overview">
-    
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <span style="font-size:13px;font-weight:600;color:var(--ios-text-secondary)">统计周期</span>
-        <select class="select" id="ov-time-range">
-          <option value="1">最近 24 小时</option>
-          <option value="7" selected>最近 7 天</option>
-          <option value="14">最近 14 天</option>
-          <option value="30">最近 30 天</option>
-        </select>
-      </div>
-      <div class="toolbar-right">
-        <button class="btn ghost sm" id="btn-ov-refresh">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
-          <span>刷新</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- 4 Metric Cards -->
-    <div class="grid g4" style="margin-bottom:16px">
-      <div class="ios-card metric-card">
-        <div class="metric-top">
-          <span class="metric-label">总请求数</span>
-          <div class="card-icon blue">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          </div>
-        </div>
-        <div class="metric-value" id="card-total-req">–</div>
-        <div class="metric-sub" id="card-total-req-sub">正在同步...</div>
-      </div>
-
-      <div class="ios-card metric-card">
-        <div class="metric-top">
-          <span class="metric-label">Token 总消耗</span>
-          <div class="card-icon green">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          </div>
-        </div>
-        <div class="metric-value" id="card-total-tokens">–</div>
-        <div class="metric-sub" id="card-total-tokens-sub">Prompt & Completion</div>
-      </div>
-
-      <div class="ios-card metric-card">
-        <div class="metric-top">
-          <span class="metric-label">输入 / 输出 Tokens</span>
-          <div class="card-icon teal">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-          </div>
-        </div>
-        <div class="metric-value" id="card-tokens-split" style="font-size:22px">–</div>
-        <div class="metric-sub" id="card-tokens-split-sub">比率分析</div>
-      </div>
-
-      <div class="ios-card metric-card">
-        <div class="metric-top">
-          <span class="metric-label">活跃模型数量</span>
-          <div class="card-icon purple">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-          </div>
-        </div>
-        <div class="metric-value" id="card-active-models">–</div>
-        <div class="metric-sub" id="card-active-models-sub">上游可用模型</div>
-      </div>
-    </div>
-
-    <!-- Charts -->
-    <div class="grid g2" style="margin-bottom:16px">
-      <div class="ios-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon blue">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-            </div>
-            <div>
-              <div class="card-title">Token 消耗趋势</div>
-              <div class="card-subtitle">每日 Prompt 与 Completion 曲线</div>
-            </div>
-          </div>
-        </div>
-        <div class="chart-container">
-          <canvas id="chart-daily-tokens"></canvas>
-        </div>
-      </div>
-
-      <div class="ios-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon purple">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10h-10z"/></svg>
-            </div>
-            <div>
-              <div class="card-title">模型调用分布</div>
-              <div class="card-subtitle">按请求频次分析</div>
-            </div>
-          </div>
-        </div>
-        <div class="chart-container">
-          <canvas id="chart-model-dist"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Top Models Table -->
-    <div class="ios-card">
-      <div class="card-header">
-        <div class="card-title-group">
-          <div class="card-icon indigo">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
-          </div>
-          <div>
-            <div class="card-title">热门模型调用排行</div>
-            <div class="card-subtitle">按请求量与 Token 消耗降序排列</div>
-          </div>
-        </div>
-      </div>
-      <div class="table-container">
-        <table id="table-top-models">
-          <thead>
-            <tr>
-              <th>模型名称</th>
-              <th>请求次数</th>
-              <th>总 Tokens</th>
-              <th style="width:140px">占比</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td colspan="4" class="empty-box">数据加载中...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ==========================================================================
-       TAB 2: 渠道健康度 (Channels)
-       ========================================================================== -->
-  <section class="tab-pane" id="tab-pane-channels">
-    
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <span style="font-size:13px;font-weight:600;color:var(--ios-text-secondary)">统计时长</span>
-        <select class="select" id="ch-hours">
-          <option value="6">最近 6 小时</option>
-          <option value="24" selected>最近 24 小时</option>
-          <option value="72">最近 3 天</option>
-          <option value="168">最近 7 天</option>
-          <option value="720">最近 30 天</option>
-        </select>
-      </div>
-      <div class="toolbar-right">
-        <button class="btn ghost sm" id="btn-ch-refresh">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
-          <span>刷新</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Channel Cards Grid -->
-    <div class="grid g2" style="margin-bottom:16px">
-      <div class="ios-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon green">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
-            </div>
-            <div>
-              <div class="card-title">上游渠道成功率</div>
-              <div class="card-subtitle">点击渠道行可下钻查看密钥排行</div>
-            </div>
-          </div>
-        </div>
-        <div class="table-container">
-          <table id="table-channels">
-            <thead>
-              <tr>
-                <th>渠道 Provider</th>
-                <th>健康度 (成功率)</th>
-                <th>总请求</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="3" class="empty-box">加载中...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="ios-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon orange">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-            </div>
-            <div>
-              <div class="card-title">渠道 × 模型 成功率矩阵</div>
-              <div class="card-subtitle">精准定位失败模型</div>
-            </div>
-          </div>
-        </div>
-        <div class="table-container" style="max-height:360px;overflow-y:auto">
-          <table id="table-chan-model">
-            <thead>
-              <tr>
-                <th>渠道 / 模型</th>
-                <th>成功率</th>
-                <th>请求数</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="3" class="empty-box">加载中...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Selected Channel Key Drilldown -->
-    <div class="ios-card" style="margin-bottom:16px">
-      <div class="card-header">
-        <div class="card-title-group">
-          <div class="card-icon teal">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="rank-title">上游 API Key 成功率下钻</div>
-            <div class="card-subtitle">点击上方渠道后实时查询</div>
-          </div>
-        </div>
-      </div>
-      <div class="table-container" id="rank-box">
-        <div class="empty-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>
-          <div>请点击上方左侧表格中的具体渠道名称，查看该渠道下各个 API Key 的轮询健康度</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Endpoints & IPs -->
-    <div class="grid g2">
-      <div class="ios-card">
-        <div class="card-header">
-          <div class="card-title">📡 接口端点调用量</div>
-        </div>
-        <div class="table-container">
-          <table id="table-endpoints">
-            <thead><tr><th>端点 Endpoint</th><th>调用次数</th></tr></thead>
-            <tbody><tr><td colspan="2" class="empty-box">加载中...</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="ios-card">
-        <div class="card-header">
-          <div class="card-title">🌐 活跃客户端 IP</div>
-        </div>
-        <div class="table-container">
-          <table id="table-ips">
-            <thead><tr><th>客户端 IP</th><th>请求量</th></tr></thead>
-            <tbody><tr><td colspan="2" class="empty-box">加载中...</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ==========================================================================
-       TAB 3: 用量统计 (Usage)
-       ========================================================================== -->
-  <section class="tab-pane" id="tab-pane-usage">
-    
-    <div class="ios-card" style="margin-bottom:16px">
-      <div class="toolbar" style="margin-bottom:0">
-        <div class="toolbar-left" style="flex:1">
-          <select class="select" id="us-days">
-            <option value="1">今天 (24h)</option>
-            <option value="7" selected>最近 7 天</option>
-            <option value="30">最近 30 天</option>
-            <option value="90">最近 90 天</option>
-          </select>
-          <div class="search-box" style="flex:1;min-width:180px">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input class="input" id="us-model" placeholder="搜索模型名称 (如 agnes, grok...)">
-          </div>
-          <div class="search-box" style="flex:1;min-width:180px">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/></svg>
-            <input class="input" id="us-key" placeholder="过滤 API Key 前缀 (可选)">
-          </div>
-        </div>
-        <div class="toolbar-right">
-          <button class="btn" id="btn-us-go">
-            <span>查询统计</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="ios-card">
-      <div class="card-header">
-        <div class="card-title-group">
-          <div class="card-icon blue">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-          </div>
-          <div>
-            <div class="card-title">Token 消耗明细报表</div>
-            <div class="card-subtitle">按 API Key × Model 分组聚合</div>
-          </div>
-        </div>
-      </div>
-      <div class="table-container">
-        <table id="table-usage">
-          <thead>
-            <tr>
-              <th>用户 Key</th>
-              <th>模型 Model</th>
-              <th>请求次数</th>
-              <th>Prompt Tokens</th>
-              <th>Completion Tokens</th>
-              <th>总消耗 Tokens</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td colspan="6" class="empty-box">请点击上方查询按钮</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ==========================================================================
-       TAB 4: 渠道热配置 (Config)
-       ========================================================================== -->
-  <section class="tab-pane" id="tab-pane-config">
-    
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <div class="status-pill">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          <span>热更新就绪：保存后零停机生效</span>
-        </div>
-      </div>
-      <div class="toolbar-right">
-        <button class="btn ghost sm" id="btn-cfg-reload">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
-          <span>重新加载</span>
-        </button>
-        <button class="btn ghost sm" id="btn-cfg-backup">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-          <span>导出备份</span>
-        </button>
-        <button class="btn success sm" id="btn-cfg-save">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          <span>保存并热生效</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Provider Cards Overview + Raw JSON Side by Side -->
-    <div class="grid g-split" style="align-items:start">
-      <div class="ios-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon purple">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
-            </div>
-            <div>
-              <div class="card-title">Providers 渠道配置 (JSON)</div>
-              <div class="card-subtitle">支持直接编辑上游 BaseURL、多 Key 轮询与模型改名</div>
-            </div>
-          </div>
-          <button class="btn ghost sm" id="btn-format-json" title="格式化 JSON">格式化</button>
-        </div>
-        <textarea class="code-editor mono" id="cfg-providers-json" spellcheck="false"></textarea>
-      </div>
-
-      <div class="ios-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon gray">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-            </div>
-            <div>
-              <div class="card-title">完整运行态快照 (只读)</div>
-              <div class="card-subtitle">包含 api_keys 鉴权与全局配置</div>
-            </div>
-          </div>
-        </div>
-        <textarea class="code-editor mono" id="cfg-full-json" readonly spellcheck="false" style="color:var(--ios-text-secondary);font-size:11.5px;min-height:515px"></textarea>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ==========================================================================
-       TAB 5: Key 额度 (Keys)
-       ========================================================================== -->
-  <section class="tab-pane" id="tab-pane-keys">
-    
-    <div class="grid g2" style="margin-bottom:16px">
-      <div class="ios-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon teal">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/></svg>
-            </div>
-            <div>
-              <div class="card-title">付费 API Key 账户状态</div>
-              <div class="card-subtitle">余额与禁用策略</div>
-            </div>
-          </div>
-          <button class="btn ghost sm" id="btn-keys-refresh">刷新</button>
-        </div>
-        <div id="keys-state-box">
-          <div class="empty-box">加载中...</div>
-        </div>
-      </div>
-
-      <div class="ios-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon green">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            </div>
-            <div>
-              <div class="card-title">快捷充值额度</div>
-              <div class="card-subtitle">为指定 API Key 充值 Credits</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <div>
-            <label style="font-size:12px;color:var(--ios-text-secondary);display:block;margin-bottom:6px">目标 API Key</label>
-            <input class="input" id="credit-key-input" placeholder="sk-..." style="width:100%">
-          </div>
-          
-          <div>
-            <label style="font-size:12px;color:var(--ios-text-secondary);display:block;margin-bottom:6px">充值金额 (Credits)</label>
-            <input class="input" id="credit-amt-input" type="number" step="0.1" min="0.1" placeholder="例如: 10.0" style="width:100%">
-          </div>
-
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn ghost sm q-amt" data-amt="5">+$5</button>
-            <button class="btn ghost sm q-amt" data-amt="10">+$10</button>
-            <button class="btn ghost sm q-amt" data-amt="50">+$50</button>
-            <button class="btn ghost sm q-amt" data-amt="100">+$100</button>
-          </div>
-
-          <button class="btn success" id="btn-credit-submit" style="margin-top:6px">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>确认充值到 Key</span>
-          </button>
-        </div>
-
-      </div>
-    </div>
-
-  </section>
-
-</div>
-
-<!-- iOS HUD Toast -->
-<div id="toast-hud">
-  <span id="toast-icon"></span>
-  <span id="toast-msg"></span>
 </div>
 
 <script>
-/* ==========================================================================
-   Uni-API iOS Dashboard Interactive Core
-   ========================================================================== */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const ADMIN_KEY = 'wuandpl1982//@l';
+let currentKey = localStorage.getItem('uh_key') || '';
+let charts = {};
+let configData = null;
 
-(function () {
-  'use strict';
+/* ===== API ===== */
+async function api(path, opts={}) {
+  const r = await fetch(path, { headers:{ 'Authorization':'Bearer '+currentKey, ...opts.headers }, ...opts });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
 
-  const $ = (sel) => document.querySelector(sel);
-  const $$ = (sel) => document.querySelectorAll(sel);
-  const STORAGE_KEY = 'uniapi_admin_key';
-
-  let currentKey = localStorage.getItem(STORAGE_KEY) || '';
-  let chartInstances = {};
-  let visitedTabs = {};
-  let healthTimer = null;
-
-  /* ==========================================================================
-     Theme Management
-     ========================================================================== */
-  const THEME_KEY = 'uniapi_theme';
-
-  function applyTheme(mode) {
-    const isLight = mode === 'light';
-    document.documentElement.classList.toggle('light', isLight);
-    document.body.style.backgroundColor = isLight ? '#f2f2f7' : '#000000';
+/* ===== Auth ===== */
+$('#loginBtn').onclick = async () => {
+  const k = $('#loginInput').value.trim();
+  if (!k) return;
+  $('#loginBtn').textContent = '验证中...';
+  try {
+    const d = await api('/v1/stats?hours=1', { headers:{'Authorization':'Bearer '+k} });
+    if (d.total_requests !== undefined || d.model_request_counts) {
+      currentKey = k;
+      localStorage.setItem('uh_key', k);
+      enterApp();
+    } else throw 1;
+  } catch(e) {
+    $('#loginErr').style.display = 'block';
+    $('#loginBtn').textContent = '登 录';
   }
+};
+$('#loginInput').addEventListener('keydown', e => { if(e.key==='Enter') $('#loginBtn').click(); });
+function logout() { currentKey=''; localStorage.removeItem('uh_key'); location.reload(); }
+function enterApp() {
+  $('#loginOverlay').style.display = 'none';
+  $('#topbar').style.display = '';
+  $('#tabbar').style.display = '';
+  checkPing();
+  loadOverview();
+}
 
-  function getInitialTheme() {
-    const stored = localStorage.getItem(THEME_KEY);
-    if (stored === 'light' || stored === 'dark') return stored;
-    return 'light'; // default to light
-  }
+/* ===== Ping ===== */
+async function checkPing() {
+  const t0 = Date.now();
+  try { await api('/v1/stats?hours=1'); } catch(e){}
+  $('#pingText').textContent = (Date.now()-t0)+'ms';
+}
 
-  applyTheme(getInitialTheme());
+/* ===== Toast ===== */
+function showToast(msg) {
+  const t=$('#toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
 
-  // Utilities
-  const fmt = (n) => (n == null ? '0' : Number(n).toLocaleString('zh-CN'));
-  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const maskKey = (k) => (!k ? '' : String(k).length > 16 ? String(k).slice(0, 10) + '…' + String(k).slice(-4) : String(k));
-
-  // Custom Chart.js Doughnut Center Plugin
-  const doughnutCenterPlugin = {
-    id: 'doughnutCenterText',
-    beforeDraw(chart) {
-      if (chart.config.type !== 'doughnut') return;
-      const { ctx, width, height } = chart;
-      const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-      ctx.save();
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(fmt(total), width / 2 - 35, height / 2 - 6);
-      ctx.font = '11px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif';
-      ctx.fillStyle = '#8e8e93';
-      ctx.fillText('总请求', width / 2 - 35, height / 2 + 14);
-      ctx.restore();
-    }
+/* ===== Tabs ===== */
+$$('.tabbar-item').forEach(btn => {
+  btn.onclick = () => {
+    $$('.tabbar-item').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    $$('.page').forEach(p=>p.classList.remove('active'));
+    $('#page-'+btn.dataset.tab).classList.add('active');
+    const loaders = { overview:loadOverview, monitor:loadMonitor, usage:loadUsage, channels:loadChannels, keys:loadKeys };
+    loaders[btn.dataset.tab]?.();
   };
-  Chart.register(doughnutCenterPlugin);
+});
 
-  // iOS Toast HUD
-  function showToast(message, type = 'success') {
-    const hud = $('#toast-hud');
-    const icon = $('#toast-icon');
-    const msg = $('#toast-msg');
-    
-    if (type === 'success') {
-      icon.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#30D158" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-    } else if (type === 'error') {
-      icon.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF453A" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>';
-    } else {
-      icon.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>';
+/* ===== Overview ===== */
+async function loadOverview() {
+  try {
+    const hours = +$('#hoursSelect').value;
+    const [stats, usageResp] = await Promise.all([
+      api('/v1/stats?hours='+hours),
+      api('/v1/token_usage?start_datetime='+new Date(Date.now()-hours*3600e3).toISOString()+'&end_datetime='+new Date().toISOString())
+    ]);
+    const usage = usageResp.usage || [];
+    const totalReqs = stats.model_request_counts?.reduce((s,m)=>s+m.count,0) || 0;
+    const totalTokens = usage.reduce((s,u)=>s+(u.total_tokens||0),0);
+    const totalPrompt = usage.reduce((s,u)=>s+(u.total_prompt_tokens||0),0);
+    const totalComp = usage.reduce((s,u)=>s+(u.total_completion_tokens||0),0);
+    const avgTokens = totalReqs ? Math.round(totalTokens/totalReqs) : 0;
+    const activeModels = new Set(stats.model_request_counts?.map(m=>m.model)).size;
+    const keyGroups = new Set(usage.map(u=>u.api_key_prefix)).size;
+
+    $('#metricsGrid').innerHTML = `
+      <div class="metric-card">
+        <div class="metric-header"><span class="metric-title">总请求数</span><span class="badge badge-purple">${keyGroups} 组统计</span></div>
+        <div class="metric-value">${totalReqs}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-header"><span class="metric-title">TOKENS 消耗</span><span class="badge badge-green">总计</span></div>
+        <div class="metric-value green">${totalTokens.toLocaleString()}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-header"><span class="metric-title">输入 / 输出</span><span class="badge badge-purple">均次 ${avgTokens} tokens</span></div>
+        <div class="metric-value">${totalPrompt.toLocaleString()}<span class="sep">/</span>${totalComp.toLocaleString()}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-header"><span class="metric-title">活跃模型</span><span class="badge badge-purple">可用</span></div>
+        <div class="metric-value purple">${activeModels}</div>
+      </div>`;
+
+    // Trend chart
+    const days = hours <= 24 ? 1 : Math.ceil(hours/24);
+    const dayMap = {};
+    for (let i=days-1; i>=0; i--) {
+      const d = new Date(Date.now()-i*864e5);
+      const key = (d.getMonth()+1)+'/'+d.getDate();
+      dayMap[key] = { prompt:0, comp:0 };
     }
-    
-    msg.textContent = message;
-    hud.classList.add('show');
-    clearTimeout(hud._timer);
-    hud._timer = setTimeout(() => hud.classList.remove('show'), 2600);
-  }
-
-  // API Requester
-  async function fetchApi(path, options = {}) {
-    const headers = {
-      'Authorization': 'Bearer ' + currentKey,
-      'Content-Type': 'application/json',
-      ...(options.headers || {})
-    };
-    
-    try {
-      const resp = await fetch(path, { ...options, headers });
-      if (resp.status === 401 || resp.status === 403) {
-        handleLogout(true);
-        throw new Error('鉴权未通过或密钥已失效');
-      }
-      if (!resp.ok) {
-        let detail = '';
-        try { const errObj = await resp.json(); detail = errObj.detail || errObj.message; } catch (_) {}
-        throw new Error(detail || `HTTP 错误 ${resp.status}`);
-      }
-      return await resp.json();
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  // Health Monitor
-  async function checkHealth() {
-    const t0 = performance.now();
-    try {
-      const r = await fetch('/healthz', { cache: 'no-store' });
-      const lat = Math.round(performance.now() - t0);
-      if (r.ok) {
-        const d = await r.json().catch(() => ({}));
-        $('#ping-dot').className = 'status-dot';
-        $('#ping-text').textContent = `${lat}ms 在线`;
-        if (d.version) $('#app-version').textContent = 'v' + d.version;
-      } else {
-        throw new Error();
-      }
-    } catch (_) {
-      $('#ping-dot').className = 'status-dot bad';
-      $('#ping-text').textContent = '离线 / 异常';
-    }
-  }
-
-  /* ==========================================================================
-     Tab Switching
-     ========================================================================== */
-  function updateIndicator(btn) {
-    const indicator = $('#tab-indicator');
-    if (!btn || !indicator) return;
-    const parentRect = btn.parentElement.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    indicator.style.transform = `translateX(${btnRect.left - parentRect.left - 4}px)`;
-    indicator.style.width = `${btnRect.width}px`;
-  }
-
-  function setupTabs() {
-    const buttons = $$('#main-tabs .seg-item');
-    buttons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const tab = btn.dataset.tab;
-        buttons.forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        updateIndicator(btn);
-
-        $$('.tab-pane').forEach((p) => p.classList.remove('active'));
-        const pane = $(`#tab-pane-${tab}`);
-        if (pane) pane.classList.add('active');
-
-        // Lazy load
-        if (!visitedTabs[tab]) {
-          visitedTabs[tab] = true;
-          if (tab === 'overview') loadOverviewData();
-          if (tab === 'channels') loadChannelsData();
-          if (tab === 'usage') loadUsageData();
-          if (tab === 'config') loadConfigData();
-          if (tab === 'keys') loadKeysData();
-        }
+    usage.forEach(u => {
+      // approximate daily split by dividing evenly
+      const perDay = days > 1 ? days : 1;
+      Object.keys(dayMap).forEach(k => {
+        dayMap[k].prompt += Math.round((u.total_prompt_tokens||0)/perDay);
+        dayMap[k].comp += Math.round((u.total_completion_tokens||0)/perDay);
       });
     });
+    const labels = Object.keys(dayMap);
+    const promptData = labels.map(l=>dayMap[l].prompt);
+    const compData = labels.map(l=>dayMap[l].comp);
 
-    setTimeout(() => {
-      const activeBtn = $('#main-tabs .seg-item.active');
-      if (activeBtn) updateIndicator(activeBtn);
-    }, 50);
-
-    window.addEventListener('resize', () => {
-      const activeBtn = $('#main-tabs .seg-item.active');
-      if (activeBtn) updateIndicator(activeBtn);
-    });
-  }
-
-  /* ==========================================================================
-     Chart.js Apple Style Configuration
-     ========================================================================== */
-  function createAppleChart(canvasId, type, data, options = {}) {
-    if (chartInstances[canvasId]) {
-      chartInstances[canvasId].destroy();
-    }
-
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    const isLight = document.documentElement.classList.contains('light');
-    Chart.defaults.color = isLight ? '#636366' : '#8e8e93';
-    Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif';
-    Chart.defaults.font.size = 11.5;
-
-    const baseOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,   // 同步绘制，避免 rAF 暂停时图表空白
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: {
-          display: true,
-          position: 'top',
-          align: 'end',
-          labels: {
-            boxWidth: 8,
-            boxHeight: 8,
-            usePointStyle: true,
-            pointStyle: 'circle',
-            padding: 14,
-            color: isLight ? '#636366' : '#8e8e93',
-            font: { size: 11.5, weight: '500' }
-          }
-        },
-        tooltip: {
-          backgroundColor: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(28, 28, 30, 0.94)',
-          titleColor: isLight ? '#1c1c1e' : '#ffffff',
-          bodyColor: isLight ? '#3a3a3c' : '#e5eaf3',
-          borderColor: isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.16)',
-          borderWidth: 1,
-          padding: 12,
-          cornerRadius: 12,
-          boxPadding: 6,
-          usePointStyle: true,
-          backdropFilter: 'blur(20px)'
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false, drawBorder: false },
-          ticks: { color: isLight ? '#8e8e93' : '#636366', font: { size: 11 } }
-        },
-        y: {
-          grid: { color: isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.04)', drawBorder: false },
-          ticks: { color: isLight ? '#8e8e93' : '#636366', font: { size: 11 } },
-          beginAtZero: true
-        }
-      }
-    };
-
-    chartInstances[canvasId] = new Chart(ctx, {
-      type,
-      data,
-      options: { ...baseOptions, ...options }
-    });
-
-    return chartInstances[canvasId];
-  }
-
-  /* ==========================================================================
-     TAB 1: Overview Data Loader
-     ========================================================================== */
-  async function loadOverviewData() {
-    const days = +$('#ov-time-range').value;
-    const now = new Date();
-    const start = new Date(now.getTime() - days * 864e5);
-    
-    try {
-      const res = await fetchApi(`/v1/token_usage?start_datetime=${encodeURIComponent(start.toISOString())}&end_datetime=${encodeURIComponent(now.toISOString())}`);
-      const usageList = res.usage || [];
-
-      // 1. Metrics
-      const totalReq = usageList.reduce((acc, r) => acc + (r.request_count || 0), 0);
-      const promptTokens = usageList.reduce((acc, r) => acc + (r.total_prompt_tokens || 0), 0);
-      const completionTokens = usageList.reduce((acc, r) => acc + (r.total_completion_tokens || 0), 0);
-      const totalTokens = promptTokens + completionTokens;
-      const uniqueModels = new Set(usageList.map((r) => r.model));
-
-      $('#card-total-req').textContent = fmt(totalReq);
-      $('#card-total-req-sub').textContent = `${usageList.length} 组 Key×模型组合`;
-
-      let tokenDisplay = totalTokens >= 1e6 ? (totalTokens / 1e6).toFixed(2) + 'M' : totalTokens >= 1e3 ? (totalTokens / 1e3).toFixed(1) + 'K' : fmt(totalTokens);
-      $('#card-total-tokens').textContent = tokenDisplay;
-      $('#card-total-tokens-sub').textContent = `Prompt ${fmt(promptTokens)} · Output ${fmt(completionTokens)}`;
-
-      $('#card-tokens-split').textContent = `${fmt(promptTokens)} / ${fmt(completionTokens)}`;
-      const avgTokens = totalReq > 0 ? Math.round(totalTokens / totalReq) : 0;
-      $('#card-tokens-split-sub').textContent = `平均每次请求 ${fmt(avgTokens)} tokens`;
-
-      $('#card-active-models').textContent = fmt(uniqueModels.size);
-      $('#card-active-models-sub').textContent = '时间周期内活跃';
-
-      // 2. Daily Trend Area Chart
-      const dayBuckets = [];
-      const labels = [];
-      for (let i = days - 1; i >= 0; i--) {
-        const e = new Date(now.getTime() - i * 864e5);
-        const s = new Date(e.getTime() - 864e5);
-        dayBuckets.push({ s: s.toISOString(), e: e.toISOString(), label: `${e.getMonth() + 1}/${e.getDate()}` });
-      }
-
-      const dailyResponses = await Promise.all(
-        dayBuckets.map((d) =>
-          fetchApi(`/v1/token_usage?start_datetime=${encodeURIComponent(d.s)}&end_datetime=${encodeURIComponent(d.e)}`).catch(() => ({ usage: [] }))
-        )
-      );
-
-      const promptData = [];
-      const compData = [];
-      dailyResponses.forEach((r, idx) => {
-        labels.push(dayBuckets[idx].label);
-        const u = r.usage || [];
-        promptData.push(u.reduce((a, x) => a + (x.total_prompt_tokens || 0), 0));
-        compData.push(u.reduce((a, x) => a + (x.total_completion_tokens || 0), 0));
-      });
-
-      const canvas1 = document.getElementById('chart-daily-tokens');
-      const ctx1 = canvas1.getContext('2d');
-      const gradBlue = ctx1.createLinearGradient(0, 0, 0, 240);
-      gradBlue.addColorStop(0, 'rgba(10, 132, 255, 0.45)');
-      gradBlue.addColorStop(1, 'rgba(10, 132, 255, 0.0)');
-
-      const gradGreen = ctx1.createLinearGradient(0, 0, 0, 240);
-      gradGreen.addColorStop(0, 'rgba(48, 209, 88, 0.4)');
-      gradGreen.addColorStop(1, 'rgba(48, 209, 88, 0.0)');
-
-      createAppleChart('chart-daily-tokens', 'line', {
+    if(charts.trend) charts.trend.destroy();
+    const tCtx = $('#trendChart').getContext('2d');
+    charts.trend = new Chart(tCtx, {
+      type:'line',
+      data:{
         labels,
-        datasets: [
-          {
-            label: 'Prompt Tokens',
-            data: promptData,
-            borderColor: '#0A84FF',
-            backgroundColor: gradBlue,
-            fill: true,
-            tension: 0.3,
-            borderWidth: 2.5,
-            pointRadius: 4,
-            pointBackgroundColor: '#0A84FF',
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 1.5,
-            pointHoverRadius: 6
-          },
-          {
-            label: 'Completion Tokens',
-            data: compData,
-            borderColor: '#30D158',
-            backgroundColor: gradGreen,
-            fill: true,
-            tension: 0.3,
-            borderWidth: 2.5,
-            pointRadius: 4,
-            pointBackgroundColor: '#30D158',
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 1.5,
-            pointHoverRadius: 6
-          }
+        datasets:[
+          { label:'Prompt', data:promptData, borderColor:'#7C6BFF', backgroundColor:'rgba(124,107,255,0.08)', fill:true, tension:0.35, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:'#7C6BFF', pointBorderWidth:2, borderWidth:2.5 },
+          { label:'Output', data:compData, borderColor:'#34C759', backgroundColor:'rgba(52,199,89,0.06)', fill:true, tension:0.35, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:'#34C759', pointBorderWidth:2, borderWidth:2.5 }
         ]
-      });
-
-      // 3. Model Distribution Doughnut Chart
-      const modelMap = {};
-      usageList.forEach((r) => {
-        modelMap[r.model] = (modelMap[r.model] || 0) + (r.request_count || 0);
-      });
-      const sortedModels = Object.entries(modelMap).sort((a, b) => b[1] - a[1]);
-      const topModels = sortedModels.slice(0, 5);
-      const otherCount = sortedModels.slice(5).reduce((a, b) => a + b[1], 0);
-      if (otherCount > 0) topModels.push(['其他', otherCount]);
-
-      const colors = ['#0A84FF', '#30D158', '#BF5AF2', '#FF9F0A', '#64D2FF', '#FF453A'];
-      createAppleChart('chart-model-dist', 'doughnut', {
-        labels: topModels.length ? topModels.map((m) => m[0]) : ['无数据'],
-        datasets: [{
-          data: topModels.length ? topModels.map((m) => m[1]) : [1],
-          backgroundColor: topModels.length ? colors.slice(0, topModels.length) : ['rgba(255,255,255,0.1)'],
-          borderWidth: 0,
-          hoverOffset: 6
-        }]
-      }, {
-        cutout: '72%',
-        scales: { x: { display: false }, y: { display: false } },
-        plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 11.5 } } } }
-      });
-
-      // 4. Top Models Table
-      let tableHtml = '';
-      const totalCount = sortedModels.reduce((a, b) => a + b[1], 0) || 1;
-      sortedModels.forEach(([model, count]) => {
-        const pct = ((count / totalCount) * 100).toFixed(1);
-        const mTokens = usageList.filter((u) => u.model === model).reduce((a, b) => a + (b.total_tokens || 0), 0);
-        tableHtml += `
-          <tr>
-            <td><span class="mono" style="font-weight:600;color:#64D2FF">${esc(model)}</span></td>
-            <td><b>${fmt(count)}</b> 次</td>
-            <td>${fmt(mTokens)}</td>
-            <td>
-              <div style="display:flex;align-items:center;gap:8px">
-                <div class="progress-track" style="flex:1"><div class="progress-bar blue" style="width:${pct}%"></div></div>
-                <span class="mono" style="font-size:11.5px;color:var(--ios-text-secondary);width:42px">${pct}%</span>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-      $('#table-top-models tbody').innerHTML = tableHtml || '<tr><td colspan="4" class="empty-box">暂无模型调用数据</td></tr>';
-
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  }
-
-  $('#btn-ov-refresh').onclick = loadOverviewData;
-  $('#ov-time-range').onchange = loadOverviewData;
-
-  /* ==========================================================================
-     TAB 2: Channels & Health Matrix
-     ========================================================================== */
-  async function loadChannelsData() {
-    const hours = +$('#ch-hours').value;
-    try {
-      const res = await fetchApi(`/v1/stats?hours=${hours}`);
-      
-      const chRates = res.channel_success_rates || [];
-      let chHtml = '';
-      chRates.forEach((c) => {
-        const rate = (c.success_rate * 100).toFixed(1);
-        const colorCls = c.success_rate >= 0.95 ? 'green' : c.success_rate >= 0.7 ? 'orange' : 'red';
-        chHtml += `
-          <tr style="cursor:pointer" onclick="window.drilldownKeyRank('${esc(c.provider)}')">
-            <td>
-              <div style="display:flex;align-items:center;gap:8px">
-                <span class="status-dot ${c.success_rate < 0.7 ? 'bad' : ''}"></span>
-                <span style="font-weight:600;color:var(--sys-blue)">${esc(c.provider)}</span>
-                <span class="pill gray mono" style="font-size:10px">点击查看 Key</span>
-              </div>
-            </td>
-            <td>
-              <div style="display:flex;align-items:center;gap:10px">
-                <div class="progress-track" style="width:90px"><div class="progress-bar ${colorCls}" style="width:${rate}%"></div></div>
-                <span class="pill ${colorCls}">${rate}%</span>
-              </div>
-            </td>
-            <td><b>${fmt(c.total_requests)}</b></td>
-          </tr>
-        `;
-      });
-      $('#table-channels tbody').innerHTML = chHtml || '<tr><td colspan="3" class="empty-box">暂无渠道数据（需开启 SQLite 统计）</td></tr>';
-
-      const cmRates = res.channel_model_success_rates || [];
-      let cmHtml = '';
-      cmRates.forEach((c) => {
-        const rate = (c.success_rate * 100).toFixed(1);
-        const colorCls = c.success_rate >= 0.95 ? 'green' : c.success_rate >= 0.7 ? 'orange' : 'red';
-        cmHtml += `
-          <tr>
-            <td>
-              <div style="font-weight:600">${esc(c.provider)}</div>
-              <div class="mono" style="font-size:11.5px;color:var(--ios-text-secondary)">${esc(c.model)}</div>
-            </td>
-            <td><span class="pill ${colorCls}">${rate}%</span></td>
-            <td>${fmt(c.total_requests)}</td>
-          </tr>
-        `;
-      });
-      $('#table-chan-model tbody').innerHTML = cmHtml || '<tr><td colspan="3" class="empty-box">暂无矩阵数据</td></tr>';
-
-      const endpoints = res.endpoint_request_counts || [];
-      let epHtml = '';
-      endpoints.forEach((e) => {
-        epHtml += `<tr><td><span class="mono" style="color:#BF5AF2">${esc(e.endpoint)}</span></td><td><b>${fmt(e.count)}</b></td></tr>`;
-      });
-      $('#table-endpoints tbody').innerHTML = epHtml || '<tr><td colspan="2" class="empty-box">暂无端点记录</td></tr>';
-
-      const ips = res.ip_request_counts || [];
-      let ipHtml = '';
-      ips.slice(0, 10).forEach((i) => {
-        ipHtml += `<tr><td><span class="mono">${esc(i.client_ip)}</span></td><td>${fmt(i.count)}</td></tr>`;
-      });
-      $('#table-ips tbody').innerHTML = ipHtml || '<tr><td colspan="2" class="empty-box">暂无 IP 记录</td></tr>';
-
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  }
-
-  window.drilldownKeyRank = async (provider) => {
-    const hours = +$('#ch-hours').value;
-    const now = new Date();
-    const start = new Date(now.getTime() - hours * 3600e3);
-    $('#rank-title').textContent = `渠道【${provider}】上游 Key 成功率下钻`;
-    $('#rank-box').innerHTML = '<div class="empty-box"><span class="spin"></span> 正在查询 Key 排行...</div>';
-
-    try {
-      const res = await fetchApi(`/v1/channel_key_rankings?provider_name=${encodeURIComponent(provider)}&start_datetime=${encodeURIComponent(start.toISOString())}&end_datetime=${encodeURIComponent(now.toISOString())}`);
-      const list = res.rankings || [];
-      if (!list.length) {
-        $('#rank-box').innerHTML = '<div class="empty-box">该渠道在指定周期内暂无轮询请求</div>';
-        return;
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:false,
+        interaction:{ mode:'index', intersect:false },
+        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'#fff', titleColor:'#1a1a2e', bodyColor:'#6b6b80', borderColor:'#e8e8ed', borderWidth:1, padding:12, cornerRadius:10, boxPadding:4, usePointStyle:true, titleFont:{weight:'700'}, bodyFont:{size:13} } },
+        scales:{ x:{ grid:{display:false}, ticks:{color:'#a0a0b2',font:{size:11}} }, y:{ grid:{color:'rgba(0,0,0,0.04)',drawBorder:false}, ticks:{color:'#a0a0b2',font:{size:11}}, beginAtZero:true } }
       }
-
-      let html = `
-        <table>
-          <thead>
-            <tr>
-              <th>上游 API Key</th>
-              <th>成功 / 总请求</th>
-              <th>成功率</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-      list.forEach((r) => {
-        const rate = (r.success_rate * 100).toFixed(1);
-        const colorCls = r.success_rate >= 0.95 ? 'green' : r.success_rate >= 0.7 ? 'orange' : 'red';
-        html += `
-          <tr>
-            <td><span class="mono" style="font-weight:600">${esc(maskKey(r.api_key))}</span></td>
-            <td>${fmt(r.success_count)} / ${fmt(r.total_requests)}</td>
-            <td><span class="pill ${colorCls}">${rate}%</span></td>
-          </tr>
-        `;
-      });
-      html += '</tbody></table>';
-      $('#rank-box').innerHTML = html;
-    } catch (err) {
-      $('#rank-box').innerHTML = `<div class="empty-box" style="color:var(--sys-red)">${esc(err.message)}</div>`;
-    }
-  };
-
-  $('#btn-ch-refresh').onclick = loadChannelsData;
-  $('#ch-hours').onchange = loadChannelsData;
-
-  /* ==========================================================================
-     TAB 3: Usage Detail
-     ========================================================================== */
-  async function loadUsageData() {
-    const days = +$('#us-days').value;
-    const model = $('#us-model').value.trim();
-    const key = $('#us-key').value.trim();
-    const now = new Date();
-    const start = new Date(now.getTime() - days * 864e5);
-
-    let query = `?start_datetime=${encodeURIComponent(start.toISOString())}&end_datetime=${encodeURIComponent(now.toISOString())}`;
-    if (model) query += `&model=${encodeURIComponent(model)}`;
-    if (key) query += `&api_key_param=${encodeURIComponent(key)}`;
-
-    try {
-      const res = await fetchApi('/v1/token_usage' + query);
-      const usageList = res.usage || [];
-      usageList.sort((a, b) => b.total_tokens - a.total_tokens);
-
-      let html = '';
-      usageList.forEach((r) => {
-        html += `
-          <tr>
-            <td><span class="mono">${esc(r.api_key_prefix)}</span></td>
-            <td><span class="mono" style="font-weight:600;color:var(--sys-teal)">${esc(r.model)}</span></td>
-            <td>${fmt(r.request_count)}</td>
-            <td>${fmt(r.total_prompt_tokens)}</td>
-            <td>${fmt(r.total_completion_tokens)}</td>
-            <td><b>${fmt(r.total_tokens)}</b></td>
-          </tr>
-        `;
-      });
-      $('#table-usage tbody').innerHTML = html || '<tr><td colspan="6" class="empty-box">无匹配的用量明细</td></tr>';
-      showToast(`已加载 ${usageList.length} 条用量记录`);
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  }
-
-  $('#btn-us-go').onclick = loadUsageData;
-
-  /* ==========================================================================
-     TAB 4: Config Hot Editor
-     ========================================================================== */
-  async function loadConfigData() {
-    try {
-      const res = await fetchApi('/v1/api_config');
-      const cfg = res.api_config || res;
-      const providers = cfg.providers || [];
-      $('#cfg-providers-json').value = JSON.stringify(providers, null, 2);
-      $('#cfg-full-json').value = JSON.stringify(cfg, null, 2);
-      showToast('最新配置已同步');
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  }
-
-  $('#btn-cfg-reload').onclick = loadConfigData;
-
-  $('#btn-format-json').onclick = () => {
-    try {
-      const parsed = JSON.parse($('#cfg-providers-json').value);
-      $('#cfg-providers-json').value = JSON.stringify(parsed, null, 2);
-      showToast('JSON 格式化完成');
-    } catch (err) {
-      showToast('JSON 格式有误: ' + err.message, 'error');
-    }
-  };
-
-  $('#btn-cfg-backup').onclick = () => {
-    const jsonStr = $('#cfg-full-json').value;
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `uni-api-config-backup-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('备份文件已下载');
-  };
-
-  $('#btn-cfg-save').onclick = async () => {
-    let providers;
-    try {
-      providers = JSON.parse($('#cfg-providers-json').value);
-      if (!Array.isArray(providers)) throw new Error('providers 必须是一个数组');
-    } catch (err) {
-      showToast('JSON 解析失败: ' + err.message, 'error');
-      return;
-    }
-
-    if (!confirm('确定要将修改后的 Providers 提交并热更新吗？配置将立即在内存中生效。')) return;
-
-    try {
-      const r = await fetch('/v1/api_config/update', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + currentKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ providers })
-      });
-      if (r.status === 401 || r.status === 403) { handleLogout(true); return; }
-      if (!r.ok) {
-        let d = ''; try { d = (await r.json()).detail; } catch (_) {}
-        throw new Error(d || `HTTP ${r.status}`);
-      }
-      showToast('🎉 Providers 已成功热更新！');
-      loadConfigData();
-    } catch (err) {
-      showToast('保存失败: ' + err.message, 'error');
-    }
-  };
-
-  /* ==========================================================================
-     TAB 5: Keys Management & Credits
-     ========================================================================== */
-  async function loadKeysData() {
-    try {
-      const res = await fetchApi('/v1/api_keys_states');
-      const paidStates = res.paid_api_keys_states || {};
-      const keys = Object.keys(paidStates);
-
-      if (!keys.length) {
-        $('#keys-state-box').innerHTML = '<div class="empty-box">暂无付费 API Key 记录（所有 Key 均为无限额度或未启用付费模式）</div>';
-        return;
-      }
-
-      let html = '<div style="display:flex;flex-direction:column;gap:10px">';
-      keys.forEach((k) => {
-        const item = paidStates[k];
-        const isDis = !!item.disabled;
-        html += `
-          <div class="ios-card" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px">
-            <div>
-              <div class="mono" style="font-weight:600;font-size:13.5px">${esc(maskKey(k))}</div>
-              <div style="font-size:12px;color:var(--ios-text-secondary);margin-top:2px">
-                余额: <b style="color:var(--sys-green);font-size:14px">$${(item.credits || 0).toFixed(2)}</b>
-              </div>
-            </div>
-            <div>
-              <span class="pill ${isDis ? 'red' : 'green'}">${isDis ? '已封禁' : '正常'}</span>
-            </div>
-          </div>
-        `;
-      });
-      html += '</div>';
-      $('#keys-state-box').innerHTML = html;
-    } catch (err) {
-      $('#keys-state-box').innerHTML = `<div class="empty-box" style="color:var(--sys-red)">${esc(err.message)}</div>`;
-    }
-  }
-
-  $('#btn-keys-refresh').onclick = loadKeysData;
-
-  $$('.q-amt').forEach((btn) => {
-    btn.onclick = () => {
-      $('#credit-amt-input').value = btn.dataset.amt;
-    };
-  });
-
-  $('#btn-credit-submit').onclick = async () => {
-    const key = $('#credit-key-input').value.trim();
-    const amt = parseFloat($('#credit-amt-input').value);
-    if (!key || !(amt > 0)) {
-      showToast('请填写目标 Key 和有效金额', 'error');
-      return;
-    }
-
-    try {
-      const res = await fetch(`/v1/add_credits?paid_key=${encodeURIComponent(key)}&amount=${amt}`, {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + currentKey }
-      });
-      if (!res.ok) throw new Error('充值请求失败');
-      showToast(`✅ 成功为 ${maskKey(key)} 充值 $${amt.toFixed(2)}`);
-      $('#credit-key-input').value = '';
-      $('#credit-amt-input').value = '';
-      loadKeysData();
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  };
-
-  /* ==========================================================================
-     Authentication & App Lifecycle
-     ========================================================================== */
-  async function attemptLogin(key, isAuto = false) {
-    const previous = currentKey;
-    currentKey = key;
-    try {
-      await fetchApi('/v1/stats?hours=1');
-      localStorage.setItem(STORAGE_KEY, key);
-      $('#login-overlay').style.display = 'none';
-      $('#app').style.display = 'block';
-      setupTabs();
-      loadOverviewData();
-      checkHealth();
-      if (healthTimer) clearInterval(healthTimer);
-      healthTimer = setInterval(checkHealth, 15000);
-      showToast('欢迎回来，连接就绪');
-      return true;
-    } catch (err) {
-      currentKey = previous;
-      if (!isAuto) {
-        $('#login-err').textContent = err.message || '连接失败，请检查 Key';
-        $('#login-err').style.display = 'block';
-      }
-      return false;
-    }
-  }
-
-  function handleLogout(expired = false) {
-    localStorage.removeItem(STORAGE_KEY);
-    currentKey = '';
-    $('#app').style.display = 'none';
-    $('#login-overlay').style.display = 'flex';
-    if (expired) showToast('登录状态已过期，请重新验证', 'error');
-  }
-
-  $('#login-btn').onclick = () => {
-    const key = $('#key-input').value.trim();
-    if (!key) return;
-    $('#login-btn').disabled = true;
-    $('#login-btn').innerHTML = '<span class="spin"></span> 验证中...';
-    attemptLogin(key).finally(() => {
-      $('#login-btn').disabled = false;
-      $('#login-btn').innerHTML = '<span>验证并连接</span>';
     });
-  };
 
-  $('#key-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') $('#login-btn').click();
-  });
+    // Donut chart
+    const modelCounts = stats.model_request_counts || [];
+    const donutColors = ['#5E5CE6','#34C759','#FF9500','#FF3B30','#AF52DE','#5AC8FA','#FF2D55','#FFD60A'];
+    if(charts.donut) charts.donut.destroy();
+    const dCtx = $('#donutChart').getContext('2d');
+    charts.donut = new Chart(dCtx, {
+      type:'doughnut',
+      data:{
+        labels:modelCounts.map(m=>m.model),
+        datasets:[{ data:modelCounts.map(m=>m.count), backgroundColor:donutColors.slice(0,modelCounts.length), borderWidth:0, hoverOffset:6 }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:false, cutout:'62%',
+        plugins:{ legend:{ position:'right', labels:{ padding:12, usePointStyle:true, pointStyle:'rectRounded', font:{size:12}, color:'#6b6b80' } } }
+      }
+    });
+  } catch(e) { showToast('加载失败: '+e.message); }
+}
 
-  $('#btn-logout').onclick = () => handleLogout(false);
-  $('#btn-quick-refresh').onclick = () => {
-    visitedTabs = {};
-    const activeTab = $('#main-tabs .seg-item.active').dataset.tab;
-    visitedTabs[activeTab] = true;
-    if (activeTab === 'overview') loadOverviewData();
-    if (activeTab === 'channels') loadChannelsData();
-    if (activeTab === 'usage') loadUsageData();
-    if (activeTab === 'config') loadConfigData();
-    if (activeTab === 'keys') loadKeysData();
-    checkHealth();
-    showToast('全部视图已刷新');
-  };
-  $('#btn-theme').onclick = () => {
-    const next = document.documentElement.classList.contains('light') ? 'dark' : 'light';
-    applyTheme(next);
-    localStorage.setItem(THEME_KEY, next);
-    showToast(next === 'light' ? '亮色模式' : '暗色模式');
-  };
+/* ===== Monitor ===== */
+async function loadMonitor() {
+  try {
+    const hours = +$('#monHoursSelect').value;
+    const stats = await api('/v1/stats?hours='+hours);
+    const ch = stats.channel_success_rates || [];
+    const cm = stats.channel_model_success_rates || [];
+    const ips = stats.ip_request_counts || [];
 
-  // Bootstrap
-  (async function init() {
-    if (currentKey && await attemptLogin(currentKey, true)) {
-      return;
+    let html = '';
+    ch.forEach(c => {
+      const rate = (c.success_rate*100).toFixed(1);
+      const color = c.success_rate>=0.95?'var(--green)':c.success_rate>=0.7?'#FF9500':'var(--red)';
+      const models = cm.filter(m=>m.provider===c.provider);
+      html += `<div class="ch-card">
+        <div class="ch-top"><div class="ch-name-row"><span class="key-dot" style="background:${color}"></span><span class="ch-name">${esc(c.provider)}</span></div><span style="font-size:20px;font-weight:700;color:${color}">${rate}%</span></div>
+        <div style="margin-top:10px">${models.map(m=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${esc(m.model)}</span><span style="color:var(--text2)">${m.total_requests} 次</span></div>`).join('')}</div>
+      </div>`;
+    });
+    if(ips.length) {
+      html += `<div class="chart-card"><div class="chart-title">请求来源 IP</div>`;
+      ips.forEach(ip => { html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;font-family:monospace"><span>${esc(ip.ip)}</span><span style="color:var(--text2)">${ip.count} 次</span></div>`; });
+      html += `</div>`;
     }
-    $('#login-overlay').style.display = 'flex';
-  })();
+    $('#monitorContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text3)">暂无监控数据</div>';
+  } catch(e) { showToast('加载失败'); }
+}
 
-})();
+/* ===== Usage ===== */
+async function loadUsage() {
+  try {
+    const days = +$('#usDaysSelect').value;
+    const start = new Date(Date.now()-days*864e5);
+    const resp = await api('/v1/token_usage?start_datetime='+start.toISOString()+'&end_datetime='+new Date().toISOString());
+    const usage = resp.usage || [];
+    if(!usage.length) { $('#usageContent').innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">暂无用量数据</div>'; return; }
+    let html = '<div class="chart-card"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:8px;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:0.04em">Key</th><th style="text-align:left;padding:8px;color:var(--text2);font-size:11px;text-transform:uppercase">模型</th><th style="text-align:right;padding:8px;color:var(--text2);font-size:11px;text-transform:uppercase">请求数</th><th style="text-align:right;padding:8px;color:var(--text2);font-size:11px;text-transform:uppercase">Tokens</th></tr></thead><tbody>';
+    usage.forEach(u => {
+      html += `<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 8px;font-family:monospace;font-size:12px;color:var(--text2)">${esc(u.api_key_prefix)}</td><td style="padding:10px 8px"><span class="tag">${esc(u.model)}</span></td><td style="padding:10px 8px;text-align:right;font-variant-numeric:tabular-nums">${u.request_count}</td><td style="padding:10px 8px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${(u.total_tokens||0).toLocaleString()}</td></tr>`;
+    });
+    html += '</tbody></table></div>';
+    $('#usageContent').innerHTML = html;
+  } catch(e) { showToast('加载失败'); }
+}
+
+/* ===== Channels ===== */
+async function loadChannels() {
+  try {
+    const resp = await api('/v1/api_config');
+    configData = resp.api_config || resp;
+    const providers = configData.providers || [];
+    let html = '';
+    providers.forEach((p,i) => {
+      const models = p.models || [];
+      const maskedKey = p.api ? p.api.slice(0,8)+'...'+p.api.slice(-4) : '';
+      html += `<div class="ch-card">
+        <div class="ch-top"><div class="ch-name-row"><span class="key-dot"></span><span class="ch-name">${esc(p.provider || 'Provider '+(i+1))}</span></div>
+        <div class="ch-actions"><button class="btn btn-outline btn-sm" onclick="editProvider(${i})">编辑</button><button class="btn btn-sm btn-danger" onclick="removeProvider(${i})">✕</button></div></div>
+        <div class="ch-url">${esc(p.base_url||'')}</div>
+        <div class="ch-key-row"><span class="ch-key">${maskedKey}</span><button class="key-copy" onclick="copyText('${esc(p.api||'')}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+        <div class="tags">${models.map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div>
+      </div>`;
+    });
+    $('#channelsContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text3)">暂无渠道配置</div>';
+  } catch(e) { showToast('加载失败'); }
+}
+
+function editProvider(i) {
+  if(!configData) return;
+  $('#editModalTitle').textContent = '编辑渠道: '+(configData.providers[i].name||'Provider '+(i+1));
+  $('#editModalJson').value = JSON.stringify(configData.providers[i], null, 2);
+  $('#editModal').dataset.mode = 'provider';
+  $('#editModal').dataset.index = i;
+  $('#editModal').classList.add('show');
+}
+
+function removeProvider(i) {
+  if(!confirm('确定删除此渠道？请记得点"保存生效"')) return;
+  configData.providers.splice(i,1);
+  saveConfig();
+}
+
+async function saveConfig() {
+  if(!configData) return;
+  try {
+    await api('/v1/api_config/update', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+currentKey},
+      body: JSON.stringify(configData)
+    });
+    showToast('配置已保存');
+    loadChannels();
+  } catch(e) { showToast('保存失败: '+e.message); }
+}
+
+/* ===== Keys ===== */
+async function loadKeys() {
+  try {
+    const [statesResp, configResp] = await Promise.all([
+      api('/v1/api_keys_states'),
+      api('/v1/api_config')
+    ]);
+    const states = statesResp.paid_api_keys_states || statesResp.api_keys_states || {};
+    const apiKeys = (configResp.api_config || configResp).api_keys || [];
+    const keys = Object.keys(states);
+    $('#keyCount').textContent = keys.length+' 个 Key';
+
+    let html = '';
+    keys.forEach(k => {
+      const s = states[k];
+      const cfg = apiKeys.find(a=>a.api===k);
+      const balance = s.credits || 0;
+      const disabled = s.disabled || !s.enabled;
+      const models = cfg?.model || cfg?.models || [];
+      const isAll = !models.length;
+      const prefix = k.length>16 ? k.slice(0,8)+'...'+k.slice(-4) : k.slice(0,12)+'...';
+
+      html += `<div class="key-card">
+        <div class="key-top">
+          <div class="key-name-row"><span class="key-dot" style="background:${disabled?'var(--red)':'var(--green)'}"></span><span class="key-name">${esc(prefix)}</span><button class="key-copy" onclick="copyText('${esc(k)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+          <div class="key-right"><span class="key-expiry">永久有效</span><span class="key-status">${disabled?'已禁用':'正常'}</span></div>
+        </div>
+        <div class="key-balance"><span class="key-balance-label">余额: </span><span class="key-balance-amount">$${balance.toFixed(2)}</span></div>
+        <div class="key-models-label">授权模型：</div>
+        <div class="tags">${isAll ? '<span class="tag green">全部模型（全量开放）</span>' : models.map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div>
+        <div class="key-actions">
+          <button class="btn btn-outline btn-sm" onclick="openCredit('${esc(k)}')">⚙️ 配置 / 充值</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteKey('${esc(k)}')">🗑</button>
+        </div>
+      </div>`;
+    });
+    $('#keysContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text3)">暂无 Key</div>';
+  } catch(e) { showToast('加载失败'); }
+}
+
+function openCredit(key) {
+  $('#creditKeyInput').value = key;
+  $('#creditAmtInput').value = '';
+  $('#creditModal').classList.add('show');
+  $('#creditAmtInput').focus();
+}
+function closeCreditModal() { $('#creditModal').classList.remove('show'); }
+async function doCredit() {
+  const key = $('#creditKeyInput').value;
+  const amt = parseFloat($('#creditAmtInput').value);
+  if(!key || isNaN(amt) || amt<=0) return showToast('请输入有效金额');
+  try {
+    await api('/v1/add_credits?paid_key='+encodeURIComponent(key)+'&amount='+amt, { method:'POST' });
+    showToast('充值成功: $'+amt.toFixed(2));
+    closeCreditModal();
+    loadKeys();
+  } catch(e) { showToast('充值失败'); }
+}
+function deleteKey(key) {
+  if(!confirm('确定删除此 Key？')) return;
+  showToast('请在 api.yaml 中手动删除');
+}
+
+/* ===== Edit Modal ===== */
+function closeEditModal() { $('#editModal').classList.remove('show'); }
+async function saveEditModal() {
+  const mode = $('#editModal').dataset.mode;
+  const idx = +$('#editModal').dataset.index;
+  try {
+    const val = JSON.parse($('#editModalJson').value);
+    if(mode==='provider' && configData) {
+      configData.providers[idx] = val;
+      await api('/v1/api_config/update', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+currentKey},
+        body: JSON.stringify(configData)
+      });
+      showToast('渠道已更新');
+      closeEditModal();
+      loadChannels();
+    }
+  } catch(e) { showToast('JSON 格式错误'); }
+}
+
+/* ===== Utils ===== */
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function copyText(t) { navigator.clipboard?.writeText(t); showToast('已复制'); }
+function refreshAll() { checkPing(); const active = $('.tabbar-item.active')?.dataset.tab; if(active==='overview')loadOverview(); else if(active==='monitor')loadMonitor(); else if(active==='usage')loadUsage(); else if(active==='channels')loadChannels(); else if(active==='keys')loadKeys(); }
+
+/* ===== Init ===== */
+if(currentKey) { api('/v1/stats?hours=1').then(()=>enterApp()).catch(()=>{ currentKey=''; localStorage.removeItem('uh_key'); }); }
 </script>
 </body>
 </html>
