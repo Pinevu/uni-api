@@ -229,11 +229,9 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
 
 <div class="page" id="page-channels">
   <div class="action-bar">
-    <button class="btn btn-primary btn-sm" onclick="showToast('请直接编辑 api.yaml')">+ 添加渠道</button>
+    <button class="btn btn-primary btn-sm" onclick="openChannelEditor(-1)">+ 添加渠道</button>
     <div class="spacer"></div>
-    <button class="btn btn-outline btn-sm" onclick="showToast('JSON 视图')">JSON</button>
     <button class="btn btn-outline btn-sm" onclick="loadChannels()">重载</button>
-    <button class="btn btn-outline btn-sm" onclick="showToast('已备份')">备份</button>
     <button class="btn btn-primary btn-sm" onclick="saveConfig()">保存生效</button>
   </div>
   <div id="channelsContent"></div>
@@ -241,7 +239,7 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
 
 <div class="page" id="page-keys">
   <div class="action-bar">
-    <button class="btn btn-primary btn-sm" onclick="showToast('请在 api.yaml 中添加')">+ 新建 API Key</button>
+    <button class="btn btn-primary btn-sm" onclick="showToast('请在 api.yaml 中添加 key 后刷新')">+ 新建 Key</button>
     <div class="spacer"></div>
     <span style="font-size:13px;color:var(--text2)" id="keyCount">0 个 Key</span>
     <button class="btn btn-outline btn-sm" onclick="loadKeys()">刷新</button>
@@ -273,27 +271,64 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
   </button>
 </nav>
 
-<!-- Edit Modal -->
-<div class="modal-overlay" id="editModal">
-  <div class="modal">
-    <div class="modal-title" id="editModalTitle">编辑配置</div>
-    <textarea class="json-editor" id="editModalJson"></textarea>
+<!-- Channel Editor Modal -->
+<div class="modal-overlay" id="chModal">
+  <div class="modal" style="max-height:85vh;overflow-y:auto">
+    <div class="modal-title" id="chModalTitle">添加渠道</div>
+    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">渠道名称</label>
+    <input class="modal-input" id="chName" placeholder="例: cpa-pool">
+    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">API Base URL</label>
+    <input class="modal-input" id="chUrl" placeholder="https://api.example.com/v1">
+    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">API Key</label>
+    <input class="modal-input" id="chKey" placeholder="sk-...">
+    <div style="display:flex;align-items:center;gap:8px;margin:12px 0 8px">
+      <button class="btn btn-outline btn-sm" id="chFetchBtn" onclick="fetchProviderModels()">🔍 拉取模型</button>
+      <span style="font-size:12px;color:var(--text3)" id="chFetchStatus"></span>
+    </div>
+    <div id="chModelsBox" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <label style="font-size:12px;color:var(--text2)">可用模型</label>
+        <button class="btn btn-sm" style="background:none;color:var(--accent);font-size:11px;padding:2px 6px" onclick="toggleAllChModels()">全选/反选</button>
+      </div>
+      <div id="chModelsList" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+    <div style="margin-top:8px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">或手动输入模型（每行一个）</label>
+      <textarea class="modal-input" id="chModelsManual" rows="4" style="resize:vertical;font-size:12px;font-family:monospace" placeholder="模型名称&#10;模型名称2"></textarea>
+    </div>
     <div class="modal-actions">
-      <button class="btn btn-outline btn-sm" onclick="closeEditModal()">取消</button>
-      <button class="btn btn-primary btn-sm" onclick="saveEditModal()">保存</button>
+      <button class="btn btn-outline btn-sm" onclick="closeChModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveChannel()">保存</button>
     </div>
   </div>
 </div>
 
-<!-- Credit Modal -->
-<div class="modal-overlay" id="creditModal">
-  <div class="modal">
-    <div class="modal-title">充值 Key</div>
-    <input class="modal-input" id="creditKeyInput" placeholder="目标 Key (sk-...)" readonly>
-    <input class="modal-input" id="creditAmtInput" type="number" placeholder="充值金额" min="0" step="0.01">
+<!-- Key Editor Modal -->
+<div class="modal-overlay" id="keyModal">
+  <div class="modal" style="max-height:85vh;overflow-y:auto">
+    <div class="modal-title">编辑 API Key</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+      <span class="key-name" id="keyEditName" style="font-size:14px"></span>
+      <button class="key-copy" onclick="copyText($('#keyEditName').textContent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+    </div>
+    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">授权模型</label>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <span style="font-size:12px;color:var(--text3)" id="keyModelHint"></span>
+      <button class="btn btn-sm" style="background:none;color:var(--accent);font-size:11px;padding:2px 6px" onclick="toggleAllKeyModels()">全选/反选</button>
+    </div>
+    <div id="keyModelsList" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">过期时间</label>
+    <input class="modal-input" id="keyExpiry" type="datetime-local">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2)">启用状态</label>
+      <div id="keyEnabled" style="width:44px;height:26px;border-radius:13px;background:var(--green);cursor:pointer;position:relative;transition:var(--transition)">
+        <div style="width:22px;height:22px;border-radius:50%;background:#fff;position:absolute;top:2px;left:20px;transition:var(--transition);box-shadow:0 1px 3px rgba(0,0,0,0.2)"></div>
+      </div>
+      <span style="font-size:12px;color:var(--text2)" id="keyEnabledLabel">已启用</span>
+    </div>
     <div class="modal-actions">
-      <button class="btn btn-outline btn-sm" onclick="closeCreditModal()">取消</button>
-      <button class="btn btn-primary btn-sm" onclick="doCredit()">确认充值</button>
+      <button class="btn btn-outline btn-sm" onclick="closeKeyModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveKeyEdit()">保存</button>
     </div>
   </div>
 </div>
@@ -504,18 +539,23 @@ async function loadUsage() {
 }
 
 /* ===== Channels ===== */
+let allModels = []; // 收集所有渠道的模型
+
 async function loadChannels() {
   try {
     const resp = await api('/v1/api_config');
     configData = resp.api_config || resp;
     const providers = configData.providers || [];
+    // 收集所有模型
+    allModels = [];
+    providers.forEach(p => { (p.models||[]).forEach(m => { if(!allModels.includes(m)) allModels.push(m); }); });
     let html = '';
     providers.forEach((p,i) => {
       const models = p.models || [];
       const maskedKey = p.api ? p.api.slice(0,8)+'...'+p.api.slice(-4) : '';
       html += `<div class="ch-card">
         <div class="ch-top"><div class="ch-name-row"><span class="key-dot"></span><span class="ch-name">${esc(p.provider || 'Provider '+(i+1))}</span></div>
-        <div class="ch-actions"><button class="btn btn-outline btn-sm" onclick="editProvider(${i})">编辑</button><button class="btn btn-sm btn-danger" onclick="removeProvider(${i})">✕</button></div></div>
+        <div class="ch-actions"><button class="btn btn-outline btn-sm" onclick="openChannelEditor(${i})">编辑</button><button class="btn btn-sm btn-danger" onclick="removeProvider(${i})">✕</button></div></div>
         <div class="ch-url">${esc(p.base_url||'')}</div>
         <div class="ch-key-row"><span class="ch-key">${maskedKey}</span><button class="key-copy" onclick="copyText('${esc(p.api||'')}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
         <div class="tags">${models.map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div>
@@ -525,13 +565,96 @@ async function loadChannels() {
   } catch(e) { showToast('加载失败'); }
 }
 
-function editProvider(i) {
-  if(!configData) return;
-  $('#editModalTitle').textContent = '编辑渠道: '+(configData.providers[i].name||'Provider '+(i+1));
-  $('#editModalJson').value = JSON.stringify(configData.providers[i], null, 2);
-  $('#editModal').dataset.mode = 'provider';
-  $('#editModal').dataset.index = i;
-  $('#editModal').classList.add('show');
+function openChannelEditor(i) {
+  const isNew = i === -1;
+  $('#chModalTitle').textContent = isNew ? '添加渠道' : '编辑渠道';
+  if(isNew) {
+    $('#chName').value = '';
+    $('#chUrl').value = '';
+    $('#chKey').value = '';
+    $('#chModelsManual').value = '';
+    $('#chModelsList').innerHTML = '';
+    $('#chModelsBox').style.display = 'none';
+    $('#chFetchStatus').textContent = '';
+    $('#chModal').dataset.index = '-1';
+  } else {
+    const p = configData.providers[i];
+    $('#chName').value = p.provider || '';
+    $('#chUrl').value = p.base_url || '';
+    $('#chKey').value = p.api || '';
+    const models = p.models || [];
+    $('#chModelsManual').value = models.join('\n');
+    $('#chModal').dataset.index = i;
+    // 预填模型勾选
+    renderChModelCheckboxes(models);
+  }
+  $('#chModal').classList.add('show');
+}
+function closeChModal() { $('#chModal').classList.remove('show'); }
+
+function renderChModelCheckboxes(selected) {
+  const box = $('#chModelsList');
+  if(!allModels.length && !selected.length) { box.innerHTML = '<span style="font-size:12px;color:var(--text3)">暂无模型，请先拉取或手动输入</span>'; $('#chModelsBox').style.display=''; return; }
+  const union = [...new Set([...allModels, ...selected])].sort();
+  box.innerHTML = union.map(m => `<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:3px 6px;border-radius:6px;${selected.includes(m)?'background:var(--accent-bg);color:var(--accent)':''}"><input type="checkbox" value="${esc(m)}" ${selected.includes(m)?'checked':''} style="accent-color:var(--accent)"> ${esc(m)}</label>`).join('');
+  $('#chModelsBox').style.display = '';
+}
+
+function toggleAllChModels() {
+  const cbs = $$('#chModelsList input[type=checkbox]');
+  const allChecked = [...cbs].every(cb=>cb.checked);
+  cbs.forEach(cb=>cb.checked=!allChecked);
+}
+
+async function fetchProviderModels() {
+  const url = $('#chUrl').value.trim();
+  const key = $('#chKey').value.trim();
+  if(!url) return showToast('请先填写 API Base URL');
+  $('#chFetchBtn').disabled = true;
+  $('#chFetchStatus').textContent = '拉取中...';
+  try {
+    const modelsUrl = url.replace(/\/chat\/completions.*$/, '') + '/v1/models';
+    const r = await fetch(modelsUrl, { headers: key ? { 'Authorization': 'Bearer ' + key } : {} });
+    const d = await r.json();
+    const models = (d.data || d).map(m => m.id || m).filter(Boolean).sort();
+    if(!models.length) throw 'empty';
+    allModels = [...new Set([...allModels, ...models])];
+    renderChModelCheckboxes(models);
+    // 同时填入手动框
+    $('#chModelsManual').value = models.join('\n');
+    $('#chFetchStatus').textContent = `✓ 拉取到 ${models.length} 个模型`;
+    showToast(`拉取到 ${models.length} 个模型`);
+  } catch(e) {
+    $('#chFetchStatus').textContent = '拉取失败，请手动输入模型';
+    showToast('模型拉取失败，请手动输入');
+  }
+  $('#chFetchBtn').disabled = false;
+}
+
+function getChSelectedModels() {
+  // 优先取勾选的，其次取手动输入的
+  const cbs = $$('#chModelsList input[type=checkbox]:checked');
+  if(cbs.length) return [...cbs].map(cb=>cb.value);
+  return $('#chModelsManual').value.split('\n').map(s=>s.trim()).filter(Boolean);
+}
+
+function saveChannel() {
+  const name = $('#chName').value.trim();
+  const url = $('#chUrl').value.trim();
+  const key = $('#chKey').value.trim();
+  const models = getChSelectedModels();
+  if(!name) return showToast('请填写渠道名称');
+  if(!url) return showToast('请填写 API URL');
+  const idx = +$('#chModal').dataset.index;
+  const provider = { provider: name, base_url: url, api: key, models };
+  if(!configData) configData = { providers: [], api_keys: [] };
+  if(!configData.providers) configData.providers = [];
+  if(idx >= 0) {
+    configData.providers[idx] = provider;
+  } else {
+    configData.providers.push(provider);
+  }
+  saveConfig(closeChModal);
 }
 
 function removeProvider(i) {
@@ -540,7 +663,7 @@ function removeProvider(i) {
   saveConfig();
 }
 
-async function saveConfig() {
+async function saveConfig(cb) {
   if(!configData) return;
   try {
     await api('/v1/api_config/update', {
@@ -550,10 +673,13 @@ async function saveConfig() {
     });
     showToast('配置已保存');
     loadChannels();
+    cb?.();
   } catch(e) { showToast('保存失败: '+e.message); }
 }
 
 /* ===== Keys ===== */
+let keyAllModels = [];
+
 async function loadKeys() {
   try {
     const [statesResp, configResp] = await Promise.all([
@@ -562,6 +688,10 @@ async function loadKeys() {
     ]);
     const states = statesResp.paid_api_keys_states || statesResp.api_keys_states || {};
     const apiKeys = (configResp.api_config || configResp).api_keys || [];
+    const providers = (configResp.api_config || configResp).providers || [];
+    // 收集所有可用模型
+    keyAllModels = [];
+    providers.forEach(p => { (p.models||[]).forEach(m => { if(!keyAllModels.includes(m)) keyAllModels.push(m); }); });
     const keys = Object.keys(states);
     $('#keyCount').textContent = keys.length+' 个 Key';
 
@@ -569,22 +699,22 @@ async function loadKeys() {
     keys.forEach(k => {
       const s = states[k];
       const cfg = apiKeys.find(a=>a.api===k);
-      const balance = s.credits || 0;
       const disabled = s.disabled || !s.enabled;
       const models = cfg?.model || cfg?.models || [];
       const isAll = !models.length;
+      const expiry = cfg?.expires_at;
+      const expiryText = expiry ? new Date(expiry*1000).toLocaleDateString('zh-CN') : '永久有效';
       const prefix = k.length>16 ? k.slice(0,8)+'...'+k.slice(-4) : k.slice(0,12)+'...';
 
       html += `<div class="key-card">
         <div class="key-top">
           <div class="key-name-row"><span class="key-dot" style="background:${disabled?'var(--red)':'var(--green)'}"></span><span class="key-name">${esc(prefix)}</span><button class="key-copy" onclick="copyText('${esc(k)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
-          <div class="key-right"><span class="key-expiry">永久有效</span><span class="key-status">${disabled?'已禁用':'正常'}</span></div>
+          <div class="key-right"><span class="key-expiry">${expiryText}</span><span class="key-status">${disabled?'已禁用':'正常'}</span></div>
         </div>
-        <div class="key-balance"><span class="key-balance-label">余额: </span><span class="key-balance-amount">$${balance.toFixed(2)}</span></div>
         <div class="key-models-label">授权模型：</div>
         <div class="tags">${isAll ? '<span class="tag green">全部模型（全量开放）</span>' : models.map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div>
         <div class="key-actions">
-          <button class="btn btn-outline btn-sm" onclick="openCredit('${esc(k)}')">⚙️ 配置 / 充值</button>
+          <button class="btn btn-outline btn-sm" onclick="openKeyEditor('${esc(k)}')">编辑</button>
           <button class="btn btn-sm btn-danger" onclick="deleteKey('${esc(k)}')">🗑</button>
         </div>
       </div>`;
@@ -593,48 +723,91 @@ async function loadKeys() {
   } catch(e) { showToast('加载失败'); }
 }
 
-function openCredit(key) {
-  $('#creditKeyInput').value = key;
-  $('#creditAmtInput').value = '';
-  $('#creditModal').classList.add('show');
-  $('#creditAmtInput').focus();
+function openKeyEditor(key) {
+  const apiKeys = (configData?.api_keys || []);
+  const cfg = apiKeys.find(a=>a.api===key);
+  const models = cfg?.model || cfg?.models || [];
+  const expiry = cfg?.expires_at;
+  const enabled = cfg?.enabled !== false;
+
+  const prefix = key.length>16 ? key.slice(0,8)+'...'+key.slice(-4) : key.slice(0,12)+'...';
+  $('#keyEditName').textContent = prefix;
+  $('#keyEditName').dataset.fullkey = key;
+
+  // 模型勾选
+  const allM = keyAllModels.length ? keyAllModels : models;
+  const isAll = !models.length;
+  const box = $('#keyModelsList');
+  const union = [...new Set([...allM, ...models])].sort();
+  box.innerHTML = union.map(m => `<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:3px 6px;border-radius:6px;${(isAll||models.includes(m))?'background:var(--accent-bg);color:var(--accent)':''}"><input type="checkbox" value="${esc(m)}" ${(isAll||models.includes(m))?'checked':''} style="accent-color:var(--accent)"> ${esc(m)}</label>`).join('');
+  $('#keyModelHint').textContent = isAll ? '当前: 全部模型' : `当前: ${models.length} 个模型`;
+
+  // 过期时间
+  if(expiry) {
+    const d = new Date(expiry*1000);
+    const local = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    $('#keyExpiry').value = local;
+  } else {
+    $('#keyExpiry').value = '';
+  }
+
+  // 启用状态
+  setKeyEnabled(enabled);
+
+  $('#keyModal').classList.add('show');
 }
-function closeCreditModal() { $('#creditModal').classList.remove('show'); }
-async function doCredit() {
-  const key = $('#creditKeyInput').value;
-  const amt = parseFloat($('#creditAmtInput').value);
-  if(!key || isNaN(amt) || amt<=0) return showToast('请输入有效金额');
-  try {
-    await api('/v1/add_credits?paid_key='+encodeURIComponent(key)+'&amount='+amt, { method:'POST' });
-    showToast('充值成功: $'+amt.toFixed(2));
-    closeCreditModal();
-    loadKeys();
-  } catch(e) { showToast('充值失败'); }
-}
-function deleteKey(key) {
-  if(!confirm('确定删除此 Key？')) return;
-  showToast('请在 api.yaml 中手动删除');
+function closeKeyModal() { $('#keyModal').classList.remove('show'); }
+
+function toggleAllKeyModels() {
+  const cbs = $$('#keyModelsList input[type=checkbox]');
+  const allChecked = [...cbs].every(cb=>cb.checked);
+  cbs.forEach(cb=>cb.checked=!allChecked);
 }
 
-/* ===== Edit Modal ===== */
-function closeEditModal() { $('#editModal').classList.remove('show'); }
-async function saveEditModal() {
-  const mode = $('#editModal').dataset.mode;
-  const idx = +$('#editModal').dataset.index;
-  try {
-    const val = JSON.parse($('#editModalJson').value);
-    if(mode==='provider' && configData) {
-      configData.providers[idx] = val;
-      await api('/v1/api_config/update', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+currentKey},
-        body: JSON.stringify(configData)
-      });
-      showToast('渠道已更新');
-      closeEditModal();
-      loadChannels();
-    }
-  } catch(e) { showToast('JSON 格式错误'); }
+function setKeyEnabled(v) {
+  const el = $('#keyEnabled');
+  const dot = el.querySelector('div');
+  el.style.background = v ? 'var(--green)' : '#d1d1d6';
+  dot.style.left = v ? '20px' : '2px';
+  $('#keyEnabledLabel').textContent = v ? '已启用' : '已禁用';
+  el.onclick = () => { const nv = el.style.background !== 'var(--green)'; setKeyEnabled(nv); };
+}
+
+function getKeyEnabled() {
+  return $('#keyEnabled').style.background === 'rgb(52, 199, 89)' || $('#keyEnabled').style.background.includes('green');
+}
+
+function saveKeyEdit() {
+  const key = $('#keyEditName').dataset.fullkey;
+  if(!key || !configData) return;
+  const cbs = $$('#keyModelsList input[type=checkbox]:checked');
+  const models = [...cbs].map(cb=>cb.value);
+  const expiryStr = $('#keyExpiry').value;
+  const enabled = getKeyEnabled();
+
+  let cfg = configData.api_keys?.find(a=>a.api===key);
+  if(!cfg) {
+    if(!configData.api_keys) configData.api_keys = [];
+    cfg = { api: key };
+    configData.api_keys.push(cfg);
+  }
+  cfg.models = models;
+  cfg.model = models;
+  cfg.enabled = enabled;
+  if(expiryStr) {
+    cfg.expires_at = Math.floor(new Date(expiryStr).getTime()/1000);
+  } else {
+    delete cfg.expires_at;
+  }
+
+  saveConfig(closeKeyModal);
+}
+
+function deleteKey(key) {
+  if(!confirm('确定删除此 Key？请记得点"保存生效"')) return;
+  if(!configData) return;
+  configData.api_keys = (configData.api_keys||[]).filter(a=>a.api!==key);
+  saveConfig();
 }
 
 /* ===== Utils ===== */
