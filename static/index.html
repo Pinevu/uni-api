@@ -60,14 +60,69 @@
   --transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ==========================================================================
+   Light Mode Variables
+   ========================================================================== */
+:root.light {
+  --ios-bg: #f2f2f7;
+  --ios-surface-bg: #ffffff;
+  --ios-card: rgba(255, 255, 255, 0.8);
+  --ios-card-solid: #ffffff;
+  --ios-card-secondary: rgba(235, 235, 240, 0.8);
+  --ios-card-hover: rgba(245, 245, 250, 0.9);
+  --ios-border: rgba(0, 0, 0, 0.08);
+  --ios-border-subtle: rgba(0, 0, 0, 0.04);
+  --ios-border-active: rgba(10, 132, 255, 0.4);
+
+  --ios-text: #1c1c1e;
+  --ios-text-secondary: #636366;
+  --ios-text-tertiary: #8e8e93;
+  --ios-text-quaternary: #aeaeb2;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
+  --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* ==========================================================================
+   Theme Toggle Button
+   ========================================================================== */
+.theme-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ios-border);
+  background: var(--ios-card);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
+  color: var(--ios-text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm), var(--inner-highlight);
+  outline: none;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover { color: var(--sys-blue); border-color: var(--sys-blue); }
+.theme-toggle:active { transform: scale(0.92); }
+.theme-toggle svg { width: 17px; height: 17px; }
+.theme-toggle .sun-icon { display: none; }
+.theme-toggle .moon-icon { display: block; }
+:root.light .theme-toggle .sun-icon { display: block; }
+:root.light .theme-toggle .moon-icon { display: none; }
+
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
   background-color: var(--ios-bg);
-  background-image: 
-    radial-gradient(circle at 50% -10%, rgba(10, 132, 255, 0.12) 0%, transparent 60%),
-    radial-gradient(circle at 100% 20%, rgba(191, 90, 242, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 0% 80%, rgba(48, 209, 88, 0.06) 0%, transparent 50%);
+  background-image:
+    radial-gradient(circle at 50% -10%, rgba(10, 132, 255, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 100% 20%, rgba(191, 90, 242, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 0% 80%, rgba(48, 209, 88, 0.04) 0%, transparent 50%);
   background-attachment: fixed;
   color: var(--ios-text);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
@@ -76,6 +131,14 @@ body {
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+:root.light body {
+  background-image:
+    radial-gradient(circle at 50% -10%, rgba(10, 132, 255, 0.04) 0%, transparent 60%),
+    radial-gradient(circle at 100% 20%, rgba(191, 90, 242, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 0% 80%, rgba(48, 209, 88, 0.02) 0%, transparent 50%);
 }
 
 .mono { font-family: "SF Mono", Menlo, Monaco, Consolas, monospace; }
@@ -223,6 +286,20 @@ a:hover { opacity: 0.8; }
 
 .input::placeholder { color: var(--ios-text-tertiary); }
 
+:root.light .input,
+:root.light .select {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--ios-text);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+:root.light .input:focus,
+:root.light .select:focus {
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
+}
+
 .select {
   appearance: none;
   -webkit-appearance: none;
@@ -297,8 +374,6 @@ a:hover { opacity: 0.8; }
   white-space: nowrap;
 }
 
-.seg-item.active { color: #ffffff; }
-
 .seg-indicator {
   position: absolute;
   top: 4px;
@@ -311,6 +386,14 @@ a:hover { opacity: 0.8; }
   z-index: 1;
   pointer-events: none;
 }
+
+:root.light .seg-indicator {
+  background: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.seg-item.active { color: #ffffff; }
+:root.light .seg-item.active { color: #0A84FF; }
 
 /* Badges */
 .pill {
@@ -339,6 +422,8 @@ a:hover { opacity: 0.8; }
   background: rgba(0, 0, 0, 0.25);
 }
 
+:root.light .table-container { background: rgba(255, 255, 255, 0.7); }
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -358,6 +443,11 @@ th {
   border-bottom: 1px solid var(--ios-border);
 }
 
+:root.light th {
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
 td {
   padding: 12px 14px;
   border-bottom: 1px solid var(--ios-border-subtle);
@@ -375,6 +465,8 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
   border-radius: var(--r-full);
   overflow: hidden;
 }
+
+:root.light .progress-track { background: rgba(0, 0, 0, 0.08); }
 
 .progress-bar {
   height: 100%;
@@ -406,6 +498,12 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
   padding: 8px 18px;
   margin-bottom: 20px;
   box-shadow: var(--shadow-sm), var(--inner-highlight);
+}
+
+:root.light .top-island-bar {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .island-brand {
@@ -440,6 +538,11 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
   padding: 4px 10px;
   border-radius: var(--r-full);
   border: 1px solid var(--ios-border-subtle);
+}
+
+:root.light .status-pill {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .status-dot {
@@ -574,6 +677,17 @@ textarea.code-editor:focus {
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(10, 132, 255, 0.2);
 }
 
+:root.light textarea.code-editor {
+  background: rgba(255, 255, 255, 0.95);
+  color: #1c1c1e;
+  border-color: var(--ios-border);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+:root.light textarea.code-editor:focus {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 3px rgba(10, 132, 255, 0.2);
+}
+
 /* Login Modal */
 #login-overlay {
   position: fixed;
@@ -581,11 +695,13 @@ textarea.code-editor:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: var(--blur-lg);
   -webkit-backdrop-filter: var(--blur-lg);
   z-index: 999;
 }
+
+:root.light #login-overlay { background: rgba(0, 0, 0, 0.25); }
 
 .login-sheet {
   background: rgba(28, 28, 30, 0.85);
@@ -597,6 +713,12 @@ textarea.code-editor:focus {
   text-align: center;
   position: relative;
   animation: modal-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root.light .login-sheet {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
 }
 
 @keyframes modal-enter {
@@ -657,6 +779,14 @@ textarea.code-editor:focus {
 
 #toast-hud.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* Light mode toast */
+:root.light #toast-hud {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #1c1c1e;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
 .spin {
   width: 14px;
   height: 14px;
@@ -665,6 +795,11 @@ textarea.code-editor:focus {
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
   display: inline-block;
+}
+
+:root.light .spin {
+  border-color: rgba(0, 0, 0, 0.15);
+  border-top-color: #0A84FF;
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -741,6 +876,10 @@ textarea.code-editor:focus {
     </div>
 
     <div class="island-actions">
+      <button class="theme-toggle" id="btn-theme" title="切换亮暗模式" aria-label="切换主题">
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
       <div class="status-pill">
         <span class="status-dot" id="ping-dot"></span>
         <span id="ping-text">在线</span>
@@ -1278,6 +1417,24 @@ textarea.code-editor:focus {
   let visitedTabs = {};
   let healthTimer = null;
 
+  /* ==========================================================================
+     Theme Management
+     ========================================================================== */
+  const THEME_KEY = 'uniapi_theme';
+
+  function applyTheme(mode) {
+    const isLight = mode === 'light';
+    document.documentElement.classList.toggle('light', isLight);
+  }
+
+  function getInitialTheme() {
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored === 'light' || stored === 'dark') return stored;
+    return 'light'; // default to light
+  }
+
+  applyTheme(getInitialTheme());
+
   // Utilities
   const fmt = (n) => (n == null ? '0' : Number(n).toLocaleString('zh-CN'));
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1426,7 +1583,8 @@ textarea.code-editor:focus {
     }
 
     const ctx = document.getElementById(canvasId).getContext('2d');
-    Chart.defaults.color = '#8e8e93';
+    const isLight = document.documentElement.classList.contains('light');
+    Chart.defaults.color = isLight ? '#636366' : '#8e8e93';
     Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif';
     Chart.defaults.font.size = 11.5;
 
@@ -1446,15 +1604,15 @@ textarea.code-editor:focus {
             usePointStyle: true,
             pointStyle: 'circle',
             padding: 14,
-            color: '#8e8e93',
+            color: isLight ? '#636366' : '#8e8e93',
             font: { size: 11.5, weight: '500' }
           }
         },
         tooltip: {
-          backgroundColor: 'rgba(28, 28, 30, 0.94)',
-          titleColor: '#ffffff',
-          bodyColor: '#e5eaf3',
-          borderColor: 'rgba(255, 255, 255, 0.16)',
+          backgroundColor: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(28, 28, 30, 0.94)',
+          titleColor: isLight ? '#1c1c1e' : '#ffffff',
+          bodyColor: isLight ? '#3a3a3c' : '#e5eaf3',
+          borderColor: isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.16)',
           borderWidth: 1,
           padding: 12,
           cornerRadius: 12,
@@ -1466,11 +1624,11 @@ textarea.code-editor:focus {
       scales: {
         x: {
           grid: { display: false, drawBorder: false },
-          ticks: { color: '#636366', font: { size: 11 } }
+          ticks: { color: isLight ? '#8e8e93' : '#636366', font: { size: 11 } }
         },
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.04)', drawBorder: false },
-          ticks: { color: '#636366', font: { size: 11 } },
+          grid: { color: isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.04)', drawBorder: false },
+          ticks: { color: isLight ? '#8e8e93' : '#636366', font: { size: 11 } },
           beginAtZero: true
         }
       }
@@ -2003,6 +2161,12 @@ textarea.code-editor:focus {
     if (activeTab === 'keys') loadKeysData();
     checkHealth();
     showToast('全部视图已刷新');
+  };
+  $('#btn-theme').onclick = () => {
+    const next = document.documentElement.classList.contains('light') ? 'dark' : 'light';
+    applyTheme(next);
+    localStorage.setItem(THEME_KEY, next);
+    showToast(next === 'light' ? '亮色模式' : '暗色模式');
   };
 
   // Bootstrap
