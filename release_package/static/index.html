@@ -1,0 +1,2639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>API HUB</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><rect width='24' height='24' rx='5' fill='%2313151f'/><polygon points='13 4 5 14 12 14 11 20 19 10 12 10 13 4' fill='%236366f1'/></svg>">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-body: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --border: #e2e8f0;
+  --border-light: #edf2f7;
+  --border-focus: #6366f1;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-light: #eef2ff;
+  --primary-glow: rgba(99, 102, 241, 0.2);
+
+  --success: #10b981;
+  --success-light: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-light: #fffbeb;
+  --danger: #ef4444;
+  --danger-light: #fef2f2;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-full: 9999px;
+
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 14px 34px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+
+  --topbar-bg: rgba(255, 255, 255, 0.86);
+  --tabbar-bg: rgba(255, 255, 255, 0.92);
+  --modal-overlay: rgba(15, 23, 42, 0.45);
+  --chart-grid: #f1f5f9;
+  --chart-text: #64748b;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, Monaco, monospace;
+  --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] {
+  --bg-body: #090d16;
+  --bg-card: #111827;
+  --bg-subtle: #172033;
+  --border: #1f2a40;
+  --border-light: #162032;
+  --border-focus: #818cf8;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+
+  --primary: #818cf8;
+  --primary-hover: #6366f1;
+  --primary-light: rgba(129, 140, 248, 0.14);
+  --primary-glow: rgba(129, 140, 248, 0.28);
+
+  --success: #34d399;
+  --success-light: rgba(52, 211, 153, 0.14);
+  --warning: #fbbf24;
+  --warning-light: rgba(251, 191, 36, 0.14);
+  --danger: #f87171;
+  --danger-light: rgba(248, 113, 113, 0.14);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 16px 44px rgba(0, 0, 0, 0.7);
+
+  --topbar-bg: rgba(9, 13, 22, 0.86);
+  --tabbar-bg: rgba(9, 13, 22, 0.92);
+  --modal-overlay: rgba(0, 0, 0, 0.72);
+  --chart-grid: #1e293b;
+  --chart-text: #94a3b8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  padding-bottom: 84px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.mono { font-family: var(--font-mono); }
+
+/* Custom Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ==========================================================================
+   Top Header
+   ========================================================================== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: var(--topbar-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  transition: var(--transition);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 2px 10px var(--primary-glow);
+  flex-shrink: 0;
+}
+
+.topbar-brand {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ping-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+}
+
+.ping-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.topbar-btn {
+  width: 36px;
+  height: 36px;
+  box-sizing: border-box;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.topbar-btn:hover {
+  background: var(--bg-subtle);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.topbar-btn.danger:hover {
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+  background: var(--danger-light);
+}
+
+/* ==========================================================================
+   Bottom Navigation Bar
+   ========================================================================== */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: var(--tabbar-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid var(--border);
+  z-index: 50;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.04);
+  transition: var(--transition);
+}
+
+.tabbar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 0 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  background: none;
+  position: relative;
+}
+
+.tabbar-item svg {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.2s ease, stroke 0.2s ease;
+}
+
+.tabbar-item.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.tabbar-item.active svg {
+  transform: translateY(-1.5px);
+  stroke: var(--primary);
+}
+
+/* ==========================================================================
+   Page Container
+   ========================================================================== */
+.page {
+  display: none;
+  padding: 16px;
+  max-width: 880px;
+  margin: 0 auto;
+  animation: fade-in 0.22s ease-out;
+}
+
+.page.active {
+  display: block;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   Action & Filter Toolbars
+   ========================================================================== */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 10px;
+}
+
+.filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 32px 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: var(--shadow-xs);
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.action-bar .spacer { flex: 1; }
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid transparent;
+  outline: none;
+  user-select: none;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+
+.btn-outline {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-outline:hover {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border-color: var(--border-focus);
+}
+
+.btn-danger {
+  color: var(--danger);
+  background: transparent;
+  border-color: transparent;
+}
+
+.btn-danger:hover {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-sm {
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+}
+
+.btn-xs {
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================================================
+   Metric Cards Grid
+   ========================================================================== */
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 640px) {
+  .metrics-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 86px;
+}
+
+.metric-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-focus);
+  transform: translateY(-1px);
+}
+
+.metric-title {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  line-height: 1.15;
+}
+
+.metric-value.sm {
+  font-size: 20px;
+}
+
+.metric-value .sep {
+  color: var(--text-muted);
+  font-weight: 400;
+  margin: 0 4px;
+  font-size: 16px;
+}
+
+/* ==========================================================================
+   Charts Cards
+   ========================================================================== */
+.chart-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  transition: var(--transition);
+}
+
+.chart-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-focus);
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+
+.chart-container { position: relative; height: 230px; }
+.donut-container { position: relative; height: 240px; }
+
+/* ==========================================================================
+   Usage Cards & Breakdown
+   ========================================================================== */
+.usage-item-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  transition: var(--transition);
+}
+
+.usage-item-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-focus);
+}
+
+.usage-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.usage-item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 12.5px;
+}
+
+.usage-grid-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.usage-grid-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.usage-grid-val {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: var(--radius-full);
+}
+
+/* ==========================================================================
+   Channel Cards (渠道卡片)
+   ========================================================================== */
+.ch-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  transition: var(--transition);
+}
+
+.ch-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-focus);
+}
+
+.ch-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ch-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.key-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.ch-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.ch-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ch-meta-box {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.ch-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  gap: 8px;
+}
+
+.ch-meta-row:not(:last-child) {
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.ch-meta-label {
+  color: var(--text-muted);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.ch-meta-val {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  word-break: break-all;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ch-models-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Model Tags & Chips
+   ========================================================================== */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-family: var(--font-mono);
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  transition: var(--transition);
+}
+
+.tag.green {
+  background: var(--success-light);
+  color: var(--success);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.tag-more {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.tag-more:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Interactive Chips for Modals */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.chip.selected {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+.chip svg {
+  width: 14px;
+  height: 14px;
+  display: none;
+}
+
+.chip.selected svg {
+  display: inline-block;
+}
+
+/* ==========================================================================
+   Key Cards
+   ========================================================================== */
+.key-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  transition: var(--transition);
+}
+
+.key-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-focus);
+}
+
+.key-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.key-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.key-name {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.key-copy {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  box-sizing: border-box;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.key-copy:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.key-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.key-expiry {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.key-status {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.key-status.disabled {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.key-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ==========================================================================
+   Modals
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 16px;
+  transition: var(--transition);
+}
+
+.modal-overlay.show {
+  display: flex !important;
+}
+
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  width: min(540px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  animation: modal-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--border);
+  color: var(--text-primary);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.modal-input {
+  width: 100%;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+textarea.modal-input {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 12px;
+}
+
+.modal-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.modal-input.mono {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  height: 36px;
+}
+
+.search-input-wrap svg {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 12px 0 34px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.search-input:focus {
+  background: var(--bg-card);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.chips-container {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--bg-subtle);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ==========================================================================
+   Login Sheet
+   ========================================================================== */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 16px;
+}
+
+.login-card {
+  background: var(--bg-card);
+  border-radius: 24px;
+  padding: 36px 28px;
+  width: min(390px, 100%);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  color: #ffffff;
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+
+.login-title {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.login-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 22px;
+}
+
+.login-input {
+  width: 100%;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+  background: var(--bg-subtle);
+}
+
+.login-input:focus {
+  background: var(--bg-card);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.login-btn {
+  width: 100%;
+  height: 44px;
+  box-sizing: border-box;
+  margin-top: 16px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.login-err {
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 10px;
+  display: none;
+}
+
+/* ==========================================================================
+   Toast Notification
+   ========================================================================== */
+.toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-30px);
+  background: rgba(15, 23, 42, 0.94);
+  color: #ffffff;
+  padding: 9px 18px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 600;
+  pointer-events: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   Tables & Lists
+   ========================================================================== */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 10px 12px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: var(--bg-subtle);
+}
+
+/* Quick Expiry Selector */
+.expiry-presets {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.expiry-btn {
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expiry-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--bg-card);
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 640px) {
+  .page { padding: 12px 14px; }
+  .metrics { gap: 10px; }
+  .metric-card { padding: 14px; }
+  .metric-value { font-size: 24px; }
+  .chart-card { padding: 14px 16px; }
+  .ch-card, .key-card { padding: 16px; }
+  .modal { padding: 18px 16px; border-radius: var(--radius-lg); }
+}
+</style>
+</head>
+<body>
+
+<!-- Login Modal -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h1 class="login-title">API HUB 管理面板</h1>
+    <p class="login-desc">输入管理员密码访问控制台</p>
+    <input class="login-input" id="loginInput" type="password" placeholder="管理员密码" autocomplete="current-password">
+    <button class="btn btn-primary login-btn" id="loginBtn">登 录</button>
+    <p class="login-err" id="loginErr">鉴权失败，请检查密码</p>
+  </div>
+</div>
+
+<!-- Global Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Top Fixed Bar -->
+<header class="topbar" id="topbar" style="display:none">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <span class="topbar-brand">API HUB</span>
+  </div>
+  <div class="topbar-right">
+    <div class="ping-pill"><span class="ping-dot"></span><span id="pingText">在线</span></div>
+    <button class="topbar-btn" id="themeToggleBtn" onclick="toggleTheme()" title="切换主题模式">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+    <button class="topbar-btn" onclick="refreshAll()" title="刷新数据">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+    </button>
+    <button class="topbar-btn danger" onclick="logout()" title="退出登录">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ==========================================================================
+     PAGE 1: OVERVIEW (概览)
+     ========================================================================== -->
+<div class="page active" id="page-overview">
+  <div class="filter-bar">
+    <select class="filter-select" id="hoursSelect" onchange="loadOverview()">
+      <option value="24">最近 24 小时</option>
+      <option value="168" selected>最近 7 天</option>
+      <option value="720">最近 30 天</option>
+    </select>
+    <button class="btn btn-outline btn-sm" onclick="loadOverview()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      刷新
+    </button>
+  </div>
+  <div class="metrics metrics-4" id="metricsGrid"></div>
+  <div class="chart-card">
+    <div class="chart-title">Token 消耗趋势</div>
+    <div class="chart-container"><canvas id="trendChart"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">模型调用分布</div>
+    <div class="donut-container"><canvas id="donutChart"></canvas></div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     PAGE 2: MONITOR (监控)
+     ========================================================================== -->
+<div class="page" id="page-monitor">
+  <div class="filter-bar">
+    <select class="filter-select" id="monHoursSelect" onchange="loadMonitor()">
+      <option value="24">最近 24 小时</option>
+      <option value="168" selected>最近 7 天</option>
+      <option value="720">最近 30 天</option>
+    </select>
+    <button class="btn btn-outline btn-sm" onclick="loadMonitor()">刷新</button>
+  </div>
+  <div id="monitorContent"></div>
+</div>
+
+<!-- ==========================================================================
+     PAGE 3: USAGE (用量明细与模型占比分布)
+     ========================================================================== -->
+<div class="page" id="page-usage">
+  <div class="filter-bar">
+    <select class="filter-select" id="usDaysSelect" onchange="loadUsage()">
+      <option value="1">最近 1 天</option>
+      <option value="7" selected>最近 7 天</option>
+      <option value="30">最近 30 天</option>
+    </select>
+    <button class="btn btn-outline btn-sm" onclick="loadUsage()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      刷新
+    </button>
+  </div>
+  <div class="search-input-wrap" style="margin-bottom:14px">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="search-input" id="usSearchInput" placeholder="按模型名称或 Key 前缀搜索..." oninput="renderUsageFiltered()">
+  </div>
+  <div id="usageContent"></div>
+</div>
+
+<!-- ==========================================================================
+     PAGE 4: CHANNELS (渠道管理)
+     ========================================================================== -->
+<div class="page" id="page-channels">
+  <div class="action-bar">
+    <button class="btn btn-primary btn-sm" onclick="openChannelEditor(-1)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      添加渠道
+    </button>
+    <div class="spacer"></div>
+    <button class="btn btn-outline btn-sm" onclick="loadChannels()">重载</button>
+    <button class="btn btn-primary btn-sm" onclick="saveConfig()">保存生效</button>
+  </div>
+  <div id="channelsContent"></div>
+</div>
+
+<!-- ==========================================================================
+     PAGE 5: KEYS (API Key 管理)
+     ========================================================================== -->
+<div class="page" id="page-keys">
+  <div class="action-bar">
+    <button class="btn btn-primary btn-sm" onclick="openKeyEditor('')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      新建 API Key
+    </button>
+    <div class="spacer"></div>
+    <span style="font-size:13px;font-weight:600;color:var(--text-secondary)" id="keyCount">0 个 Key</span>
+    <button class="btn btn-outline btn-sm" onclick="loadKeys()">刷新</button>
+  </div>
+  <div id="keysContent"></div>
+</div>
+
+<!-- ==========================================================================
+     Bottom Tab Navigation
+     ========================================================================== -->
+<nav class="tabbar" id="tabbar" style="display:none">
+  <button class="tabbar-item active" data-tab="overview">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span>概览</span>
+  </button>
+  <button class="tabbar-item" data-tab="monitor">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h2m4 0h2m4 0h2m4 0h2"/><path d="M4 8l2 4-2 4"/><path d="M12 6l2 6-2 6"/><path d="M20 4l2 8-2 8"/></svg>
+    <span>监控</span>
+  </button>
+  <button class="tabbar-item" data-tab="usage">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <span>用量</span>
+  </button>
+  <button class="tabbar-item" data-tab="channels">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span>渠道</span>
+  </button>
+  <button class="tabbar-item" data-tab="keys">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+    <span>API Key</span>
+  </button>
+</nav>
+
+<!-- ==========================================================================
+     MODAL: CHANNEL EDITOR (渠道可视化编辑器)
+     ========================================================================== -->
+<div class="modal-overlay" id="chModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="chModalTitle">编辑渠道</h3>
+      <button class="modal-close" onclick="closeChModal()">&times;</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">渠道标识 / 名称</label>
+      <input class="modal-input" id="chName" placeholder="例: CPA 或 grok2api">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">API Base URL</label>
+      <input class="modal-input mono" id="chUrl" placeholder="https://api.example.com/v1">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">API Key / Token</label>
+      <input class="modal-input mono" id="chKey" type="text" placeholder="sk-... 或留空">
+    </div>
+
+    <!-- Models Config Section -->
+    <div class="form-group" style="margin-top:20px;border-top:1px solid var(--border-light);padding-top:16px">
+      <div class="form-label">
+        <span>可用模型配置</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-xs" id="chFetchBtn" onclick="fetchProviderModels()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+            一键拉取
+          </button>
+          <button class="btn btn-outline btn-xs" onclick="toggleAllChModels()">全选/反选</button>
+          <button class="btn btn-outline btn-xs" onclick="clearAllChModels()">清空</button>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:12px;color:var(--text-muted)" id="chFetchStatus">填写 Base URL 后可点击「一键拉取」</span>
+        <span class="badge badge-purple" id="chSelectedCount" style="font-size:11.5px;font-weight:600;color:var(--primary)">已选 0 个</span>
+      </div>
+
+      <div class="search-input-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="chSearchModel" placeholder="搜索模型名称..." oninput="filterChModels()">
+      </div>
+
+      <div class="chips-container" id="chChipsList">
+        <div style="text-align:center;width:100%;color:var(--text-muted);font-size:12px;padding:14px 0">暂无模型列表，请点击「一键拉取」或手动添加</div>
+      </div>
+    </div>
+
+    <!-- Manual Textarea (Collapsible) -->
+    <div class="form-group" style="margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;cursor:pointer" onclick="$('#chManualWrap').style.display = $('#chManualWrap').style.display==='none'?'block':'none'">
+        <span style="font-size:12px;color:var(--text-secondary);font-weight:600">批量粘贴 / 手动输入模型 ▼</span>
+      </div>
+      <div id="chManualWrap" style="display:none;margin-top:6px">
+        <textarea class="modal-input mono" id="chModelsManual" rows="3" placeholder="每行一个模型名称，输入后失焦会自动同步到上方芯片列表" onblur="syncManualToChips()"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeChModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveChannel()">保存渠道</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL: KEY EDITOR (Key 编辑/新建模态框：模型白名单、到期时间)
+     ========================================================================== -->
+<div class="modal-overlay" id="keyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="keyModalTitle">配置 API Key 权限</h3>
+      <button class="modal-close" onclick="closeKeyModal()">&times;</button>
+    </div>
+
+    <!-- Key Input / Display Row -->
+    <div class="form-group" id="keyInputGroup">
+      <label class="form-label" id="keyInputLabel">API Key</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="modal-input mono" id="keyCustomInput" placeholder="sk-..." style="flex:1">
+        <button class="btn btn-outline btn-sm" id="keyGenerateBtn" onclick="generateRandomKey()" style="flex-shrink:0" title="随机生成标准 32 位 Key">
+          🎲 随机生成
+        </button>
+        <button class="topbar-btn" id="keyCopyBtn" onclick="copyText($('#keyCustomInput').value)" style="display:none;flex-shrink:0" title="复制完整 Key">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Model Whitelist Section -->
+    <div class="form-group">
+      <div class="form-label">
+        <span>模型授权范围</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-xs" onclick="toggleAllKeyModels(true)">全选</button>
+          <button class="btn btn-outline btn-xs" onclick="toggleAllKeyModels(false)">清空</button>
+        </div>
+      </div>
+
+      <div class="search-input-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="keySearchModel" placeholder="搜索模型名称..." oninput="filterKeyModels()">
+      </div>
+
+      <div class="chips-container" id="keyChipsList"></div>
+    </div>
+
+    <!-- Expiration Section -->
+    <div class="form-group">
+      <label class="form-label">有效期截止时间</label>
+      <input class="modal-input" id="keyExpiry" type="datetime-local">
+      <div class="expiry-presets">
+        <button class="expiry-btn" onclick="setExpiryDays(7)">+7 天</button>
+        <button class="expiry-btn" onclick="setExpiryDays(30)">+30 天</button>
+        <button class="expiry-btn" onclick="setExpiryDays(90)">+90 天</button>
+        <button class="expiry-btn" onclick="setExpiryDays(365)">+1 年</button>
+        <button class="expiry-btn" onclick="$('#keyExpiry').value=''">永久有效</button>
+      </div>
+    </div>
+
+    <!-- Enabled Toggle -->
+    <div class="form-group" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border-light)">
+      <div>
+        <div style="font-size:13.5px;font-weight:600;color:var(--text-primary)">启用状态</div>
+        <div style="font-size:12px;color:var(--text-muted)">禁用后该 API Key 将拒绝所有调用请求</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;font-weight:600" id="keyEnabledLabel">已启用</span>
+        <div id="keyEnabledToggle" style="width:44px;height:24px;border-radius:12px;background:var(--success);cursor:pointer;position:relative;transition:var(--transition)">
+          <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:22px;transition:var(--transition);box-shadow:0 1px 3px rgba(0,0,0,0.2)"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeKeyModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveKeyEdit()">保存配置</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+let currentKey = localStorage.getItem('uh_key') || localStorage.getItem('uniapi_admin_key') || '';
+let charts = {};
+let configData = null;
+let chAllModels = [];
+let chSelectedSet = new Set();
+let keyAllModels = [];
+let keySelectedSet = new Set();
+let isKeyCreating = false;
+let rawUsageList = [];
+
+/* ===== Theme Engine (Light / Dark) ===== */
+let currentTheme = localStorage.getItem('uh_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+function applyTheme(theme) {
+  currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('uh_theme', theme);
+  updateThemeIcon();
+  
+  // Re-render chart if overview is active
+  if (charts.trend || charts.donut) {
+    const activeTab = $('.tabbar-item.active')?.dataset.tab;
+    if (activeTab === 'overview') loadOverview();
+  }
+}
+
+function toggleTheme() {
+  const next = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  showToast(next === 'dark' ? '已切换至暗色模式 🌙' : '已切换至明亮模式 ☀️');
+}
+
+function updateThemeIcon() {
+  const btn = $('#themeToggleBtn');
+  if (!btn) return;
+  if (currentTheme === 'dark') {
+    btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+  } else {
+    btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+  }
+}
+
+// Initial theme application
+applyTheme(currentTheme);
+
+/* ===== Core API ===== */
+async function api(path, opts = {}) {
+  const r = await fetch(path, {
+    headers: { 'Authorization': 'Bearer ' + currentKey, ...opts.headers },
+    ...opts
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+/* ===== Authentication ===== */
+$('#loginBtn').onclick = async () => {
+  const k = $('#loginInput').value.trim();
+  if (!k) return;
+  $('#loginBtn').textContent = '验证中...';
+  $('#loginErr').style.display = 'none';
+  try {
+    const d = await api('/v1/stats?hours=1', { headers: { 'Authorization': 'Bearer ' + k } });
+    if (d.total_requests !== undefined || d.model_request_counts || d.channel_success_rates) {
+      currentKey = k;
+      localStorage.setItem('uh_key', k);
+      localStorage.setItem('uniapi_admin_key', k);
+      enterApp();
+    } else throw new Error();
+  } catch (e) {
+    $('#loginErr').style.display = 'block';
+    $('#loginBtn').textContent = '登 录';
+  }
+};
+$('#loginInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('#loginBtn').click(); });
+
+function logout() {
+  currentKey = '';
+  localStorage.removeItem('uh_key');
+  localStorage.removeItem('uniapi_admin_key');
+  location.reload();
+}
+
+function enterApp() {
+  $('#loginOverlay').style.display = 'none';
+  $('#topbar').style.display = '';
+  $('#tabbar').style.display = '';
+  checkPing();
+  loadOverview();
+}
+
+/* ===== Ping Test ===== */
+async function checkPing() {
+  const t0 = Date.now();
+  try {
+    await api('/v1/stats?hours=1');
+    $('#pingText').textContent = (Date.now() - t0) + 'ms';
+  } catch (e) {
+    $('#pingText').textContent = '断开';
+  }
+}
+
+/* ===== Toast Notification ===== */
+function showToast(msg) {
+  const t = $('#toast');
+  t.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ${esc(msg)}`;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ===== Tab Navigation ===== */
+$$('.tabbar-item').forEach(btn => {
+  btn.onclick = () => {
+    $$('.tabbar-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    $$('.page').forEach(p => p.classList.remove('active'));
+    const tab = btn.dataset.tab;
+    $('#page-' + tab).classList.add('active');
+    const loaders = { overview: loadOverview, monitor: loadMonitor, usage: loadUsage, channels: loadChannels, keys: loadKeys };
+    loaders[tab]?.();
+  };
+});
+
+/* ==========================================================================
+   PAGE 1: OVERVIEW
+   ========================================================================== */
+async function loadOverview() {
+  try {
+    const hours = +$('#hoursSelect').value;
+    const [stats, usageResp] = await Promise.all([
+      api('/v1/stats?hours=' + hours),
+      api('/v1/token_usage?start_datetime=' + new Date(Date.now() - hours * 3600e3).toISOString() + '&end_datetime=' + new Date().toISOString())
+    ]);
+    const usage = usageResp.usage || [];
+    const totalReqs = stats.model_request_counts?.reduce((s, m) => s + m.count, 0) || 0;
+    const totalTokens = usage.reduce((s, u) => s + (u.total_tokens || 0), 0);
+    const totalPrompt = usage.reduce((s, u) => s + (u.total_prompt_tokens || 0), 0);
+    const totalComp = usage.reduce((s, u) => s + (u.total_completion_tokens || 0), 0);
+    const activeModels = new Set(stats.model_request_counts?.map(m => m.model)).size;
+
+    $('#metricsGrid').innerHTML = `
+      <div class="metric-card">
+        <div class="metric-title">总请求数</div>
+        <div class="metric-value">${totalReqs.toLocaleString()}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">TOKENS 消耗</div>
+        <div class="metric-value">${totalTokens.toLocaleString()}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">输入 / 输出</div>
+        <div class="metric-value sm">${totalPrompt.toLocaleString()}<span class="sep">/</span>${totalComp.toLocaleString()}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">活跃模型</div>
+        <div class="metric-value">${activeModels}</div>
+      </div>`;
+
+    // Trend chart (line)
+    const days = hours <= 24 ? 1 : Math.ceil(hours / 24);
+    const dayMap = {};
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 864e5);
+      const key = (d.getMonth() + 1) + '/' + d.getDate();
+      dayMap[key] = { prompt: 0, comp: 0 };
+    }
+    usage.forEach(u => {
+      const perDay = days > 1 ? days : 1;
+      Object.keys(dayMap).forEach(k => {
+        dayMap[k].prompt += Math.round((u.total_prompt_tokens || 0) / perDay);
+        dayMap[k].comp += Math.round((u.total_completion_tokens || 0) / perDay);
+      });
+    });
+
+    const labels = Object.keys(dayMap);
+    const promptData = labels.map(k => dayMap[k].prompt);
+    const compData = labels.map(k => dayMap[k].comp);
+
+    const isDark = currentTheme === 'dark';
+    const gridColor = isDark ? '#1e293b' : '#f1f5f9';
+    const tickColor = isDark ? '#94a3b8' : '#64748b';
+
+    if (charts.trend) charts.trend.destroy();
+    charts.trend = new Chart($('#trendChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Prompt', data: promptData, borderColor: '#6366f1', backgroundColor: isDark ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.08)', fill: true, tension: 0.35 },
+          { label: 'Completion', data: compData, borderColor: '#10b981', backgroundColor: isDark ? 'rgba(16,185,129,0.18)' : 'rgba(16,185,129,0.08)', fill: true, tension: 0.35 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+          legend: { 
+            position: 'top', 
+            align: 'end', 
+            labels: { boxWidth: 8, color: tickColor, font: { size: 11 } } 
+          } 
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } },
+          y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } }
+        }
+      }
+    });
+
+    // Donut chart (models)
+    const modelCounts = {};
+    (stats.model_request_counts || []).forEach(m => { modelCounts[m.model] = (modelCounts[m.model] || 0) + m.count; });
+    const sorted = Object.entries(modelCounts).sort((a, b) => b[1] - a[1]);
+    const top = sorted.slice(0, 6);
+    const other = sorted.slice(6).reduce((s, e) => s + e[1], 0);
+    if (other > 0) top.push(['其他', other]);
+
+    if (charts.donut) charts.donut.destroy();
+    charts.donut = new Chart($('#donutChart'), {
+      type: 'doughnut',
+      data: {
+        labels: top.map(e => e[0]),
+        datasets: [{
+          data: top.map(e => e[1]),
+          backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#94a3b8'],
+          borderColor: isDark ? '#111827' : '#ffffff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '72%',
+        plugins: { 
+          legend: { 
+            position: 'right', 
+            labels: { boxWidth: 8, color: tickColor, font: { size: 11 } } 
+          } 
+        }
+      }
+    });
+  } catch (e) {
+    showToast('概览加载失败');
+  }
+}
+
+/* ==========================================================================
+   PAGE 2: MONITOR
+   ========================================================================== */
+async function loadMonitor() {
+  try {
+    const hours = +$('#monHoursSelect').value;
+    const stats = await api('/v1/stats?hours=' + hours);
+    const channels = stats.channel_success_rates || [];
+    const models = stats.channel_model_success_rates || [];
+    const ips = stats.ip_request_counts || [];
+    const totalIpReqs = ips.reduce((s, i) => s + (i.count || 0), 0);
+
+    let html = `
+      <div class="chart-card">
+        <div class="chart-title">渠道成功率监控</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>渠道名称</th>
+                <th style="text-align:right">请求数</th>
+                <th style="text-align:right">成功率</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${channels.map(c => `
+                <tr>
+                  <td><b>${esc(c.provider)}</b></td>
+                  <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">${c.total_requests}</td>
+                  <td style="text-align:right">
+                    <span class="badge" style="background:var(--success-light);color:var(--success);padding:3px 8px;border-radius:12px;font-size:12px;font-weight:600">
+                      ${(c.success_rate * 100).toFixed(1)}%
+                    </span>
+                  </td>
+                </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">暂无渠道数据</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">模型调用明细</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>渠道 / 模型</th>
+                <th style="text-align:right">请求数</th>
+                <th style="text-align:right">成功率</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${models.map(m => `
+                <tr>
+                  <td><span class="mono">${esc(m.provider)} / <b>${esc(m.model)}</b></span></td>
+                  <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">${m.total_requests}</td>
+                  <td style="text-align:right">
+                    <span class="badge" style="background:var(--success-light);color:var(--success);padding:3px 8px;border-radius:12px;font-size:12px;font-weight:600">
+                      ${(m.success_rate * 100).toFixed(1)}%
+                    </span>
+                  </td>
+                </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">暂无模型数据</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between">
+          <span>客户端 IP 来源统计</span>
+          <span style="font-size:12px;color:var(--text-muted);font-weight:400">${ips.length} 个独立来源</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>客户端 IP</th>
+                <th style="text-align:right">请求次数</th>
+                <th style="text-align:right">占比</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ips.map(ipItem => {
+                const pct = totalIpReqs > 0 ? ((ipItem.count / totalIpReqs) * 100).toFixed(1) : '0.0';
+                return `
+                  <tr>
+                    <td><span class="mono" style="font-weight:600">${esc(ipItem.ip)}</span></td>
+                    <td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${ipItem.count.toLocaleString()} 次</td>
+                    <td style="text-align:right">
+                      <span class="tag" style="font-size:11.5px;font-weight:600">${pct}%</span>
+                    </td>
+                  </tr>`;
+              }).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">暂无 IP 来源数据</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    $('#monitorContent').innerHTML = html;
+  } catch (e) {
+    showToast('监控加载失败');
+  }
+}
+
+/* ==========================================================================
+   PAGE 3: USAGE (用量明细与模型占比分布)
+   ========================================================================== */
+async function loadUsage() {
+  try {
+    const days = +$('#usDaysSelect').value;
+    const start = new Date(Date.now() - days * 864e5);
+    const resp = await api('/v1/token_usage?start_datetime=' + start.toISOString() + '&end_datetime=' + new Date().toISOString());
+    rawUsageList = resp.usage || [];
+    renderUsageFiltered();
+  } catch (e) {
+    showToast('用量加载失败');
+  }
+}
+
+function renderUsageFiltered() {
+  const query = ($('#usSearchInput')?.value || '').trim().toLowerCase();
+  const usage = rawUsageList.filter(u => {
+    if (!query) return true;
+    return (u.model || '').toLowerCase().includes(query) || (u.api_key_prefix || '').toLowerCase().includes(query);
+  });
+
+  if (!rawUsageList.length) {
+    $('#usageContent').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">所选时间范围内暂无用量数据</div>';
+    return;
+  }
+
+  // 1. 汇总指标计算
+  const totalTokens = usage.reduce((s, u) => s + (u.total_tokens || 0), 0);
+  const totalReqs = usage.reduce((s, u) => s + (u.request_count || 0), 0);
+
+  // 2. 按模型聚合统计（计算各模型总消耗与占比）
+  const modelAggMap = {};
+  usage.forEach(u => {
+    const m = u.model || 'unknown';
+    if (!modelAggMap[m]) modelAggMap[m] = { tokens: 0, requests: 0, prompt: 0, comp: 0 };
+    modelAggMap[m].tokens += (u.total_tokens || 0);
+    modelAggMap[m].requests += (u.request_count || 0);
+    modelAggMap[m].prompt += (u.total_prompt_tokens || 0);
+    modelAggMap[m].comp += (u.total_completion_tokens || 0);
+  });
+  const sortedModels = Object.entries(modelAggMap).sort((a, b) => b[1].tokens - a[1].tokens);
+
+  let html = '';
+
+  // (1) 顶部核心指标简报（2个卡片：本期消耗 Tokens 与 累计调用次数）
+  html += `
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-title">本期消耗 Tokens</div>
+        <div class="metric-value sm">${totalTokens.toLocaleString()}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">累计调用次数</div>
+        <div class="metric-value sm">${totalReqs.toLocaleString()}</div>
+      </div>
+    </div>`;
+
+  // (2) 模型用量占比分析排行榜 (Breakdown)
+  if (sortedModels.length > 0) {
+    html += `
+      <div class="chart-card" style="margin-bottom:14px">
+        <div class="chart-title">各模型消耗占比与分布</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          ${sortedModels.map(([modelName, d]) => {
+            const pct = totalTokens > 0 ? ((d.tokens / totalTokens) * 100).toFixed(1) : '0.0';
+            return `
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span class="tag">${esc(modelName)}</span>
+                    <span style="color:var(--text-muted);font-size:12px">${d.requests} 次调用</span>
+                  </div>
+                  <div style="font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums">
+                    ${d.tokens.toLocaleString()} <span style="font-size:11px;color:var(--text-muted);font-weight:400">(${pct}%)</span>
+                  </div>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" style="width:${Math.max(2, pct)}%"></div>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
+  // (3) 调用记录明细 (移动端卡片流)
+  html += `
+    <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin:16px 0 10px;display:flex;align-items:center;justify-content:space-between">
+      <span>调用明细 (${usage.length})</span>
+      <span style="font-size:12px;color:var(--text-muted);font-weight:400">按 Key 与模型归类</span>
+    </div>`;
+
+  if (!usage.length) {
+    html += '<div style="text-align:center;padding:30px;color:var(--text-muted)">未找到匹配的用量记录</div>';
+  } else {
+    usage.forEach(u => {
+      const pRatio = u.total_tokens > 0 ? Math.round((u.total_prompt_tokens / u.total_tokens) * 100) : 0;
+      const cRatio = 100 - pRatio;
+      html += `
+        <div class="usage-item-card">
+          <div class="usage-item-header">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tag">${esc(u.model)}</span>
+              <span class="mono" style="font-size:12px;color:var(--text-muted)">${esc(u.api_key_prefix)}</span>
+            </div>
+            <div style="font-size:16px;font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums">
+              ${(u.total_tokens || 0).toLocaleString()} <span style="font-size:11px;font-weight:400;color:var(--text-muted)">Tokens</span>
+            </div>
+          </div>
+          <div class="usage-item-grid">
+            <div class="usage-grid-cell">
+              <span class="usage-grid-label">请求次数</span>
+              <span class="usage-grid-val">${u.request_count} 次</span>
+            </div>
+            <div class="usage-grid-cell">
+              <span class="usage-grid-label">Prompt (输入)</span>
+              <span class="usage-grid-val">${(u.total_prompt_tokens || 0).toLocaleString()} <small style="color:var(--text-muted);font-weight:400">(${pRatio}%)</small></span>
+            </div>
+            <div class="usage-grid-cell">
+              <span class="usage-grid-label">Output (输出)</span>
+              <span class="usage-grid-val">${(u.total_completion_tokens || 0).toLocaleString()} <small style="color:var(--text-muted);font-weight:400">(${cRatio}%)</small></span>
+            </div>
+          </div>
+        </div>`;
+    });
+  }
+
+  $('#usageContent').innerHTML = html;
+}
+
+/* ==========================================================================
+   PAGE 4: CHANNELS (渠道管理)
+   ========================================================================== */
+async function loadChannels() {
+  try {
+    const d = await api('/v1/api_config');
+    configData = d.api_config || d;
+    const providers = configData.providers || [];
+
+    let html = '';
+    providers.forEach((p, idx) => {
+      const models = p.models || p.model || [];
+      const showCount = 10;
+      const visible = models.slice(0, showCount);
+      const remaining = models.length - showCount;
+
+      html += `
+        <div class="ch-card">
+          <div class="ch-top">
+            <div class="ch-name-row">
+              <span class="key-dot"></span>
+              <span class="ch-name">${esc(p.provider)}</span>
+            </div>
+            <div class="ch-actions">
+              <button class="btn btn-outline btn-sm" onclick="openChannelEditor(${idx})">编辑</button>
+              <button class="btn btn-sm btn-danger" onclick="removeProvider(${idx})">删除</button>
+            </div>
+          </div>
+
+          <div class="ch-meta-box">
+            <div class="ch-meta-row">
+              <span class="ch-meta-label">Base URL</span>
+              <span class="ch-meta-val">${esc(p.base_url || '系统默认')}</span>
+            </div>
+            <div class="ch-meta-row">
+              <span class="ch-meta-label">API Key</span>
+              <span class="ch-meta-val">
+                ${esc(p.api ? (p.api.slice(0, 10) + '...' + p.api.slice(-4)) : '无 / 免鉴权')}
+                ${p.api ? `<button class="key-copy" onclick="copyText('${esc(p.api)}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>` : ''}
+              </span>
+            </div>
+          </div>
+
+          <div class="ch-models-header" onclick="toggleChModelList(${idx})" style="cursor:pointer;user-select:none;margin-bottom:0;padding:4px 0;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-weight:600;color:var(--text-secondary);font-size:12.5px">可用模型 (${models.length})</span>
+            <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--primary);font-weight:600">
+              <span id="ch-toggle-txt-${idx}">展开</span>
+              <svg id="ch-toggle-icon-${idx}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform 0.2s ease"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <div class="tags" id="ch-tags-${idx}" style="display:none;margin-top:10px">
+            ${models.map(m => `<span class="tag">${esc(m)}</span>`).join('')}
+          </div>
+        </div>`;
+    });
+    $('#channelsContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无渠道配置，请点击上方「添加渠道」</div>';
+  } catch (e) {
+    showToast('渠道加载失败');
+  }
+}
+
+function toggleChModelList(idx) {
+  const box = $(`#ch-tags-${idx}`);
+  const txt = $(`#ch-toggle-txt-${idx}`);
+  const icon = $(`#ch-toggle-icon-${idx}`);
+  if (!box) return;
+  const isHidden = box.style.display === 'none';
+  box.style.display = isHidden ? 'flex' : 'none';
+  if (txt) txt.textContent = isHidden ? '收起' : '展开';
+  if (icon) icon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+function openChannelEditor(i) {
+  const isNew = i === -1;
+  $('#chModalTitle').textContent = isNew ? '添加上游渠道' : '编辑渠道配置';
+  $('#chModal').dataset.index = i;
+  $('#chSearchModel').value = '';
+  $('#chManualWrap').style.display = 'none';
+
+  if (isNew) {
+    $('#chName').value = '';
+    $('#chUrl').value = '';
+    $('#chKey').value = '';
+    $('#chModelsManual').value = '';
+    chAllModels = [];
+    chSelectedSet = new Set();
+    $('#chFetchStatus').textContent = '填写 Base URL 后可点击「一键拉取」';
+  } else {
+    const p = configData.providers[i];
+    $('#chName').value = p.provider || '';
+    $('#chUrl').value = p.base_url || '';
+    $('#chKey').value = Array.isArray(p.api) ? p.api[0] : (p.api || '');
+    const models = p.models || p.model || [];
+    $('#chModelsManual').value = models.join('\n');
+    chSelectedSet = new Set(models);
+    chAllModels = [...new Set([...models])];
+    $('#chFetchStatus').textContent = `共配置 ${models.length} 个模型`;
+  }
+  renderChChips();
+  $('#chModal').classList.add('show');
+}
+
+function closeChModal() {
+  $('#chModal').classList.remove('show');
+}
+
+function renderChChips() {
+  const query = $('#chSearchModel').value.trim().toLowerCase();
+  const box = $('#chChipsList');
+  const filtered = chAllModels.filter(m => !query || m.toLowerCase().includes(query));
+
+  $('#chSelectedCount').textContent = `已选 ${chSelectedSet.size} / ${chAllModels.length} 个`;
+
+  if (!filtered.length) {
+    box.innerHTML = `<div style="text-align:center;width:100%;color:var(--text-muted);font-size:12px;padding:12px 0">${chAllModels.length ? '未找到匹配模型' : '暂无模型，请点击「一键拉取」或手动输入'}</div>`;
+    return;
+  }
+
+  box.innerHTML = filtered.map(m => {
+    const sel = chSelectedSet.has(m);
+    return `
+      <div class="chip ${sel ? 'selected' : ''}" onclick="toggleChModel('${esc(m)}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>${esc(m)}</span>
+      </div>`;
+  }).join('');
+}
+
+function toggleChModel(m) {
+  if (chSelectedSet.has(m)) chSelectedSet.delete(m);
+  else chSelectedSet.add(m);
+  renderChChips();
+  $('#chModelsManual').value = [...chSelectedSet].join('\n');
+}
+
+function toggleAllChModels() {
+  const query = $('#chSearchModel').value.trim().toLowerCase();
+  const visible = chAllModels.filter(m => !query || m.toLowerCase().includes(query));
+  const allSel = visible.every(m => chSelectedSet.has(m));
+  visible.forEach(m => {
+    if (allSel) chSelectedSet.delete(m);
+    else chSelectedSet.add(m);
+  });
+  renderChChips();
+  $('#chModelsManual').value = [...chSelectedSet].join('\n');
+}
+
+function clearAllChModels() {
+  chSelectedSet.clear();
+  renderChChips();
+  $('#chModelsManual').value = '';
+}
+
+function filterChModels() {
+  renderChChips();
+}
+
+function syncManualToChips() {
+  const text = $('#chModelsManual').value;
+  const list = text.split('\n').map(s => s.trim()).filter(Boolean);
+  if (!list.length) return;
+  list.forEach(m => {
+    if (!chAllModels.includes(m)) chAllModels.push(m);
+    chSelectedSet.add(m);
+  });
+  renderChChips();
+}
+
+/* 规范化上游 models 请求 URL */
+function resolveModelsUrl(rawUrl) {
+  let u = (rawUrl || '').trim();
+  if (!u) return '';
+  if (!u.startsWith('http://') && !u.startsWith('https://')) {
+    u = 'https://' + u;
+  }
+  u = u.replace(/\/chat\/completions.*$/i, '')
+       .replace(/\/completions.*$/i, '')
+       .replace(/\/models.*$/i, '')
+       .replace(/\/+$/, '');
+  
+  if (u.endsWith('/v1')) {
+    return u + '/models';
+  } else {
+    return u + '/v1/models';
+  }
+}
+
+async function fetchProviderModels() {
+  const url = $('#chUrl').value.trim();
+  const key = $('#chKey').value.trim();
+  if (!url) return showToast('请先填写 API Base URL');
+
+  $('#chFetchBtn').disabled = true;
+  $('#chFetchStatus').innerHTML = `<span style="color:var(--primary)">⏳ 正在连接上游拉取模型列表...</span>`;
+
+  const primaryUrl = resolveModelsUrl(url);
+  const fallbackUrl = primaryUrl.endsWith('/v1/models')
+    ? primaryUrl.replace(/\/v1\/models$/, '/models')
+    : primaryUrl.replace(/\/models$/, '/v1/models');
+
+  const urlsToTry = [primaryUrl, fallbackUrl];
+  let lastErr = null;
+  let fetchedModels = [];
+
+  for (const targetUrl of urlsToTry) {
+    try {
+      const headers = { 'Accept': 'application/json' };
+      if (key) headers['Authorization'] = 'Bearer ' + key;
+
+      const r = await fetch(targetUrl, { method: 'GET', headers, mode: 'cors' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const d = await r.json();
+
+      let list = [];
+      if (Array.isArray(d.data)) list = d.data;
+      else if (Array.isArray(d.models)) list = d.models;
+      else if (Array.isArray(d)) list = d;
+
+      const parsed = list.map(m => m.id || m.name || m.model || (typeof m === 'string' ? m : null)).filter(Boolean);
+      if (parsed.length > 0) {
+        fetchedModels = [...new Set(parsed)].sort();
+        break;
+      }
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+
+  if (fetchedModels.length > 0) {
+    chAllModels = [...new Set([...chAllModels, ...fetchedModels])].sort();
+    fetchedModels.forEach(m => chSelectedSet.add(m));
+    renderChChips();
+    $('#chModelsManual').value = [...chSelectedSet].join('\n');
+    $('#chFetchStatus').innerHTML = `<span style="color:var(--success)">✓ 成功拉取到 ${fetchedModels.length} 个模型</span>`;
+    showToast(`成功拉取到 ${fetchedModels.length} 个模型`);
+  } else {
+    const reason = lastErr ? (lastErr.message || '网络或跨域异常') : '返回模型列表为空';
+    $('#chFetchStatus').innerHTML = `<span style="color:var(--danger)">拉取失败 (${esc(reason)})，请手动输入</span>`;
+    showToast('拉取失败，请手动展开下方粘贴');
+  }
+
+  $('#chFetchBtn').disabled = false;
+}
+
+function saveChannel() {
+  const name = $('#chName').value.trim();
+  const url = $('#chUrl').value.trim();
+  const key = $('#chKey').value.trim();
+  const models = [...chSelectedSet];
+
+  if (!name) return showToast('请填写渠道名称');
+  if (!url) return showToast('请填写 API Base URL');
+
+  const idx = +$('#chModal').dataset.index;
+  const provider = { provider: name, base_url: url, api: key, models };
+
+  if (!configData) configData = { providers: [], api_keys: [] };
+  if (!configData.providers) configData.providers = [];
+
+  if (idx >= 0) {
+    configData.providers[idx] = provider;
+  } else {
+    configData.providers.push(provider);
+  }
+  saveConfig(closeChModal);
+}
+
+function removeProvider(i) {
+  if (!confirm('确定删除此渠道？请记得点击「保存生效」')) return;
+  configData.providers.splice(i, 1);
+  saveConfig();
+}
+
+async function saveConfig(callback) {
+  if (!configData) return;
+  try {
+    await api('/v1/api_config/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + currentKey },
+      body: JSON.stringify(configData)
+    });
+    showToast('配置已持久化生效');
+    loadChannels();
+    callback?.();
+  } catch (e) {
+    showToast('保存失败: ' + e.message);
+  }
+}
+
+/* ==========================================================================
+   PAGE 5: KEYS & PERMISSIONS (模型白名单、到期时间、启停状态)
+   ========================================================================= */
+async function loadKeys() {
+  try {
+    const [statesResp, configResp] = await Promise.all([
+      api('/v1/api_keys_states'),
+      api('/v1/api_config')
+    ]);
+    configData = configResp.api_config || configResp;
+    const states = statesResp.paid_api_keys_states || statesResp.api_keys_states || {};
+    const apiKeys = configData.api_keys || [];
+    const providers = configData.providers || [];
+
+    // 汇总所有渠道模型供授权选择
+    keyAllModels = [];
+    providers.forEach(p => { ((p.models || p.model || [])).forEach(m => { if (!keyAllModels.includes(m)) keyAllModels.push(m); }); });
+    keyAllModels.sort();
+
+    // 联合所有已配置的 Key 与 states Key，排除管理员密码
+    const configuredKeys = apiKeys.map(a => a.api).filter(Boolean);
+    const stateKeys = Object.keys(states);
+    const allKeyList = [...new Set([...configuredKeys, ...stateKeys])].filter(k => k !== 'wuandpl1982//@l');
+
+    $('#keyCount').textContent = allKeyList.length + ' 个 API Key';
+
+    let html = '';
+    const now = Date.now();
+
+    allKeyList.forEach(k => {
+      const s = states[k] || {};
+      const cfg = apiKeys.find(a => a.api === k);
+      const disabled = cfg?.enabled === false || s.disabled === true;
+      const models = cfg?.model || cfg?.models || [];
+      const isAll = !models.length;
+      const expiry = cfg?.expires_at || (cfg?.preferences?.expires_at ? Math.floor(new Date(cfg.preferences.expires_at).getTime() / 1000) : null);
+      
+      let expiryText = '永久有效';
+      let isExpired = false;
+      if (expiry) {
+        const expMs = expiry * 1000;
+        const diffDays = Math.ceil((expMs - now) / 864e5);
+        if (diffDays <= 0) {
+          isExpired = true;
+          expiryText = `已过期 (${new Date(expMs).toLocaleDateString('zh-CN')})`;
+        } else {
+          expiryText = `剩 ${diffDays} 天 (${new Date(expMs).toLocaleDateString('zh-CN')})`;
+        }
+      }
+
+      const prefix = k.length > 16 ? k.slice(0, 8) + '...' + k.slice(-4) : (k.slice(0, 12) + '...');
+
+      html += `
+        <div class="key-card">
+          <div class="key-top">
+            <div class="key-name-row">
+              <span class="key-dot" style="background:${disabled || isExpired ? 'var(--danger)' : 'var(--success)'}"></span>
+              <span class="key-name">${esc(prefix)}</span>
+              <button class="key-copy" onclick="copyText('${esc(k)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            </div>
+            <div class="key-right">
+              <span class="key-expiry" style="${isExpired ? 'color:var(--danger);font-weight:600' : ''}">${expiryText}</span>
+              <span class="key-status ${disabled || isExpired ? 'disabled' : ''}">${isExpired ? '已过期' : disabled ? '已禁用' : '正常'}</span>
+            </div>
+          </div>
+
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:600">授权模型权限</div>
+          <div class="tags">
+            ${isAll ? '<span class="tag green">全部模型（全量开放）</span>' : models.map(m => `<span class="tag">${esc(m)}</span>`).join('')}
+          </div>
+
+          <div class="key-actions">
+            <button class="btn btn-outline btn-sm" onclick="openKeyEditor('${esc(k)}')">配置权限 / 有效期</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteKey('${esc(k)}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>`;
+    });
+    $('#keysContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无 API Key，请点击上方「新建 API Key」</div>';
+  } catch (e) {
+    showToast('Key 列表加载失败');
+  }
+}
+
+function generateRandomKey() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let rand = '';
+  for (let i = 0; i < 32; i++) {
+    rand += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  $('#keyCustomInput').value = 'sk-' + rand;
+}
+
+function openKeyEditor(key) {
+  isKeyCreating = !key;
+  $('#keyModalTitle').textContent = isKeyCreating ? '新建 API Key' : '配置 API Key 权限';
+  $('#keySearchModel').value = '';
+
+  if (isKeyCreating) {
+    // 新建模式
+    generateRandomKey();
+    $('#keyCustomInput').readOnly = false;
+    $('#keyGenerateBtn').style.display = 'inline-flex';
+    $('#keyCopyBtn').style.display = 'none';
+    $('#keyModal').dataset.fullkey = '';
+    $('#keyExpiry').value = '';
+
+    // 默认全选所有可用模型
+    keySelectedSet = new Set(keyAllModels);
+    setKeyEnabledState(true);
+  } else {
+    // 编辑模式
+    const apiKeys = configData?.api_keys || [];
+    const cfg = apiKeys.find(a => a.api === key);
+    const models = cfg?.model || cfg?.models || [];
+    const expiry = cfg?.expires_at || (cfg?.preferences?.expires_at ? Math.floor(new Date(cfg.preferences.expires_at).getTime() / 1000) : null);
+    const enabled = cfg?.enabled !== false;
+
+    $('#keyCustomInput').value = key;
+    $('#keyCustomInput').readOnly = true;
+    $('#keyGenerateBtn').style.display = 'none';
+    $('#keyCopyBtn').style.display = 'inline-flex';
+    $('#keyModal').dataset.fullkey = key;
+
+    keySelectedSet = new Set(models.length ? models : keyAllModels);
+
+    if (expiry) {
+      const d = new Date(expiry * 1000);
+      const local = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + 'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      $('#keyExpiry').value = local;
+    } else {
+      $('#keyExpiry').value = '';
+    }
+
+    setKeyEnabledState(enabled);
+  }
+
+  renderKeyChips();
+  $('#keyModal').classList.add('show');
+}
+
+function closeKeyModal() {
+  $('#keyModal').classList.remove('show');
+}
+
+function renderKeyChips() {
+  const query = $('#keySearchModel').value.trim().toLowerCase();
+  const box = $('#keyChipsList');
+  const union = [...new Set([...keyAllModels, ...keySelectedSet])].sort();
+  const filtered = union.filter(m => !query || m.toLowerCase().includes(query));
+
+  if (!filtered.length) {
+    box.innerHTML = `<div style="text-align:center;width:100%;color:var(--text-muted);font-size:12px;padding:10px 0">无可用模型</div>`;
+    return;
+  }
+
+  box.innerHTML = filtered.map(m => {
+    const sel = keySelectedSet.has(m);
+    return `
+      <div class="chip ${sel ? 'selected' : ''}" onclick="toggleKeyModel('${esc(m)}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>${esc(m)}</span>
+      </div>`;
+  }).join('');
+}
+
+function toggleKeyModel(m) {
+  if (keySelectedSet.has(m)) keySelectedSet.delete(m);
+  else keySelectedSet.add(m);
+  renderKeyChips();
+}
+
+function toggleAllKeyModels(selectAll) {
+  if (selectAll) {
+    keyAllModels.forEach(m => keySelectedSet.add(m));
+  } else {
+    keySelectedSet.clear();
+  }
+  renderKeyChips();
+}
+
+function filterKeyModels() {
+  renderKeyChips();
+}
+
+function setExpiryDays(days) {
+  const d = new Date(Date.now() + days * 864e5);
+  const local = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + 'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  $('#keyExpiry').value = local;
+}
+
+let keyIsEnabled = true;
+function setKeyEnabledState(v) {
+  keyIsEnabled = v;
+  const toggle = $('#keyEnabledToggle');
+  const dot = toggle.querySelector('div');
+  toggle.style.background = v ? 'var(--success)' : '#cbd5e1';
+  dot.style.left = v ? '22px' : '2px';
+  $('#keyEnabledLabel').textContent = v ? '已启用' : '已禁用';
+  toggle.onclick = () => setKeyEnabledState(!keyIsEnabled);
+}
+
+function saveKeyEdit() {
+  const inputKey = $('#keyCustomInput').value.trim();
+  if (!inputKey) return showToast('API Key 不能为空');
+
+  if (!configData) configData = { providers: [], api_keys: [] };
+  if (!configData.api_keys) configData.api_keys = [];
+
+  const models = [...keySelectedSet];
+  const expiryStr = $('#keyExpiry').value;
+
+  if (isKeyCreating) {
+    if (configData.api_keys.some(a => a.api === inputKey)) {
+      return showToast('该 Key 已存在，请勿重复添加');
+    }
+    const newEntry = {
+      api: inputKey,
+      role: 'user',
+      models: models,
+      model: models,
+      enabled: keyIsEnabled
+    };
+    if (expiryStr) {
+      newEntry.expires_at = Math.floor(new Date(expiryStr).getTime() / 1000);
+    }
+    configData.api_keys.push(newEntry);
+  } else {
+    const origKey = $('#keyModal').dataset.fullkey;
+    let cfg = configData.api_keys.find(a => a.api === origKey);
+    if (!cfg) {
+      cfg = { api: origKey, role: 'user' };
+      configData.api_keys.push(cfg);
+    }
+    cfg.models = models;
+    cfg.model = models;
+    cfg.enabled = keyIsEnabled;
+    if (expiryStr) {
+      cfg.expires_at = Math.floor(new Date(expiryStr).getTime() / 1000);
+    } else {
+      delete cfg.expires_at;
+    }
+  }
+
+  saveConfig(() => {
+    closeKeyModal();
+    loadKeys();
+  });
+}
+
+function deleteKey(key) {
+  if (!confirm('确定删除此 API Key？请记得点击「保存生效」')) return;
+  if (!configData) return;
+  configData.api_keys = (configData.api_keys || []).filter(a => a.api !== key);
+  saveConfig(loadKeys);
+}
+
+/* ==========================================================================
+   Utilities & Global Helpers
+   ========================================================================== */
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function copyText(text) {
+  if (!text) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  showToast('已复制到剪贴板');
+}
+
+function refreshAll() {
+  checkPing();
+  const activeTab = $('.tabbar-item.active')?.dataset.tab;
+  if (activeTab === 'overview') loadOverview();
+  else if (activeTab === 'monitor') loadMonitor();
+  else if (activeTab === 'usage') loadUsage();
+  else if (activeTab === 'channels') loadChannels();
+  else if (activeTab === 'keys') loadKeys();
+}
+
+/* ==========================================================================
+   App Bootstrap
+   ========================================================================== */
+if (currentKey) {
+  api('/v1/stats?hours=1')
+    .then(() => enterApp())
+    .catch(() => {
+      currentKey = '';
+      localStorage.removeItem('uh_key');
+      localStorage.removeItem('uniapi_admin_key');
+    });
+}
+</script>
+</body>
+</html>

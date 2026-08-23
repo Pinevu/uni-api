@@ -1,0 +1,80 @@
+api_keys:
+- api: wuandpl1982//@l
+  role: admin
+- api: sk-f12c903eb3cb8cfe03691416bee0efc5
+  enabled: true
+  model:
+  - agnes-2.0-flash
+  - agnes-2.5-flash
+  - agnes-image-2.1-flash
+  - agnes-video-2.5
+  - grok-4.5
+  - mimo-v2.5
+  models:
+  - agnes-2.0-flash
+  - agnes-2.5-flash
+  - agnes-image-2.1-flash
+  - agnes-video-2.5
+  - grok-4.5
+  - mimo-v2.5
+  preferences:
+    credits: 600
+  role: user
+- api: sk-2800c12f9af489664983760595df2b42
+  preferences:
+    credits: 5000
+  role: user
+providers:
+- api: sk-uE6sp1Rw37N24gCpBdKJFV7LZj7yYPBFvjfvyjnjKIxUHqf3
+  base_url: https://ai.nooh.cc/v1
+  model:
+  - agnes-2.0-flash
+  - agnes-2.5-flash
+  - agnes-2.5-pro
+  - agnes-2.5-pro-alpha
+  - agnes-image-2.0-flash
+  - agnes-image-2.1-flash
+  - agnes-video-2.5
+  - agnes-video-v2.0
+  - claude-opus-4-6-thinking
+  - claude-sonnet-4-6
+  - deepseek-v4-flash-free
+  - gemini-3-flash
+  - gemini-3-flash-agent
+  - gemini-3.1-flash-image
+  - gemini-3.1-flash-lite
+  - gemini-3.1-pro-low
+  - gemini-3.5-flash-extra-low
+  - gemini-3.5-flash-low
+  - gemini-3.6-flash-high
+  - gemini-3.7-flash-high
+  - gemini-pro-agent
+  - gpt-oss-120b-medium
+  - grok-4.5
+  - grok-imagine-image
+  - grok-imagine-image-quality
+  - grok-imagine-video
+  - mimo-v2.5
+  - mimo-v2.5-free
+  models:
+  - agnes-2.0-flash
+  - agnes-2.5-flash
+  - agnes-image-2.1-flash
+  - agnes-video-2.5
+  - mimo-v2.5
+  - gemini-3.7-flash-high
+  - grok-imagine-image-quality
+  - grok-imagine-video
+  - grok-imagine-image
+  provider: CPA
+- api: g2a_d2ea90faaad4_U4d3xkpOKHYrzgjmZAl5HD3x4GF51KUr
+  base_url: https://grok.nooh.cc/v1
+  model:
+  - grok-4.5
+  - grok-4.5-high
+  - grok-4.5-low
+  - grok-4.5-medium
+  models:
+  - grok-4.5
+  - grok-4.5-high
+  provider: grok2api
