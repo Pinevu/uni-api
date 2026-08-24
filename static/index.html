@@ -616,6 +616,34 @@ body {
   font-weight: 600;
 }
 
+/* Channel collapse toggle */
+.ch-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 0;
+}
+.ch-toggle:hover { color: var(--text-secondary); }
+.ch-toggle svg { transition: transform 0.2s ease; flex-shrink: 0; }
+.ch-toggle.open svg { transform: rotate(90deg); }
+.ch-body {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+  pointer-events: none;
+}
+.ch-body.open {
+  max-height: 2000px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* ==========================================================================
    Model Tags & Chips
    ========================================================================== */
@@ -1864,6 +1892,10 @@ async function loadChannels() {
               <span class="ch-name">${esc(p.provider || 'Provider ' + (i + 1))}</span>
             </div>
             <div class="ch-actions">
+              <div class="ch-toggle" onclick="toggleChBody(this)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg>
+                <span>展开</span>
+              </div>
               <button class="btn btn-outline btn-sm" onclick="openChannelEditor(${i})">编辑配置</button>
               <button class="btn btn-sm btn-danger" onclick="removeProvider(${i})" title="删除渠道">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -1871,6 +1903,7 @@ async function loadChannels() {
             </div>
           </div>
 
+          <div class="ch-body">
           <div class="ch-meta-box">
             <div class="ch-meta-row">
               <span class="ch-meta-label">Base URL</span>
@@ -1889,12 +1922,20 @@ async function loadChannels() {
             ${initialList.map(m => `<span class="tag">${esc(m)}</span>`).join('')}
             ${hasMore ? `<span class="tag-more" onclick="expandChTags(${i})">+${models.length - showLimit} 更多...</span>` : ''}
           </div>
+          </div>
         </div>`;
     });
     $('#channelsContent').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无渠道配置，请点击上方「添加渠道」</div>';
   } catch (e) {
     showToast('渠道加载失败');
   }
+}
+
+function toggleChBody(btn) {
+  const body = btn.closest('.ch-card').querySelector('.ch-body');
+  const isOpen = body.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  btn.querySelector('span').textContent = isOpen ? '折叠' : '展开';
 }
 
 function expandChTags(idx) {
