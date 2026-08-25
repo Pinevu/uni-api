@@ -1284,7 +1284,7 @@ body {
   </div>
   <div class="search-input-wrap" style="margin-bottom:14px">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input class="search-input" id="usSearchInput" placeholder="按模型名称或 Key 前缀搜索..." oninput="renderUsageFiltered()">
+
   </div>
   <div id="usageContent"></div>
 </div>
@@ -1859,46 +1859,6 @@ function renderUsageFiltered() {
       </div>`;
   }
 
-  // (3) 调用记录明细 (移动端卡片流)
-  html += `
-    <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin:16px 0 10px;display:flex;align-items:center;justify-content:space-between">
-      <span>调用明细 (${usage.length})</span>
-      <span style="font-size:12px;color:var(--text-muted);font-weight:400">按 Key 与模型归类</span>
-    </div>`;
-
-  if (!usage.length) {
-    html += '<div style="text-align:center;padding:30px;color:var(--text-muted)">未找到匹配的用量记录</div>';
-  } else {
-    usage.forEach(u => {
-      const pRatio = u.total_tokens > 0 ? Math.round((u.total_prompt_tokens / u.total_tokens) * 100) : 0;
-      const cRatio = 100 - pRatio;
-      html += `
-        <div class="usage-item-card">
-          <div class="usage-item-header">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span class="tag">${esc(u.model)}</span>
-              <span class="mono" style="font-size:12px;color:var(--text-muted)">${esc(u.api_key_prefix)}</span>
-            </div>
-            <div style="font-size:16px;font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums">
-              ${fmtShort(u.total_tokens || 0)} <span style="font-size:11px;font-weight:400;color:var(--text-muted)">Tokens</span>
-            </div>
-          </div>
-          <div class="usage-item-grid">
-            <div class="usage-grid-cell">
-              <span class="usage-grid-label">请求次数</span>
-              <span class="usage-grid-val">${u.request_count} 次</span>
-            </div>
-            <div class="usage-grid-cell">
-              <span class="usage-grid-label">Prompt (输入)</span>
-              <span class="usage-grid-val">${fmtShort(u.total_prompt_tokens || 0)} <small style="color:var(--text-muted);font-weight:400">(${pRatio}%)</small></span>
-            </div>
-            <div class="usage-grid-cell">
-              <span class="usage-grid-label">Output (输出)</span>
-              <span class="usage-grid-val">${fmtShort(u.total_completion_tokens || 0)} <small style="color:var(--text-muted);font-weight:400">(${cRatio}%)</small></span>
-            </div>
-          </div>
-        </div>`;
-    });
   }
 
   $('#usageContent').innerHTML = html;
