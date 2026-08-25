@@ -1,0 +1,69 @@
+# 速率限制：防滥用/防爆破
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=5r/s;
+
+server {
+    listen 80;
+    server_name api.5i.wiki;
+    location /.well-known/acme-challenge/ { root /var/www/acme-challenge; }
+    location / { return 301 https://$host$request_uri; }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name api.5i.wiki;
+
+    ssl_certificate /etc/letsencrypt/live/api.5i.wiki/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.5i.wiki/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers on;
+    add_header Strict-Transport-Security "max-age=63072000" always;
+
+    # 安全响应头
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:" always;
+
+    client_max_body_size 200m;
+    location /.well-known/acme-challenge/ { root /var/www/acme-challenge; }
+
+    # 管理/观测端点：公网封禁（泄露内部信息）
+    location = /v1/observability/runtime {
+        return 403;
+    }
+
+    # API 路径：限流防爆破（不阻塞正常并发）
+    location ~ ^/(v1|openai)/ {
+        limit_req zone=api_limit burst=60 nodelay;
+        limit_req_status 429;
+        proxy_pass http://uni-api:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    # 非API路径（面板静态资源）：不限流，禁止缓存 index.html
+    location / {
+        proxy_pass http://uni-api:8000;
+        # 面板页面不缓存，避免旧版 JS 被浏览器缓存
+        add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
