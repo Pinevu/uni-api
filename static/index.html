@@ -2064,11 +2064,16 @@ async function fetchProviderModels() {
   $('#chFetchStatus').innerHTML = `<span style="color:var(--primary)">⏳ 正在连接上游拉取模型列表...</span>`;
 
   try {
-    const r = await fetch('/v1/channels/fetch_models', {
+    const adminKey = (configData?.api_keys || [])
+      .filter(a => (a.role || '').toLowerCase() === 'admin')
+      .map(a => a.api)[0] || localStorage.getItem('uh_key') || '';
+    const opts = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ base_url: url, key: key })
-    });
+    };
+    if (adminKey) opts.headers['Authorization'] = 'Bearer ' + adminKey;
+    const r = await fetch('/v1/channels/fetch_models', opts);
     if (!r.ok) {
       const errBody = await r.text();
       throw new Error(`HTTP ${r.status}: ${errBody}`);
