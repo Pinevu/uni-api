@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" id="metaThemeColor" content="#ffffff">
 <title>API HUB</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><rect width='24' height='24' rx='5' fill='%2313151f'/><polygon points='13 4 5 14 12 14 11 20 19 10 12 10 13 4' fill='%236366f1'/></svg>">
@@ -25,7 +26,7 @@
   --primary: #6366f1;
   --primary-hover: #4f46e5;
   --primary-light: #eef2ff;
-  --primary-glow: rgba(99, 102, 241, 0.2);
+  --primary-glow: rgba(99, 102, 241, 0.18);
 
   --success: #10b981;
   --success-light: #ecfdf5;
@@ -45,8 +46,8 @@
   --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
   --shadow-lg: 0 14px 34px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
 
-  --topbar-bg: rgba(255, 255, 255, 0.86);
-  --tabbar-bg: rgba(255, 255, 255, 0.92);
+  --topbar-bg: rgba(255, 255, 255, 0.90);
+  --tabbar-bg: rgba(255, 255, 255, 0.94);
   --modal-overlay: rgba(15, 23, 42, 0.45);
   --chart-grid: #f1f5f9;
   --chart-text: #64748b;
@@ -85,8 +86,8 @@
   --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.55);
   --shadow-lg: 0 16px 44px rgba(0, 0, 0, 0.7);
 
-  --topbar-bg: rgba(9, 13, 22, 0.86);
-  --tabbar-bg: rgba(9, 13, 22, 0.92);
+  --topbar-bg: rgba(9, 13, 22, 0.90);
+  --tabbar-bg: rgba(9, 13, 22, 0.94);
   --modal-overlay: rgba(0, 0, 0, 0.72);
   --chart-grid: #1e293b;
   --chart-text: #94a3b8;
@@ -101,7 +102,7 @@ body {
   font-size: 14px;
   line-height: 1.5;
   min-height: 100vh;
-  padding-bottom: 84px;
+  padding-bottom: max(84px, calc(64px + env(safe-area-inset-bottom)));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.25s ease, color 0.25s ease;
@@ -116,13 +117,13 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ==========================================================================
-   Top Header
+   Top Header (PWA Notch / Status Bar Safe-Area Aware)
    ========================================================================== */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 18px;
+  padding: max(12px, env(safe-area-inset-top)) 18px 12px;
   background: var(--topbar-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -223,7 +224,7 @@ body {
 }
 
 /* ==========================================================================
-   Bottom Navigation Bar
+   Bottom Navigation Bar (PWA Safe-Area Aware)
    ========================================================================== */
 .tabbar {
   position: fixed;
@@ -236,7 +237,7 @@ body {
   -webkit-backdrop-filter: blur(18px);
   border-top: 1px solid var(--border);
   z-index: 50;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
   box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.04);
   transition: var(--transition);
 }
@@ -295,7 +296,7 @@ body {
 }
 
 /* ==========================================================================
-   Action & Filter Toolbars
+   Action & Filter Toolbars (36px Standardized)
    ========================================================================== */
 .filter-bar {
   display: flex;
@@ -462,11 +463,11 @@ body {
 }
 
 .metric-title {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text-muted);
   font-weight: 600;
   margin-bottom: 6px;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
@@ -520,58 +521,8 @@ body {
 .donut-container { position: relative; height: 240px; }
 
 /* ==========================================================================
-   Usage Cards & Breakdown
+   Usage Breakdown Cards
    ========================================================================== */
-.usage-item-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: 16px 18px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
-  margin-bottom: 12px;
-  transition: var(--transition);
-}
-
-.usage-item-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--border-focus);
-}
-
-.usage-item-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.usage-item-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 8px;
-  background: var(--bg-subtle);
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
-  font-size: 12.5px;
-}
-
-.usage-grid-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.usage-grid-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-.usage-grid-val {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
 .progress-bar-wrap {
   width: 100%;
   height: 6px;
@@ -701,9 +652,11 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  height: 24px;
+  box-sizing: border-box;
+  padding: 0 8px;
   border-radius: var(--radius-sm);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
   background: var(--primary-light);
   color: var(--primary);
@@ -719,7 +672,9 @@ body {
 }
 
 .tag-more {
-  padding: 4px 10px;
+  height: 24px;
+  box-sizing: border-box;
+  padding: 0 8px;
   border-radius: var(--radius-sm);
   font-size: 11.5px;
   font-weight: 600;
@@ -727,6 +682,8 @@ body {
   color: var(--text-muted);
   cursor: pointer;
   border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
 }
 
 .tag-more:hover {
@@ -1280,7 +1237,7 @@ textarea.modal-input {
   <div class="topbar-right">
     <div class="ping-pill"><span class="ping-dot"></span><span id="pingText">在线</span></div>
     <button class="topbar-btn" id="themeToggleBtn" onclick="toggleTheme()" title="切换主题模式">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     </button>
     <button class="topbar-btn" onclick="refreshAll()" title="刷新数据">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
@@ -1327,7 +1284,10 @@ textarea.modal-input {
       <option value="168" selected>最近 7 天</option>
       <option value="720">最近 30 天</option>
     </select>
-    <button class="btn btn-outline btn-sm" onclick="loadMonitor()">刷新</button>
+    <button class="btn btn-outline btn-sm" onclick="loadMonitor()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      刷新
+    </button>
   </div>
   <div id="monitorContent"></div>
 </div>
@@ -1347,7 +1307,7 @@ textarea.modal-input {
       刷新
     </button>
   </div>
-  <div class="search-input-wrap" style="margin-bottom:14px">
+  <div class="search-input-wrap">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input class="search-input" id="usSearchInput" placeholder="按模型名称或 Key 前缀搜索..." oninput="renderUsageFiltered()">
   </div>
@@ -1562,7 +1522,7 @@ textarea.modal-input {
 <script>
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
-let currentKey = localStorage.getItem('uh_key') || localStorage.getItem('uniapi_admin_key') || '';
+let currentKey = localStorage.getItem('uh_key') || '';
 let charts = {};
 let configData = null;
 let chAllModels = [];
@@ -1572,7 +1532,7 @@ let keySelectedSet = new Set();
 let isKeyCreating = false;
 let rawUsageList = [];
 
-/* ===== Theme Engine (Light / Dark) ===== */
+/* ===== Theme Engine (Light / Dark & PWA Status Bar Sync) ===== */
 let currentTheme = localStorage.getItem('uh_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
 function applyTheme(theme) {
@@ -1580,7 +1540,15 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('uh_theme', theme);
   updateThemeIcon();
-  
+
+  // Dynamically sync PWA Status Bar / Theme Color with Header Background
+  const themeColor = theme === 'dark' ? '#090d16' : '#ffffff';
+  const metaTheme = $('#metaThemeColor') || document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) metaTheme.setAttribute('content', themeColor);
+
+  const metaStatusBar = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+  if (metaStatusBar) metaStatusBar.setAttribute('content', theme === 'dark' ? 'black-translucent' : 'default');
+
   // Re-render chart if overview is active
   if (charts.trend || charts.donut) {
     const activeTab = $('.tabbar-item.active')?.dataset.tab;
@@ -1618,7 +1586,19 @@ async function api(path, opts = {}) {
 }
 
 /* ===== Authentication ===== */
+const MAX_FAILED = 5;
+const LOCKOUT_MS = 5 * 60 * 1000; // 连续失败5次锁定5分钟
+function lockRemaining() {
+  const t = +localStorage.getItem('uh_lock_until') || 0;
+  return Math.max(0, t - Date.now());
+}
+
 $('#loginBtn').onclick = async () => {
+  if (lockRemaining() > 0) {
+    $('#loginErr').textContent = `尝试次数过多，请 ${Math.ceil(lockRemaining() / 60000)} 分钟后重试`;
+    $('#loginErr').style.display = 'block';
+    return;
+  }
   const k = $('#loginInput').value.trim();
   if (!k) return;
   $('#loginBtn').textContent = '验证中...';
@@ -1628,10 +1608,20 @@ $('#loginBtn').onclick = async () => {
     if (d.total_requests !== undefined || d.model_request_counts || d.channel_success_rates) {
       currentKey = k;
       localStorage.setItem('uh_key', k);
-      localStorage.setItem('uniapi_admin_key', k);
+      localStorage.removeItem('uh_failed');
+      localStorage.removeItem('uh_lock_until');
       enterApp();
     } else throw new Error();
   } catch (e) {
+    const fails = (+localStorage.getItem('uh_failed') || 0) + 1;
+    localStorage.setItem('uh_failed', fails);
+    if (fails >= MAX_FAILED) {
+      localStorage.setItem('uh_lock_until', Date.now() + LOCKOUT_MS);
+      localStorage.setItem('uh_failed', 0);
+      $('#loginErr').textContent = '失败次数过多，已锁定 5 分钟';
+    } else {
+      $('#loginErr').textContent = `鉴权失败，请检查密码（剩余尝试 ${MAX_FAILED - fails} 次）`;
+    }
     $('#loginErr').style.display = 'block';
     $('#loginBtn').textContent = '登 录';
   }
@@ -1641,7 +1631,6 @@ $('#loginInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('#l
 function logout() {
   currentKey = '';
   localStorage.removeItem('uh_key');
-  localStorage.removeItem('uniapi_admin_key');
   location.reload();
 }
 
@@ -1689,6 +1678,16 @@ $$('.tabbar-item').forEach(btn => {
 /* ==========================================================================
    PAGE 1: OVERVIEW
    ========================================================================== */
+function fmtShort(n) {
+  if (n >= 1e15) return (n / 1e15).toFixed(1) + 'P';
+  if (n >= 1e12) return (n / 1e12).toFixed(1) + 'T';
+  if (n >= 1e9)  return (n / 1e9).toFixed(1)  + 'B';
+  if (n >= 1e6)  return (n / 1e6).toFixed(1)  + 'M';
+  if (n >= 1e4)  return (n / 1e3).toFixed(0)  + 'K';
+  if (n >= 1e3)  return (n / 1e3).toFixed(1)  + 'K';
+  return (n || 0).toLocaleString();
+}
+
 async function loadOverview() {
   try {
     const hours = +$('#hoursSelect').value;
@@ -1706,15 +1705,15 @@ async function loadOverview() {
     $('#metricsGrid').innerHTML = `
       <div class="metric-card">
         <div class="metric-title">总请求数</div>
-        <div class="metric-value">${totalReqs.toLocaleString()}</div>
+        <div class="metric-value">${fmtShort(totalReqs)}</div>
       </div>
       <div class="metric-card">
         <div class="metric-title">TOKENS 消耗</div>
-        <div class="metric-value">${totalTokens.toLocaleString()}</div>
+        <div class="metric-value">${fmtShort(totalTokens)}</div>
       </div>
       <div class="metric-card">
         <div class="metric-title">输入 / 输出</div>
-        <div class="metric-value sm">${totalPrompt.toLocaleString()}<span class="sep">/</span>${totalComp.toLocaleString()}</div>
+        <div class="metric-value sm">${fmtShort(totalPrompt)}<span class="sep">/</span>${fmtShort(totalComp)}</div>
       </div>
       <div class="metric-card">
         <div class="metric-title">活跃模型</div>
@@ -1723,84 +1722,81 @@ async function loadOverview() {
 
     // Trend chart (line)
     const days = hours <= 24 ? 1 : Math.ceil(hours / 24);
-    const dayMap = {};
+    const dayLabels = [];
+    const dayStarts = [];
+    const dayEnds = [];
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date(Date.now() - i * 864e5);
       const key = (d.getMonth() + 1) + '/' + d.getDate();
-      dayMap[key] = { prompt: 0, comp: 0 };
+      dayLabels.push(key);
+      const start = new Date(d); start.setHours(0, 0, 0, 0);
+      const end = new Date(d); end.setHours(23, 59, 59, 999);
+      dayStarts.push(start);
+      dayEnds.push(end);
     }
-    usage.forEach(u => {
-      const perDay = days > 1 ? days : 1;
-      Object.keys(dayMap).forEach(k => {
-        dayMap[k].prompt += Math.round((u.total_prompt_tokens || 0) / perDay);
-        dayMap[k].comp += Math.round((u.total_completion_tokens || 0) / perDay);
-      });
-    });
 
-    const labels = Object.keys(dayMap);
-    const promptData = labels.map(k => dayMap[k].prompt);
-    const compData = labels.map(k => dayMap[k].comp);
+    const dailyResults = await Promise.all(dayLabels.map((_, i) =>
+      api('/v1/token_usage?start_datetime=' + dayStarts[i].toISOString() + '&end_datetime=' + dayEnds[i].toISOString())
+        .then(r => (r.usage || []).reduce((acc, u) => {
+          acc.prompt += u.total_prompt_tokens || 0;
+          acc.comp += u.total_completion_tokens || 0;
+          return acc;
+        }, { prompt: 0, comp: 0 }))
+        .catch(() => ({ prompt: 0, comp: 0 }))
+    ));
+
+    const promptData = dayLabels.map((_, i) => dailyResults[i].prompt);
+    const compData = dayLabels.map((_, i) => dailyResults[i].comp);
+    const labels = dayLabels;
 
     const isDark = currentTheme === 'dark';
     const gridColor = isDark ? '#1e293b' : '#f1f5f9';
     const tickColor = isDark ? '#94a3b8' : '#64748b';
 
     if (charts.trend) charts.trend.destroy();
-    charts.trend = new Chart($('#trendChart'), {
+    const tCtx = $('#trendChart').getContext('2d');
+    charts.trend = new Chart(tCtx, {
       type: 'line',
       data: {
         labels,
         datasets: [
-          { label: 'Prompt', data: promptData, borderColor: '#6366f1', backgroundColor: isDark ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.08)', fill: true, tension: 0.35 },
-          { label: 'Completion', data: compData, borderColor: '#10b981', backgroundColor: isDark ? 'rgba(16,185,129,0.18)' : 'rgba(16,185,129,0.08)', fill: true, tension: 0.35 }
+          { label: 'Prompt', data: promptData, borderColor: '#6366f1', backgroundColor: isDark ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointBackgroundColor: isDark ? '#111827' : '#fff', pointBorderColor: '#6366f1', pointBorderWidth: 2, borderWidth: 2.5 },
+          { label: 'Output', data: compData, borderColor: '#10b981', backgroundColor: isDark ? 'rgba(16,185,129,0.18)' : 'rgba(16,185,129,0.06)', fill: true, tension: 0.35, pointRadius: 4, pointBackgroundColor: isDark ? '#111827' : '#fff', pointBorderColor: '#10b981', pointBorderWidth: 2, borderWidth: 2.5 }
         ]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { 
-          legend: { 
-            position: 'top', 
-            align: 'end', 
-            labels: { boxWidth: 8, color: tickColor, font: { size: 11 } } 
-          } 
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'top', align: 'end', labels: { boxWidth: 8, color: tickColor, font: { size: 11 } } }
         },
         scales: {
           x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } },
-          y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } }
+          y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } }, beginAtZero: true }
         }
       }
     });
 
-    // Donut chart (models)
-    const modelCounts = {};
-    (stats.model_request_counts || []).forEach(m => { modelCounts[m.model] = (modelCounts[m.model] || 0) + m.count; });
-    const sorted = Object.entries(modelCounts).sort((a, b) => b[1] - a[1]);
-    const top = sorted.slice(0, 6);
-    const other = sorted.slice(6).reduce((s, e) => s + e[1], 0);
-    if (other > 0) top.push(['其他', other]);
-
+    // Donut chart
+    const modelCounts = stats.model_request_counts || [];
+    const donutColors = ['#6366f1', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#94a3b8', '#3b82f6'];
     if (charts.donut) charts.donut.destroy();
-    charts.donut = new Chart($('#donutChart'), {
+    const dCtx = $('#donutChart').getContext('2d');
+    charts.donut = new Chart(dCtx, {
       type: 'doughnut',
       data: {
-        labels: top.map(e => e[0]),
+        labels: modelCounts.map(m => m.model),
         datasets: [{
-          data: top.map(e => e[1]),
-          backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#94a3b8'],
+          data: modelCounts.map(m => m.count),
+          backgroundColor: donutColors.slice(0, modelCounts.length),
           borderColor: isDark ? '#111827' : '#ffffff',
           borderWidth: 2
         }]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '72%',
-        plugins: { 
-          legend: { 
-            position: 'right', 
-            labels: { boxWidth: 8, color: tickColor, font: { size: 11 } } 
-          } 
+        responsive: true, maintainAspectRatio: false, animation: false, cutout: '70%',
+        plugins: {
+          legend: { position: 'right', labels: { padding: 12, usePointStyle: true, pointStyle: 'circle', font: { size: 12 }, color: tickColor } }
         }
       }
     });
@@ -1913,7 +1909,7 @@ async function loadMonitor() {
 }
 
 /* ==========================================================================
-   PAGE 3: USAGE (用量明细与模型占比分布)
+   PAGE 3: USAGE
    ========================================================================== */
 async function loadUsage() {
   try {
@@ -1939,11 +1935,9 @@ function renderUsageFiltered() {
     return;
   }
 
-  // 1. 汇总指标计算
   const totalTokens = usage.reduce((s, u) => s + (u.total_tokens || 0), 0);
   const totalReqs = usage.reduce((s, u) => s + (u.request_count || 0), 0);
 
-  // 2. 按模型聚合统计（计算各模型总消耗与占比）
   const modelAggMap = {};
   usage.forEach(u => {
     const m = u.model || 'unknown';
@@ -1955,22 +1949,18 @@ function renderUsageFiltered() {
   });
   const sortedModels = Object.entries(modelAggMap).sort((a, b) => b[1].tokens - a[1].tokens);
 
-  let html = '';
-
-  // (1) 顶部核心指标简报（2个卡片：本期消耗 Tokens 与 累计调用次数）
-  html += `
+  let html = `
     <div class="metrics">
       <div class="metric-card">
         <div class="metric-title">本期消耗 Tokens</div>
-        <div class="metric-value sm">${totalTokens.toLocaleString()}</div>
+        <div class="metric-value sm">${fmtShort(totalTokens)}</div>
       </div>
       <div class="metric-card">
         <div class="metric-title">累计调用次数</div>
-        <div class="metric-value sm">${totalReqs.toLocaleString()}</div>
+        <div class="metric-value sm">${fmtShort(totalReqs)}</div>
       </div>
     </div>`;
 
-  // (2) 模型用量占比分析排行榜 (Breakdown)
   if (sortedModels.length > 0) {
     html += `
       <div class="chart-card" style="margin-bottom:14px">
@@ -1986,7 +1976,7 @@ function renderUsageFiltered() {
                     <span style="color:var(--text-muted);font-size:12px">${d.requests} 次调用</span>
                   </div>
                   <div style="font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums">
-                    ${d.tokens.toLocaleString()} <span style="font-size:11px;color:var(--text-muted);font-weight:400">(${pct}%)</span>
+                    ${fmtShort(d.tokens)} <span style="font-size:11px;color:var(--text-muted);font-weight:400">(${pct}%)</span>
                   </div>
                 </div>
                 <div class="progress-bar-wrap">
@@ -1998,102 +1988,56 @@ function renderUsageFiltered() {
       </div>`;
   }
 
-  // (3) 调用记录明细 (移动端卡片流)
-  html += `
-    <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin:16px 0 10px;display:flex;align-items:center;justify-content:space-between">
-      <span>调用明细 (${usage.length})</span>
-      <span style="font-size:12px;color:var(--text-muted);font-weight:400">按 Key 与模型归类</span>
-    </div>`;
-
-  if (!usage.length) {
-    html += '<div style="text-align:center;padding:30px;color:var(--text-muted)">未找到匹配的用量记录</div>';
-  } else {
-    usage.forEach(u => {
-      const pRatio = u.total_tokens > 0 ? Math.round((u.total_prompt_tokens / u.total_tokens) * 100) : 0;
-      const cRatio = 100 - pRatio;
-      html += `
-        <div class="usage-item-card">
-          <div class="usage-item-header">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span class="tag">${esc(u.model)}</span>
-              <span class="mono" style="font-size:12px;color:var(--text-muted)">${esc(u.api_key_prefix)}</span>
-            </div>
-            <div style="font-size:16px;font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums">
-              ${(u.total_tokens || 0).toLocaleString()} <span style="font-size:11px;font-weight:400;color:var(--text-muted)">Tokens</span>
-            </div>
-          </div>
-          <div class="usage-item-grid">
-            <div class="usage-grid-cell">
-              <span class="usage-grid-label">请求次数</span>
-              <span class="usage-grid-val">${u.request_count} 次</span>
-            </div>
-            <div class="usage-grid-cell">
-              <span class="usage-grid-label">Prompt (输入)</span>
-              <span class="usage-grid-val">${(u.total_prompt_tokens || 0).toLocaleString()} <small style="color:var(--text-muted);font-weight:400">(${pRatio}%)</small></span>
-            </div>
-            <div class="usage-grid-cell">
-              <span class="usage-grid-label">Output (输出)</span>
-              <span class="usage-grid-val">${(u.total_completion_tokens || 0).toLocaleString()} <small style="color:var(--text-muted);font-weight:400">(${cRatio}%)</small></span>
-            </div>
-          </div>
-        </div>`;
-    });
-  }
-
   $('#usageContent').innerHTML = html;
 }
 
 /* ==========================================================================
-   PAGE 4: CHANNELS (渠道管理)
+   PAGE 4: CHANNELS (渠道管理 - 可折叠模型)
    ========================================================================== */
 async function loadChannels() {
   try {
-    const d = await api('/v1/api_config');
-    configData = d.api_config || d;
+    const resp = await api('/v1/api_config');
+    configData = resp.api_config || resp;
     const providers = configData.providers || [];
-
     let html = '';
-    providers.forEach((p, idx) => {
+    providers.forEach((p, i) => {
       const models = p.models || p.model || [];
-      const showCount = 10;
-      const visible = models.slice(0, showCount);
-      const remaining = models.length - showCount;
+      const maskedKey = p.api ? (p.api.slice(0, 8) + '...' + p.api.slice(-4)) : '无 / 免鉴权';
 
       html += `
         <div class="ch-card">
           <div class="ch-top">
             <div class="ch-name-row">
               <span class="key-dot"></span>
-              <span class="ch-name">${esc(p.provider)}</span>
+              <span class="ch-name">${esc(p.provider || 'Provider ' + (i + 1))}</span>
             </div>
             <div class="ch-actions">
-              <button class="btn btn-outline btn-sm" onclick="openChannelEditor(${idx})">编辑</button>
-              <button class="btn btn-sm btn-danger" onclick="removeProvider(${idx})">删除</button>
+              <button class="btn btn-outline btn-sm" onclick="openChannelEditor(${i})">编辑</button>
+              <button class="btn btn-sm btn-danger" onclick="removeProvider(${i})" title="删除渠道">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
             </div>
           </div>
 
           <div class="ch-meta-box">
             <div class="ch-meta-row">
               <span class="ch-meta-label">Base URL</span>
-              <span class="ch-meta-val">${esc(p.base_url || '系统默认')}</span>
+              <span class="ch-meta-val">${esc(p.base_url || '系统默认')} <button class="key-copy" onclick="copyText('${esc(p.base_url || '')}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
             </div>
             <div class="ch-meta-row">
               <span class="ch-meta-label">API Key</span>
-              <span class="ch-meta-val">
-                ${esc(p.api ? (p.api.slice(0, 10) + '...' + p.api.slice(-4)) : '无 / 免鉴权')}
-                ${p.api ? `<button class="key-copy" onclick="copyText('${esc(p.api)}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>` : ''}
-              </span>
+              <span class="ch-meta-val">${esc(maskedKey)} ${p.api ? `<button class="key-copy" onclick="copyText('${esc(p.api)}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>` : ''}</span>
             </div>
           </div>
 
-          <div class="ch-models-header" onclick="toggleChModelList(${idx})" style="cursor:pointer;user-select:none;margin-bottom:0;padding:4px 0;display:flex;align-items:center;justify-content:space-between">
+          <div class="ch-models-header" onclick="toggleChModelList(${i})" style="cursor:pointer;user-select:none;margin-bottom:0;padding:4px 0;display:flex;align-items:center;justify-content:space-between">
             <span style="font-weight:600;color:var(--text-secondary);font-size:12.5px">可用模型 (${models.length})</span>
             <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--primary);font-weight:600">
-              <span id="ch-toggle-txt-${idx}">展开</span>
-              <svg id="ch-toggle-icon-${idx}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform 0.2s ease"><path d="m6 9 6 6 6-6"/></svg>
+              <span id="ch-toggle-txt-${i}">展开</span>
+              <svg id="ch-toggle-icon-${i}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform 0.2s ease"><path d="m6 9 6 6 6-6"/></svg>
             </div>
           </div>
-          <div class="tags" id="ch-tags-${idx}" style="display:none;margin-top:10px">
+          <div class="tags" id="ch-tags-${i}" style="display:none;margin-top:10px">
             ${models.map(m => `<span class="tag">${esc(m)}</span>`).join('')}
           </div>
         </div>`;
@@ -2134,7 +2078,7 @@ function openChannelEditor(i) {
     const p = configData.providers[i];
     $('#chName').value = p.provider || '';
     $('#chUrl').value = p.base_url || '';
-    $('#chKey').value = Array.isArray(p.api) ? p.api[0] : (p.api || '');
+    $('#chKey').value = p.api || '';
     const models = p.models || p.model || [];
     $('#chModelsManual').value = models.join('\n');
     chSelectedSet = new Set(models);
@@ -2333,8 +2277,8 @@ async function saveConfig(callback) {
 }
 
 /* ==========================================================================
-   PAGE 5: KEYS & PERMISSIONS (模型白名单、到期时间、启停状态)
-   ========================================================================= */
+   PAGE 5: KEYS & PERMISSIONS
+   ========================================================================== */
 async function loadKeys() {
   try {
     const [statesResp, configResp] = await Promise.all([
@@ -2351,50 +2295,36 @@ async function loadKeys() {
     providers.forEach(p => { ((p.models || p.model || [])).forEach(m => { if (!keyAllModels.includes(m)) keyAllModels.push(m); }); });
     keyAllModels.sort();
 
-    // 联合所有已配置的 Key 与 states Key，排除管理员密码
+    // 排除管理员密码
+    const adminKeys = apiKeys.filter(a => (a.role || '').toLowerCase() === 'admin').map(a => a.api);
     const configuredKeys = apiKeys.map(a => a.api).filter(Boolean);
     const stateKeys = Object.keys(states);
-    const allKeyList = [...new Set([...configuredKeys, ...stateKeys])].filter(k => k !== 'wuandpl1982//@l');
+    const allKeyList = [...new Set([...configuredKeys, ...stateKeys])].filter(k => !adminKeys.includes(k));
 
     $('#keyCount').textContent = allKeyList.length + ' 个 API Key';
 
     let html = '';
-    const now = Date.now();
-
     allKeyList.forEach(k => {
       const s = states[k] || {};
       const cfg = apiKeys.find(a => a.api === k);
       const disabled = cfg?.enabled === false || s.disabled === true;
       const models = cfg?.model || cfg?.models || [];
       const isAll = !models.length;
-      const expiry = cfg?.expires_at || (cfg?.preferences?.expires_at ? Math.floor(new Date(cfg.preferences.expires_at).getTime() / 1000) : null);
-      
-      let expiryText = '永久有效';
-      let isExpired = false;
-      if (expiry) {
-        const expMs = expiry * 1000;
-        const diffDays = Math.ceil((expMs - now) / 864e5);
-        if (diffDays <= 0) {
-          isExpired = true;
-          expiryText = `已过期 (${new Date(expMs).toLocaleDateString('zh-CN')})`;
-        } else {
-          expiryText = `剩 ${diffDays} 天 (${new Date(expMs).toLocaleDateString('zh-CN')})`;
-        }
-      }
-
+      const expiry = cfg?.expires_at;
+      const expiryText = expiry ? new Date(expiry * 1000).toLocaleDateString('zh-CN') : '永久有效';
       const prefix = k.length > 16 ? k.slice(0, 8) + '...' + k.slice(-4) : (k.slice(0, 12) + '...');
 
       html += `
         <div class="key-card">
           <div class="key-top">
             <div class="key-name-row">
-              <span class="key-dot" style="background:${disabled || isExpired ? 'var(--danger)' : 'var(--success)'}"></span>
+              <span class="key-dot" style="background:${disabled ? 'var(--danger)' : 'var(--success)'}"></span>
               <span class="key-name">${esc(prefix)}</span>
               <button class="key-copy" onclick="copyText('${esc(k)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
             </div>
             <div class="key-right">
-              <span class="key-expiry" style="${isExpired ? 'color:var(--danger);font-weight:600' : ''}">${expiryText}</span>
-              <span class="key-status ${disabled || isExpired ? 'disabled' : ''}">${isExpired ? '已过期' : disabled ? '已禁用' : '正常'}</span>
+              <span class="key-expiry">${expiryText}</span>
+              <span class="key-status ${disabled ? 'disabled' : ''}">${disabled ? '已禁用' : '正常'}</span>
             </div>
           </div>
 
@@ -2432,23 +2362,19 @@ function openKeyEditor(key) {
   $('#keySearchModel').value = '';
 
   if (isKeyCreating) {
-    // 新建模式
     generateRandomKey();
     $('#keyCustomInput').readOnly = false;
     $('#keyGenerateBtn').style.display = 'inline-flex';
     $('#keyCopyBtn').style.display = 'none';
     $('#keyModal').dataset.fullkey = '';
     $('#keyExpiry').value = '';
-
-    // 默认全选所有可用模型
     keySelectedSet = new Set(keyAllModels);
     setKeyEnabledState(true);
   } else {
-    // 编辑模式
     const apiKeys = configData?.api_keys || [];
     const cfg = apiKeys.find(a => a.api === key);
     const models = cfg?.model || cfg?.models || [];
-    const expiry = cfg?.expires_at || (cfg?.preferences?.expires_at ? Math.floor(new Date(cfg.preferences.expires_at).getTime() / 1000) : null);
+    const expiry = cfg?.expires_at;
     const enabled = cfg?.enabled !== false;
 
     $('#keyCustomInput').value = key;
@@ -2631,7 +2557,6 @@ if (currentKey) {
     .catch(() => {
       currentKey = '';
       localStorage.removeItem('uh_key');
-      localStorage.removeItem('uniapi_admin_key');
     });
 }
 </script>
