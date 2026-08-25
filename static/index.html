@@ -1514,7 +1514,18 @@ async function api(path, opts = {}) {
 }
 
 /* ===== Authentication ===== */
+const MAX_FAILED = 5;
+const LOCKOUT_MS = 5 * 60 * 1000; // 连续失败5次锁定5分钟
+function lockRemaining() {
+  const t = +localStorage.getItem('uh_lock_until') || 0;
+  return Math.max(0, t - Date.now());
+}
 $('#loginBtn').onclick = async () => {
+  if (lockRemaining() > 0) {
+    $('#loginErr').textContent = `尝试次数过多，请 ${Math.ceil(lockRemaining() / 60000)} 分钟后重试`;
+    $('#loginErr').style.display = 'block';
+    return;
+  }
   const k = $('#loginInput').value.trim();
   if (!k) return;
   $('#loginBtn').textContent = '验证中...';
@@ -1524,9 +1535,20 @@ $('#loginBtn').onclick = async () => {
     if (d.total_requests !== undefined || d.model_request_counts || d.channel_success_rates) {
       currentKey = k;
       localStorage.setItem('uh_key', k);
+      localStorage.removeItem('uh_failed');
+      localStorage.removeItem('uh_lock_until');
       enterApp();
     } else throw new Error();
   } catch (e) {
+    const fails = (+localStorage.getItem('uh_failed') || 0) + 1;
+    localStorage.setItem('uh_failed', fails);
+    if (fails >= MAX_FAILED) {
+      localStorage.setItem('uh_lock_until', Date.now() + LOCKOUT_MS);
+      localStorage.setItem('uh_failed', 0);
+      $('#loginErr').textContent = '失败次数过多，已锁定 5 分钟';
+    } else {
+      $('#loginErr').textContent = `鉴权失败，请检查密码（剩余尝试 ${MAX_FAILED - fails} 次）`;
+    }
     $('#loginErr').style.display = 'block';
     $('#loginBtn').textContent = '登 录';
   }
@@ -2196,10 +2218,11 @@ async function loadKeys() {
     providers.forEach(p => { ((p.models || p.model || [])).forEach(m => { if (!keyAllModels.includes(m)) keyAllModels.push(m); }); });
     keyAllModels.sort();
 
-    // 联合所有已配置的 Key 与 states Key，排除管理员密码
+    // 联合所有已配置的 Key 与 states Key，排除管理员密钥（动态获取，不硬编码）
+    const adminKeys = apiKeys.filter(a => (a.role || '').toLowerCase() === 'admin').map(a => a.api);
     const configuredKeys = apiKeys.map(a => a.api).filter(Boolean);
     const stateKeys = Object.keys(states);
-    const allKeyList = [...new Set([...configuredKeys, ...stateKeys])].filter(k => k !== 'wuandpl1982//@l');
+    const allKeyList = [...new Set([...configuredKeys, ...stateKeys])].filter(k => !adminKeys.includes(k));
 
     $('#keyCount').textContent = allKeyList.length + ' 个 API Key';
 
