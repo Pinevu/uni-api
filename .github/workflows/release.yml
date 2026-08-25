@@ -17,15 +17,11 @@ jobs:
 
       - name: Create Release Archive
         run: |
-          # 创建临时打包目录
-          mkdir -p release_package/static
-          
-          # 复制核心文件
+          mkdir -p release_package/static release_package/data
           cp static/index.html release_package/static/
           cp docker-compose.release.yml release_package/docker-compose.yml
           cp api.yaml release_package/
-          
-          # 压缩
+          cp install.sh release_package/
           tar -czvf release_package.tar.gz -C release_package .
 
       - name: Create GitHub Release
@@ -33,10 +29,23 @@ jobs:
         with:
           name: API HUB Release ${{ github.ref_name }}
           body: |
-            ## API HUB 面板更新
+            ## 🚀 API HUB 全量独立发行版 ${{ github.ref_name }}
             
-            ### 部署方式
+            ### ✨ 核心特性与亮点
+            - 🌙 **自适应暗色/明亮模式**（支持 PWA 状态栏完美浸润）；
+            - 📱 **移动端免滑动响应式监控**（模型明细流式列表、渠道健康度、IP 来源监控）；
+            - 🔑 **纯净版 API Key 模型授权与有效期管理**（彻底剥离额度与金额体系）；
+            - 🛡️ **安全登录锁定与敏感密钥脱敏防护**。
+            
+            ---
+            
+            ### ⚡ 极速一键全量安装（在任意新 VPS 终端直接执行）
+            ```bash
+            curl -sSL https://raw.githubusercontent.com/Pinevu/uni-api/main/install.sh | bash
+            ```
+            
+            ### 🐳 手动安装方式
             1. 下载下方的 `release_package.tar.gz`
-            2. 解压后按照 README.md 说明编辑 `api.yaml`
-            3. 运行 `docker compose up -d` 启动服务
+            2. 解压到 `/opt/uni-api-panel`
+            3. 执行 `docker compose up -d` 启动服务
           files: release_package.tar.gz
