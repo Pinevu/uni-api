@@ -107,7 +107,11 @@ pub async fn handle(
 }
 
 pub fn supports_mutation(method: &Method, path: &str) -> bool {
-    *method == Method::POST && matches!(path, "/v1/api_config/update" | "/v1/add_credits")
+    *method == Method::POST
+        && matches!(
+            path,
+            "/v1/api_config/update" | "/v1/add_credits" | "/v1/channels/fetch_models"
+        )
 }
 
 pub async fn handle_mutation(state: &AppState, request: Request) -> Response<Body> {
@@ -173,6 +177,131 @@ pub async fn handle_mutation(state: &AppState, request: Request) -> Response<Bod
                 }
                 Err(error) => json_error(StatusCode::BAD_REQUEST, &error),
             }
+        }
+        "/v1/channels/fetch_models" => {
+            let limit: usize = std::env::var("RUST_ADMIN_CONFIG_MAX_BYTES")
+                .ok()
+                .and_then(|v| v.parse::<usize>().ok())
+                .filter(|v| *v > 0)
+                .unwrap_or(16 * 1024 * 1024);
+            let body = match to_bytes(request.into_body(), limit).await {
+                Ok(b) => b,
+                Err(e) => {
+                    return json_error(
+                        StatusCode::PAYLOAD_TOO_LARGE,
+                        &format!("Body too large: {e}"),
+                    )
+                }
+            };
+            let params = match serde_json::from_slice::<Value>(&body) {
+                Ok(Value::Object(o)) => o,
+                Ok(_) => {
+                    return json_error(StatusCode::BAD_REQUEST, "Body must be a JSON object")
+                }
+                Err(e) => {
+                    return json_error(StatusCode::BAD_REQUEST, &format!("Invalid JSON: {e}"))
+                }
+            };
+            let base_url = match params.get("base_url").and_then(|v| v.as_str()) {
+                Some(s) if !s.is_empty() => s.trim().to_owned(),
+                _ => {
+                    return json_error(StatusCode::BAD_REQUEST, "base_url is required")
+                }
+            };
+            let key = params
+                .get("key")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_owned();
+            let mut url = base_url
+                .trim_end_matches('/')
+                .replace("/chat/completions", "")
+                .replace("/completions", "")
+                .replace("/models", "")
+                .trim_end_matches('/')
+                .to_owned();
+            let models_url = if url.ends_with("/v1") {
+                format!("{url}/models")
+            } else {
+                format!("{url}/v1/models")
+            };
+            let client = match state.upstream_client(None, false, None).await {
+                Ok(c) => c,
+                Err(e) => {
+                    return json_error(
+                        StatusCode::SERVICE_UNAVAILABLE,
+                        &format!("Client build failed: {e}"),
+                    )
+                }
+            };
+            let mut req_builder = client.get(&models_url);
+            if !key.is_empty() {
+                req_builder = req_builder.header(
+                    "Authorization",
+                    format!("Bearer {key}"),
+                );
+            }
+            let resp = match req_builder.send().await {
+                Ok(r) => r,
+                Err(e) => {
+                    return json_error(
+                        StatusCode::BAD_GATEWAY,
+                        &format!("Upstream request failed: {e}"),
+                    )
+                }
+            };
+            let status = resp.status();
+            if !status.is_success() {
+                return json_error(
+                    StatusCode::BAD_GATEWAY,
+                    &format!("Upstream returned HTTP {status}"),
+                );
+            }
+            let text = match resp.text().await {
+                Ok(t) => t,
+                Err(e) => {
+                    return json_error(
+                        StatusCode::BAD_GATEWAY,
+                        &format!("Failed to read upstream response: {e}"),
+                    )
+                }
+            };
+            let parsed: Value = match serde_json::from_str(&text) {
+                Ok(v) => v,
+                Err(e) => {
+                    return json_error(
+                        StatusCode::BAD_GATEWAY,
+                        &format!("Invalid JSON from upstream: {e}"),
+                    )
+                }
+            };
+            let mut list: Vec<String> = Vec::new();
+            if let Some(data) = parsed.get("data").and_then(|v| v.as_array()) {
+                for item in data {
+                    if let Some(id) = item.get("id").and_then(|v| v.as_str()) {
+                        if !id.is_empty() {
+                            list.push(id.to_owned());
+                        }
+                    } else if let Some(name) = item.get("name").and_then(|v| v.as_str()) {
+                        if !name.is_empty() {
+                            list.push(name.to_owned());
+                        }
+                    }
+                }
+            } else if let Some(models) = parsed.get("models").and_then(|v| v.as_array()) {
+                for item in models {
+                    if let Some(id) = item.get("id").and_then(|v| v.as_str()) {
+                        if !id.is_empty() {
+                            list.push(id.to_owned());
+                        } else if let Some(s) = item.as_str() {
+                            list.push(s.to_owned());
+                        }
+                    }
+                }
+            }
+            list.sort();
+            list.dedup();
+            json_response(StatusCode::OK, json!({"models": list}))
         }
         _ => json_error(StatusCode::NOT_FOUND, "Not found"),
     }

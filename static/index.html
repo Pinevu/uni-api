@@ -2063,48 +2063,31 @@ async function fetchProviderModels() {
   $('#chFetchBtn').disabled = true;
   $('#chFetchStatus').innerHTML = `<span style="color:var(--primary)">⏳ 正在连接上游拉取模型列表...</span>`;
 
-  const primaryUrl = resolveModelsUrl(url);
-  const fallbackUrl = primaryUrl.endsWith('/v1/models')
-    ? primaryUrl.replace(/\/v1\/models$/, '/models')
-    : primaryUrl.replace(/\/models$/, '/v1/models');
-
-  const urlsToTry = [primaryUrl, fallbackUrl];
-  let lastErr = null;
-  let fetchedModels = [];
-
-  for (const targetUrl of urlsToTry) {
-    try {
-      const headers = { 'Accept': 'application/json' };
-      if (key) headers['Authorization'] = 'Bearer ' + key;
-
-      const r = await fetch(targetUrl, { method: 'GET', headers, mode: 'cors' });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const d = await r.json();
-
-      let list = [];
-      if (Array.isArray(d.data)) list = d.data;
-      else if (Array.isArray(d.models)) list = d.models;
-      else if (Array.isArray(d)) list = d;
-
-      const parsed = list.map(m => m.id || m.name || m.model || (typeof m === 'string' ? m : null)).filter(Boolean);
-      if (parsed.length > 0) {
-        fetchedModels = [...new Set(parsed)].sort();
-        break;
-      }
-    } catch (e) {
-      lastErr = e;
+  try {
+    const r = await fetch('/v1/channels/fetch_models', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base_url: url, key: key })
+    });
+    if (!r.ok) {
+      const errBody = await r.text();
+      throw new Error(`HTTP ${r.status}: ${errBody}`);
     }
-  }
+    const d = await r.json();
+    const fetchedModels = (d.models || []).filter(Boolean);
 
-  if (fetchedModels.length > 0) {
-    chAllModels = [...new Set([...chAllModels, ...fetchedModels])].sort();
-    fetchedModels.forEach(m => chSelectedSet.add(m));
-    renderChChips();
-    $('#chModelsManual').value = [...chSelectedSet].join('\n');
-    $('#chFetchStatus').innerHTML = `<span style="color:var(--success)">✓ 成功拉取到 ${fetchedModels.length} 个模型</span>`;
-    showToast(`成功拉取到 ${fetchedModels.length} 个模型`);
-  } else {
-    const reason = lastErr ? (lastErr.message || '网络或跨域异常') : '返回模型列表为空';
+    if (fetchedModels.length > 0) {
+      chAllModels = [...new Set([...chAllModels, ...fetchedModels])].sort();
+      fetchedModels.forEach(m => chSelectedSet.add(m));
+      renderChChips();
+      $('#chModelsManual').value = [...chSelectedSet].join('\n');
+      $('#chFetchStatus').innerHTML = `<span style="color:var(--success)">✓ 成功拉取到 ${fetchedModels.length} 个模型</span>`;
+      showToast(`成功拉取到 ${fetchedModels.length} 个模型`);
+    } else {
+      throw new Error('返回模型列表为空');
+    }
+  } catch (e) {
+    const reason = e ? (e.message || '网络或跨域异常') : '返回模型列表为空';
     $('#chFetchStatus').innerHTML = `<span style="color:var(--danger)">拉取失败 (${esc(reason)})，请手动输入</span>`;
     showToast('拉取失败，请手动展开下方粘贴');
   }
