@@ -521,6 +521,117 @@ body {
 .donut-container { position: relative; height: 240px; }
 
 /* ==========================================================================
+   Monitor Stream Cards (Mobile Friendly - Zero Horizontal Scroll)
+   ========================================================================== */
+.mon-model-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mon-model-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  gap: 12px;
+  transition: var(--transition);
+}
+
+.mon-model-row:hover {
+  background: var(--bg-card);
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-xs);
+}
+
+.mon-model-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mon-model-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mon-model-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mon-channel-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--primary-light);
+  color: var(--primary);
+  font-family: var(--font-sans);
+}
+
+.mon-req-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.mon-model-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.mon-rate-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.mon-rate-pill.success {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.mon-rate-pill.warning {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.mon-rate-pill.danger {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.mon-rate-label {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ==========================================================================
    Usage Breakdown Cards
    ========================================================================== */
 .progress-bar-wrap {
@@ -1819,87 +1930,87 @@ async function loadMonitor() {
 
     let html = `
       <div class="chart-card">
-        <div class="chart-title">渠道成功率监控</div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>渠道名称</th>
-                <th style="text-align:right">请求数</th>
-                <th style="text-align:right">成功率</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${channels.map(c => `
-                <tr>
-                  <td><b>${esc(c.provider)}</b></td>
-                  <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">${c.total_requests}</td>
-                  <td style="text-align:right">
-                    <span class="badge" style="background:var(--success-light);color:var(--success);padding:3px 8px;border-radius:12px;font-size:12px;font-weight:600">
-                      ${(c.success_rate * 100).toFixed(1)}%
-                    </span>
-                  </td>
-                </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">暂无渠道数据</td></tr>'}
-            </tbody>
-          </table>
+        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span>渠道成功率监控</span>
+          <span style="font-size:12px;color:var(--text-muted);font-weight:500">${channels.length} 个渠道</span>
+        </div>
+        <div class="mon-model-list">
+          ${channels.map(c => {
+            const rate = (c.success_rate * 100).toFixed(1);
+            const isSuccess = c.success_rate >= 0.95;
+            const isWarning = c.success_rate >= 0.7 && !isSuccess;
+            const statusClass = isSuccess ? 'success' : isWarning ? 'warning' : 'danger';
+            return `
+              <div class="mon-model-row">
+                <div class="mon-model-main">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span class="key-dot" style="background:${isSuccess ? 'var(--success)' : isWarning ? 'var(--warning)' : 'var(--danger)'}"></span>
+                    <span style="font-size:14px;font-weight:700;color:var(--text-primary)">${esc(c.provider)}</span>
+                  </div>
+                  <div class="mon-model-meta">
+                    <span class="mon-req-count">${c.total_requests.toLocaleString()} 次请求</span>
+                  </div>
+                </div>
+                <div class="mon-model-stat">
+                  <span class="mon-rate-pill ${statusClass}">${rate}%</span>
+                  <span class="mon-rate-label">成功率</span>
+                </div>
+              </div>`;
+          }).join('') || '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">暂无渠道数据</div>'}
         </div>
       </div>
 
       <div class="chart-card">
-        <div class="chart-title">模型调用明细</div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>渠道 / 模型</th>
-                <th style="text-align:right">请求数</th>
-                <th style="text-align:right">成功率</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${models.map(m => `
-                <tr>
-                  <td><span class="mono">${esc(m.provider)} / <b>${esc(m.model)}</b></span></td>
-                  <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">${m.total_requests}</td>
-                  <td style="text-align:right">
-                    <span class="badge" style="background:var(--success-light);color:var(--success);padding:3px 8px;border-radius:12px;font-size:12px;font-weight:600">
-                      ${(m.success_rate * 100).toFixed(1)}%
-                    </span>
-                  </td>
-                </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">暂无模型数据</td></tr>'}
-            </tbody>
-          </table>
+        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span>模型调用明细</span>
+          <span style="font-size:12px;color:var(--text-muted);font-weight:500">${models.length} 个活跃模型</span>
+        </div>
+        <div class="mon-model-list">
+          ${models.map(m => {
+            const rate = (m.success_rate * 100).toFixed(1);
+            const isSuccess = m.success_rate >= 0.95;
+            const isWarning = m.success_rate >= 0.7 && !isSuccess;
+            const statusClass = isSuccess ? 'success' : isWarning ? 'warning' : 'danger';
+            return `
+              <div class="mon-model-row">
+                <div class="mon-model-main">
+                  <div class="mon-model-name mono" title="${esc(m.model)}">${esc(m.model)}</div>
+                  <div class="mon-model-meta">
+                    <span class="mon-channel-badge">${esc(m.provider)}</span>
+                    <span class="mon-req-count">${m.total_requests.toLocaleString()} 次请求</span>
+                  </div>
+                </div>
+                <div class="mon-model-stat">
+                  <span class="mon-rate-pill ${statusClass}">${rate}%</span>
+                  <span class="mon-rate-label">成功率</span>
+                </div>
+              </div>`;
+          }).join('') || '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">暂无模型数据</div>'}
         </div>
       </div>
 
       <div class="chart-card">
-        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between">
+        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <span>客户端 IP 来源统计</span>
-          <span style="font-size:12px;color:var(--text-muted);font-weight:400">${ips.length} 个独立来源</span>
+          <span style="font-size:12px;color:var(--text-muted);font-weight:500">${ips.length} 个独立来源</span>
         </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>客户端 IP</th>
-                <th style="text-align:right">请求次数</th>
-                <th style="text-align:right">占比</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${ips.map(ipItem => {
-                const pct = totalIpReqs > 0 ? ((ipItem.count / totalIpReqs) * 100).toFixed(1) : '0.0';
-                return `
-                  <tr>
-                    <td><span class="mono" style="font-weight:600">${esc(ipItem.ip)}</span></td>
-                    <td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${ipItem.count.toLocaleString()} 次</td>
-                    <td style="text-align:right">
-                      <span class="tag" style="font-size:11.5px;font-weight:600">${pct}%</span>
-                    </td>
-                  </tr>`;
-              }).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">暂无 IP 来源数据</td></tr>'}
-            </tbody>
-          </table>
+        <div class="mon-model-list">
+          ${ips.map(ipItem => {
+            const pct = totalIpReqs > 0 ? ((ipItem.count / totalIpReqs) * 100).toFixed(1) : '0.0';
+            return `
+              <div class="mon-model-row">
+                <div class="mon-model-main">
+                  <div class="mon-model-name mono" style="font-size:13px">${esc(ipItem.ip)}</div>
+                  <div class="mon-model-meta">
+                    <span class="mon-req-count">${ipItem.count.toLocaleString()} 次调用</span>
+                  </div>
+                </div>
+                <div class="mon-model-stat">
+                  <span class="tag" style="font-size:12px;font-weight:700">${pct}%</span>
+                  <span class="mon-rate-label">占比</span>
+                </div>
+              </div>`;
+          }).join('') || '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">暂无 IP 来源数据</div>'}
         </div>
       </div>`;
     $('#monitorContent').innerHTML = html;
