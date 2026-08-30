@@ -819,6 +819,51 @@ body {
   background: var(--primary-light);
 }
 
+
+/* Model Alias Badges and Chip Controls */
+.chip-alias-arrow {
+  opacity: 0.7;
+  font-size: 10.5px;
+  margin: 0 1px;
+}
+.chip-alias-name {
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.chip-edit-btn {
+  border: none;
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 2px;
+  transition: var(--transition);
+}
+.chip-edit-btn:hover {
+  background: rgba(255, 255, 255, 0.45);
+  transform: scale(1.12);
+}
+.chip:not(.selected) .chip-edit-btn {
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
+.chip:not(.selected) .chip-edit-btn:hover {
+  background: var(--border);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .chip.selected .chip-edit-btn {
+  background: rgba(0, 0, 0, 0.28);
+}
+[data-theme="dark"] .chip.selected .chip-edit-btn:hover {
+  background: rgba(0, 0, 0, 0.45);
+}
+
 /* Interactive Chips for Modals */
 .chip {
   display: inline-flex;
@@ -1507,20 +1552,25 @@ body {
     <!-- Models Config Section -->
     <div class="form-group" style="margin-top:20px;border-top:1px solid var(--border-light);padding-top:16px">
       <div class="form-label">
-        <span>可用模型配置</span>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-outline btn-sm" id="chFetchBtn" onclick="fetchProviderModels()" style="padding:4px 10px;font-size:12px">
+        <span>可用模型与别名配置</span>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="btn btn-outline btn-sm" id="chFetchBtn" onclick="fetchProviderModels()" style="padding:3.5px 8px;font-size:11.5px" title="从上游接口自动拉取模型列表">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
             一键拉取
           </button>
-          <button class="btn btn-outline btn-sm" onclick="toggleAllChModels()" style="padding:4px 10px;font-size:12px">全选/反选</button>
-          <button class="btn btn-outline btn-sm" onclick="clearAllChModels()" style="padding:4px 8px;font-size:12px">清空</button>
+          <button class="btn btn-outline btn-sm" onclick="batchAddAliasPrefix()" style="padding:3.5px 8px;font-size:11.5px" title="为所有勾选的模型批量设置别名前缀(如 cpa-)">🏷️ 批量加前缀</button>
+          <button class="btn btn-outline btn-sm" onclick="clearAllAliases()" style="padding:3.5px 8px;font-size:11.5px" title="清空已设别名，还原为上游原名">清别名</button>
+          <button class="btn btn-outline btn-sm" onclick="toggleAllChModels()" style="padding:3.5px 8px;font-size:11.5px">全选/反选</button>
+          <button class="btn btn-outline btn-sm" onclick="clearAllChModels()" style="padding:3.5px 8px;font-size:11.5px">清空</button>
         </div>
       </div>
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:12px;color:var(--text-muted)" id="chFetchStatus">填写 Base URL 后可点击「一键拉取」</span>
-        <span class="badge badge-purple" id="chSelectedCount">已选 0 个</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="badge" id="chAliasCount" style="background:var(--primary-light);color:var(--primary);font-size:11px;padding:2px 7px;border-radius:var(--radius-full);display:none">0 别名</span>
+          <span class="badge badge-purple" id="chSelectedCount">已选 0 个</span>
+        </div>
       </div>
 
       <div class="search-input-wrap">
@@ -1539,7 +1589,7 @@ body {
         <span style="font-size:12px;color:var(--text-secondary);font-weight:600">批量粘贴 / 手动输入模型 ▼</span>
       </div>
       <div id="chManualWrap" style="display:none;margin-top:6px">
-        <textarea class="modal-input mono" id="chModelsManual" rows="3" placeholder="每行一个模型名称，输入后失焦会自动同步到上方芯片列表" onblur="syncManualToChips()"></textarea>
+        <textarea class="modal-input mono" id="chModelsManual" rows="3" placeholder="支持每行输入: 模型名 或 上游模型: 对外别名 (例如 grok-4.5: grok-4.5-cpa 或 grok-4.5 -> cpa-grok)" onblur="syncManualToChips()"></textarea>
       </div>
     </div>
 
@@ -1631,6 +1681,33 @@ let charts = {};
 let configData = null;
 let chAllModels = [];
 let chSelectedSet = new Set();
+let chAliasMap = {}; // { [upstream_model]: custom_alias }
+
+/* ===== 模型项通用解析器 (支持字符串或 { upstream: alias } 映射对象) ===== */
+function parseModelItem(item) {
+  if (typeof item === 'string') {
+    const s = item.trim();
+    return { upstream: s, alias: s, isAliased: false };
+  }
+  if (item && typeof item === 'object') {
+    const keys = Object.keys(item);
+    if (keys.length > 0) {
+      const upstream = String(keys[0] || '').trim();
+      const alias = String(item[keys[0]] || '').trim();
+      return { upstream, alias: alias || upstream, isAliased: !!(alias && alias !== upstream) };
+    }
+  }
+  const s = String(item || '').trim();
+  return { upstream: s, alias: s, isAliased: false };
+}
+
+function renderModelTag(item) {
+  const { upstream, alias, isAliased } = parseModelItem(item);
+  if (isAliased) {
+    return `<span class="tag" title="上游真实模型: ${esc(upstream)} &#10;对外调用别名: ${esc(alias)}">${esc(alias)} <span style="opacity:0.65;font-size:10px;margin-left:2px">↤ ${esc(upstream)}</span></span>`;
+  }
+  return `<span class="tag">${esc(upstream)}</span>`;
+}
 let keyAllModels = [];
 let keySelectedSet = new Set();
 let isKeyCreating = false;
@@ -2045,7 +2122,7 @@ async function loadChannels() {
             <span>支持模型 (${models.length})</span>
           </div>
           <div class="tags" id="ch-tags-${i}">
-            ${initialList.map(m => `<span class="tag">${esc(m)}</span>`).join('')}
+            ${initialList.map(renderModelTag).join('')}
             ${hasMore ? `<span class="tag-more" onclick="expandChTags(${i})">+${models.length - showLimit} 更多...</span>` : ''}
           </div>
           </div>
@@ -2068,7 +2145,18 @@ function expandChTags(idx) {
   const p = configData.providers[idx];
   if (!p) return;
   const box = $(`#ch-tags-${idx}`);
-  box.innerHTML = (p.models || p.model || []).map(m => `<span class="tag">${esc(m)}</span>`).join('');
+  box.innerHTML = (p.models || p.model || []).map(renderModelTag).join('');
+}
+
+function updateManualTextarea() {
+  const lines = [...chSelectedSet].map(m => {
+    const alias = (chAliasMap[m] || '').trim();
+    if (alias && alias !== m) {
+      return `${m}: ${alias}`;
+    }
+    return m;
+  });
+  $('#chModelsManual').value = lines.join('\n');
 }
 
 function openChannelEditor(i) {
@@ -2077,6 +2165,7 @@ function openChannelEditor(i) {
   $('#chModal').dataset.index = i;
   $('#chSearchModel').value = '';
   $('#chManualWrap').style.display = 'none';
+  chAliasMap = {};
 
   if (isNew) {
     $('#chName').value = '';
@@ -2091,11 +2180,19 @@ function openChannelEditor(i) {
     $('#chName').value = p.provider || '';
     $('#chUrl').value = p.base_url || '';
     $('#chKey').value = p.api || '';
-    const models = p.models || p.model || [];
-    $('#chModelsManual').value = models.join('\n');
-    chSelectedSet = new Set(models);
-    chAllModels = [...new Set([...models])];
-    $('#chFetchStatus').textContent = `共配置 ${models.length} 个模型`;
+    const rawList = p.models || p.model || [];
+    chAllModels = [];
+    chSelectedSet = new Set();
+    rawList.forEach(item => {
+      const { upstream, alias, isAliased } = parseModelItem(item);
+      if (upstream) {
+        if (!chAllModels.includes(upstream)) chAllModels.push(upstream);
+        chSelectedSet.add(upstream);
+        if (isAliased) chAliasMap[upstream] = alias;
+      }
+    });
+    updateManualTextarea();
+    $('#chFetchStatus').textContent = `共配置 ${chSelectedSet.size} 个模型`;
   }
   renderChChips();
   $('#chModal').classList.add('show');
@@ -2108,9 +2205,24 @@ function closeChModal() {
 function renderChChips() {
   const query = $('#chSearchModel').value.trim().toLowerCase();
   const box = $('#chChipsList');
-  const filtered = chAllModels.filter(m => !query || m.toLowerCase().includes(query));
+  const filtered = chAllModels.filter(m => !query || m.toLowerCase().includes(query) || (chAliasMap[m] && chAliasMap[m].toLowerCase().includes(query)));
 
   $('#chSelectedCount').textContent = `已选 ${chSelectedSet.size} / ${chAllModels.length} 个`;
+
+  // 统计已设别名数量
+  let aliasCount = 0;
+  chSelectedSet.forEach(m => {
+    if (chAliasMap[m] && chAliasMap[m] !== m) aliasCount++;
+  });
+  const aliasBadge = $('#chAliasCount');
+  if (aliasBadge) {
+    if (aliasCount > 0) {
+      aliasBadge.textContent = `${aliasCount} 个别名`;
+      aliasBadge.style.display = 'inline-block';
+    } else {
+      aliasBadge.style.display = 'none';
+    }
+  }
 
   if (!filtered.length) {
     box.innerHTML = `<div style="text-align:center;width:100%;color:var(--text-muted);font-size:12px;padding:12px 0">${chAllModels.length ? '未找到匹配模型' : '暂无模型，请点击「一键拉取」或手动输入'}</div>`;
@@ -2119,10 +2231,15 @@ function renderChChips() {
 
   box.innerHTML = filtered.map(m => {
     const sel = chSelectedSet.has(m);
+    const alias = (chAliasMap[m] || '').trim();
+    const hasAlias = alias && alias !== m;
     return `
-      <div class="chip ${sel ? 'selected' : ''}" onclick="toggleChModel('${esc(m)}')">
+      <div class="chip ${sel ? 'selected' : ''}" onclick="toggleChModel('${esc(m)}')" title="${hasAlias ? `上游模型: ${esc(m)} &#10;对外别名: ${esc(alias)}` : esc(m)}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-        <span>${esc(m)}</span>
+        <span>${hasAlias ? `${esc(m)} <span class="chip-alias-arrow">➔</span> <b class="chip-alias-name">${esc(alias)}</b>` : esc(m)}</span>
+        <button class="chip-edit-btn" onclick="event.stopPropagation();editSingleAlias('${esc(m)}')" title="${hasAlias ? '修改对外别名' : '设置对外别名'}">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
       </div>`;
   }).join('');
 }
@@ -2131,19 +2248,63 @@ function toggleChModel(m) {
   if (chSelectedSet.has(m)) chSelectedSet.delete(m);
   else chSelectedSet.add(m);
   renderChChips();
-  $('#chModelsManual').value = [...chSelectedSet].join('\n');
+  updateManualTextarea();
+}
+
+function editSingleAlias(m) {
+  const current = chAliasMap[m] || '';
+  const newAlias = prompt(`为模型「${m}」设置对外别名 (留空则使用原名)：`, current);
+  if (newAlias === null) return;
+  const trimmed = newAlias.trim();
+  if (trimmed && trimmed !== m) {
+    chAliasMap[m] = trimmed;
+    chSelectedSet.add(m);
+  } else {
+    delete chAliasMap[m];
+  }
+  renderChChips();
+  updateManualTextarea();
+}
+
+function batchAddAliasPrefix() {
+  if (!chSelectedSet.size) return showToast('请先勾选需要加前缀的模型');
+  const chName = ($('#chName')?.value || '').trim();
+  const defaultPrefix = chName ? chName + '-' : '';
+  const prefix = prompt('请输入要添加到所有已选模型前的前缀（例如 cpa- 或 fast-）：', defaultPrefix);
+  if (prefix === null) return;
+  const p = prefix.trim();
+  if (!p) {
+    chSelectedSet.forEach(m => { delete chAliasMap[m]; });
+    showToast('已还原为原模型名');
+  } else {
+    chSelectedSet.forEach(m => {
+      chAliasMap[m] = `${p}${m}`;
+    });
+    showToast(`已为 ${chSelectedSet.size} 个模型添加别名前缀`);
+  }
+  renderChChips();
+  updateManualTextarea();
+}
+
+function clearAllAliases() {
+  const count = Object.keys(chAliasMap).length;
+  if (!count) return showToast('当前未设置别名');
+  chAliasMap = {};
+  showToast('已清空所有别名');
+  renderChChips();
+  updateManualTextarea();
 }
 
 function toggleAllChModels() {
   const query = $('#chSearchModel').value.trim().toLowerCase();
-  const visible = chAllModels.filter(m => !query || m.toLowerCase().includes(query));
+  const visible = chAllModels.filter(m => !query || m.toLowerCase().includes(query) || (chAliasMap[m] && chAliasMap[m].toLowerCase().includes(query)));
   const allSel = visible.every(m => chSelectedSet.has(m));
   visible.forEach(m => {
     if (allSel) chSelectedSet.delete(m);
     else chSelectedSet.add(m);
   });
   renderChChips();
-  $('#chModelsManual').value = [...chSelectedSet].join('\n');
+  updateManualTextarea();
 }
 
 function clearAllChModels() {
@@ -2158,11 +2319,34 @@ function filterChModels() {
 
 function syncManualToChips() {
   const text = $('#chModelsManual').value;
-  const list = text.split('\n').map(s => s.trim()).filter(Boolean);
-  if (!list.length) return;
-  list.forEach(m => {
-    if (!chAllModels.includes(m)) chAllModels.push(m);
-    chSelectedSet.add(m);
+  const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
+  if (!lines.length) return;
+  chSelectedSet.clear();
+  lines.forEach(line => {
+    let upstream = line;
+    let alias = '';
+    if (line.includes('->')) {
+      const parts = line.split('->');
+      upstream = parts[0].trim();
+      alias = parts[1].trim();
+    } else if (line.includes('➔')) {
+      const parts = line.split('➔');
+      upstream = parts[0].trim();
+      alias = parts[1].trim();
+    } else if (line.includes(':')) {
+      const parts = line.split(':');
+      upstream = parts[0].trim();
+      alias = parts.slice(1).join(':').trim();
+    }
+    if (upstream) {
+      if (!chAllModels.includes(upstream)) chAllModels.push(upstream);
+      chSelectedSet.add(upstream);
+      if (alias && alias !== upstream) {
+        chAliasMap[upstream] = alias;
+      } else {
+        delete chAliasMap[upstream];
+      }
+    }
   });
   renderChChips();
 }
@@ -2217,7 +2401,7 @@ async function fetchProviderModels() {
       chAllModels = [...new Set([...chAllModels, ...fetchedModels])].sort();
       fetchedModels.forEach(m => chSelectedSet.add(m));
       renderChChips();
-      $('#chModelsManual').value = [...chSelectedSet].join('\n');
+      updateManualTextarea();
       $('#chFetchStatus').innerHTML = `<span style="color:var(--success)">✓ 成功拉取到 ${fetchedModels.length} 个模型</span>`;
       showToast(`成功拉取到 ${fetchedModels.length} 个模型`);
     } else {
@@ -2236,7 +2420,14 @@ function saveChannel() {
   const name = $('#chName').value.trim();
   const url = $('#chUrl').value.trim();
   const key = $('#chKey').value.trim();
-  const models = [...chSelectedSet];
+  
+  const models = [...chSelectedSet].map(m => {
+    const alias = (chAliasMap[m] || '').trim();
+    if (alias && alias !== m) {
+      return { [m]: alias };
+    }
+    return m;
+  });
 
   if (!name) return showToast('请填写渠道名称');
   if (!url) return showToast('请填写 API Base URL');
@@ -2293,7 +2484,12 @@ async function loadKeys() {
 
     // 汇总所有渠道模型供授权选择
     keyAllModels = [];
-    providers.forEach(p => { ((p.models || p.model || [])).forEach(m => { if (!keyAllModels.includes(m)) keyAllModels.push(m); }); });
+    providers.forEach(p => {
+      ((p.models || p.model || [])).forEach(item => {
+        const { alias } = parseModelItem(item);
+        if (alias && !keyAllModels.includes(alias)) keyAllModels.push(alias);
+      });
+    });
     keyAllModels.sort();
 
     // 联合所有已配置的 Key 与 states Key，排除管理员密钥（动态获取，不硬编码）
