@@ -271,7 +271,8 @@ async fn discover_missing_provider_models(
     let mut pending = Vec::new();
     for (index, provider) in providers.iter_mut().enumerate() {
         if provider
-            .get("model")
+            .get("models")
+            .or_else(|| provider.get("model"))
             .and_then(Value::as_array)
             .is_some_and(|models| !models.is_empty())
         {
@@ -609,7 +610,9 @@ fn compile_provider(value: &Value) -> Option<Value> {
     // Replacing a project-backed URL with the public Google endpoint would
     // silently bypass an operator-configured gateway.
     let base_url = scalar_string(item.get("base_url").unwrap_or(&Value::Null));
-    let (models, model_order) = compile_models(item.get("model"));
+    let (models, model_order) = compile_models(
+        item.get("models").or_else(|| item.get("model"))
+    );
     if models.is_empty() {
         return None;
     }
@@ -823,7 +826,8 @@ fn compile_api_key(value: &Value, _database_disabled: bool) -> Option<Value> {
         return None;
     }
     let configured_rules = item
-        .get("model")
+        .get("models")
+        .or_else(|| item.get("model"))
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_else(|| vec![Value::String("all".into())]);

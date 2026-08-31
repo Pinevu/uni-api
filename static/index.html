@@ -2433,7 +2433,7 @@ function saveChannel() {
   if (!url) return showToast('请填写 API Base URL');
 
   const idx = +$('#chModal').dataset.index;
-  const provider = { provider: name, base_url: url, api: key, models };
+  const provider = { provider: name, base_url: url, api: key, models, model: models };
 
   if (!configData) configData = { providers: [], api_keys: [] };
   if (!configData.providers) configData.providers = [];
