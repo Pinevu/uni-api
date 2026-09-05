@@ -1682,6 +1682,7 @@ let configData = null;
 let chAllModels = [];
 let chSelectedSet = new Set();
 let chAliasMap = {}; // { [upstream_model]: custom_alias }
+let chSelectionInitialized = false; // 是否已有明确的模型选择意图
 
 /* ===== 模型项通用解析器 (支持字符串或 { upstream: alias } 映射对象) ===== */
 function parseModelItem(item) {
@@ -2174,6 +2175,7 @@ function openChannelEditor(i) {
     $('#chModelsManual').value = '';
     chAllModels = [];
     chSelectedSet = new Set();
+    chSelectionInitialized = false;
     $('#chFetchStatus').textContent = '填写 Base URL 后可点击「一键拉取」';
   } else {
     const p = configData.providers[i];
@@ -2183,6 +2185,7 @@ function openChannelEditor(i) {
     const rawList = p.models || p.model || [];
     chAllModels = [];
     chSelectedSet = new Set();
+    chSelectionInitialized = true;
     rawList.forEach(item => {
       const { upstream, alias, isAliased } = parseModelItem(item);
       if (upstream) {
@@ -2245,6 +2248,7 @@ function renderChChips() {
 }
 
 function toggleChModel(m) {
+  chSelectionInitialized = true;
   if (chSelectedSet.has(m)) chSelectedSet.delete(m);
   else chSelectedSet.add(m);
   renderChChips();
@@ -2296,6 +2300,7 @@ function clearAllAliases() {
 }
 
 function toggleAllChModels() {
+  chSelectionInitialized = true;
   const query = $('#chSearchModel').value.trim().toLowerCase();
   const visible = chAllModels.filter(m => !query || m.toLowerCase().includes(query) || (chAliasMap[m] && chAliasMap[m].toLowerCase().includes(query)));
   const allSel = visible.every(m => chSelectedSet.has(m));
@@ -2308,6 +2313,7 @@ function toggleAllChModels() {
 }
 
 function clearAllChModels() {
+  chSelectionInitialized = true;
   chSelectedSet.clear();
   renderChChips();
   $('#chModelsManual').value = '';
@@ -2318,6 +2324,7 @@ function filterChModels() {
 }
 
 function syncManualToChips() {
+  chSelectionInitialized = true;
   const text = $('#chModelsManual').value;
   const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
   if (!lines.length) return;
@@ -2399,7 +2406,14 @@ async function fetchProviderModels() {
 
     if (fetchedModels.length > 0) {
       chAllModels = [...new Set([...chAllModels, ...fetchedModels])].sort();
-      fetchedModels.forEach(m => chSelectedSet.add(m));
+      if (!chSelectionInitialized) {
+        // 新建渠道首次拉取：延续原来的全选体验。
+        fetchedModels.forEach(m => chSelectedSet.add(m));
+      } else {
+        // 已有渠道重新拉取：只刷新可用列表，保留原先勾选状态。
+        // 新出现的模型默认不选，避免意外扩大渠道的实际模型范围。
+        chSelectedSet = new Set([...chSelectedSet].filter(m => chAllModels.includes(m)));
+      }
       renderChChips();
       updateManualTextarea();
       $('#chFetchStatus').innerHTML = `<span style="color:var(--success)">✓ 成功拉取到 ${fetchedModels.length} 个模型</span>`;
